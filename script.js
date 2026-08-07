@@ -1,67 +1,261 @@
-const SUPABASE_URL = "SUA_URL_AQUI"; // uilegqmbxrtxgauccbpy
-const SUPABASE_KEY = "SUA_CHAVE_ANON_AQUI"; // sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Nosso Casamento</title><link rel="stylesheet" href="style.css">
-</head>
-<body>
-<header class="hero" id="inicio">
-<nav><a class="brand" href="#inicio">Nosso Casamento</a>
-<div class="navlinks"><a href="#presenca">Presença</a><a href="#presentes">Presentes</a><a href="#admin">Área dos noivos</a></div></nav>
-<div class="hero-content"><div class="eyebrow">UM DIA PARA CELEBRAR O AMOR</div>
-<h1>Estamos nos casando!</h1><p>Sua presença fará parte da nossa história.</p>
-<div class="actions"><a class="btn primary" href="#presenca">Confirmar presença</a><a class="btn light" href="#presentes">Lista de presentes</a></div></div>
-</header>
-<main>
-<section class="section" id="presenca"><div class="section-title"><div class="eyebrow">01 · PRESENÇA</div>
-<h2>Você estará conosco?</h2><p>Você pode confirmar sua própria presença. Se preferir, outra pessoa pode registrar por você.</p></div>
-<div class="card"><form id="rsvpForm">
-<label>Nome completo</label><input id="rsvpName" required placeholder="Digite seu nome">
-<label>Acompanhantes</label><select id="rsvpGuests"><option value="0">Somente eu</option><option value="1">+ 1 acompanhante</option><option value="2">+ 2 acompanhantes</option><option value="3">+ 3 acompanhantes</option><option value="4">+ 4 acompanhantes</option></select>
-<label>Quem está preenchendo?</label><select id="rsvpSource"><option value="convidado">O próprio convidado</option><option value="organizador">Outra pessoa pelo convidado</option></select>
-<div class="choice-grid"><button type="submit" class="choice yes" data-answer="sim"><b>✓ Vou ao casamento</b><small>Confirmar presença</small></button>
-<button type="submit" class="choice no" data-answer="nao"><b>♡ Não poderei comparecer</b><small>Registrar ausência e ir aos presentes</small></button></div>
-</form><div id="rsvpMessage" class="message hidden"></div></div></section>
+// 1. CONFIGURAÇÕES DO SUPABASE E ADMIN
+const SUPABASE_URL = "https://huilegqmbxrtxgauccbpy.supabase.co";
+const SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";
+const ADMIN_PASSWORD = "mfsq&iars26092026"; // Senha padrão para acessar a Área dos Noivos
 
-<section class="section gifts" id="presentes"><div class="section-title"><div class="eyebrow">02 · CARINHO</div>
-<h2>Lista de presentes</h2><p>Se um presente já tiver sido escolhido, você será avisado, mas poderá escolher o mesmo item se quiser.</p></div>
-<div id="giftGrid" class="gift-grid"></div></section>
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-<section class="section admin" id="admin"><div class="section-title"><div class="eyebrow">03 · ORGANIZAÇÃO</div>
-<h2>Área dos noivos</h2><p>Controle de convidados e presentes.</p></div>
-<div class="admin-tabs"><button class="tab active" data-tab="guestsTab">Convidados</button><button class="tab" data-tab="giftsTab">Presentes escolhidos</button><button class="tab" data-tab="addTab">Registrar pelo convidado</button></div>
-<div id="guestsTab" class="tab-content"><div class="stats"><div><strong id="confirmedCount">0</strong><span>Confirmados</span></div><div><strong id="declinedCount">0</strong><span>Não irão</span></div><div><strong id="peopleCount">0</strong><span>Pessoas confirmadas</span></div></div>
-<div class="table-wrap"><table><thead><tr><th>Convidado</th><th>Resposta</th><th>Pessoas</th><th>Confirmado por</th><th>Ação</th></tr></thead><tbody id="guestTable"></tbody></table></div></div>
-<div id="giftsTab" class="tab-content hidden"><div class="table-wrap"><table><thead><tr><th>Presente</th><th>Quantidade</th><th>Quem escolheu</th><th>Data</th><th>Ação</th></tr></thead><tbody id="giftTable"></tbody></table></div></div>
-<div id="addTab" class="tab-content hidden"><div class="manual-box"><h3>Registrar confirmação manualmente</h3><p>Ideal para idosos ou convidados que confirmarem por telefone.</p>
-<form id="manualForm"><label>Nome</label><input id="manualName" required placeholder="Nome completo"><label>Telefone (opcional)</label><input id="manualPhone" placeholder="(00) 00000-0000">
-<label>Acompanhantes</label><select id="manualGuests"><option value="0">Somente o convidado</option><option value="1">+ 1 acompanhante</option><option value="2">+ 2 acompanhantes</option><option value="3">+ 3 acompanhantes</option></select>
-<div class="manual-actions"><button class="btn primary">Registrar que vai</button><button type="button" id="manualDecline" class="btn secondary">Registrar que não vai</button></div></form><div id="manualMessage" class="message hidden"></div></div></div>
-</section></main>
-<footer><strong>Nome dos Noivos</strong> · Com amor ♥</footer>
+// 2. LISTA FIXA DE PRESENTES
+const gifts = [
+  { id: 1, icon: "🍽️", title: "Jogo de jantar", description: "Para nossa nova casa.", price: "R$ 250,00" },
+  { id: 2, icon: "🍳", title: "Air Fryer", description: "Um presente para nossa cozinha.", price: "R$ 600,00" },
+  { id: 3, icon: "🛏️", title: "Jogo de cama", description: "Para deixar nosso quarto aconchegante.", price: "R$ 300,00" },
+  { id: 4, icon: "☕", title: "Cafeteira", description: "Para os cafés das manhãs de casados.", price: "R$ 450,00" },
+  { id: 5, icon: "🧳", title: "Cota para lua de mel", description: "Uma contribuição para uma lembrança inesquecível.", price: "R$ 500,00" },
+  { id: 6, icon: "🏠", title: "Cota para casa nova", description: "Ajude-nos a construir nosso cantinho.", price: "R$ 200,00" }
+];
 
-<div id="giftModal" class="modal hidden"><div class="modal-box"><button id="closeModal" class="close">×</button>
-<div class="eyebrow">LISTA DE PRESENTES</div><h2 id="modalTitle"></h2><p id="modalPrice" class="price"></p><p id="modalWarning" class="warning"></p>
-<label>Seu nome</label><input id="giftName" placeholder="Nome de quem está presenteando">
-<button id="confirmGift" class="btn primary full">Confirmar este presente</button><button id="cancelGift" class="btn secondary full">Voltar</button>
-</div></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js"></script>
-</body></html>
-// CONFIGURAÇÃO DA SENHA DOS NOIVOS
-// Altere o valor abaixo para a senha que você desejar:
-const ADMIN_PASSWORD = "1234"; // <-- Coloque sua senha aqui!
+let state = { guests: [], claims: [], allowed: [] };
+let selectedGift = null;
 
-document.getElementById("adminLoginBtn").onclick = () => {
-  const inputPass = document.getElementById("adminPassword").value.trim();
-  const errorMsg = document.getElementById("adminError");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m]));
+const claimsFor = id => state.claims.filter(c => Number(c.gift_id) === Number(id));
 
-  if (inputPass === ADMIN_PASSWORD) {
-    // Esconde o campo de login e exibe o painel
-    document.getElementById("adminAuth").classList.add("hidden");
-    document.getElementById("adminContent").classList.remove("hidden");
-    errorMsg.classList.add("hidden");
-  } else {
-    // Exibe mensagem de erro
-    errorMsg.classList.remove("hidden");
+// 3. CARREGAR DADOS DO SUPABASE
+async function loadData() {
+  const { data: guests } = await supabase.from('guests').select('*');
+  const { data: claims } = await supabase.from('claims').select('*');
+  const { data: allowed } = await supabase.from('allowed_guests').select('*').order('name', { ascending: true });
+
+  state.guests = guests || [];
+  state.claims = claims || [];
+  state.allowed = allowed || [];
+
+  renderAllowedGuestsSelect();
+  renderAll();
+}
+
+// 4. ALIMENTAR MENU DA LISTA FECHADA
+function renderAllowedGuestsSelect() {
+  const select = document.getElementById("rsvpName");
+  if (!select) return;
+
+  if (!state.allowed.length) {
+    select.innerHTML = '<option value="">Nenhum nome cadastrado na lista</option>';
+    return;
   }
-};
+
+  select.innerHTML = '<option value="">-- Selecione seu nome --</option>' + 
+    state.allowed.map(g => `<option value="${esc(g.name)}" data-max="${g.max_guests}">${esc(g.name)}</option>`).join("");
+}
+
+// Limitar acompanhantes dinamicamente dependendo da pessoa selecionada
+const rsvpNameEl = document.getElementById("rsvpName");
+if (rsvpNameEl) {
+  rsvpNameEl.addEventListener("change", (e) => {
+    const selectedOption = e.target.options[e.target.selectedIndex];
+    const maxGuests = Number(selectedOption.dataset.max || 0);
+    const guestsSelect = document.getElementById("rsvpGuests");
+
+    let options = '<option value="0">Somente eu</option>';
+    for (let i = 1; i <= maxGuests; i++) {
+      options += `<option value="${i}">+ ${i} acompanhante(s)</option>`;
+    }
+    if (guestsSelect) guestsSelect.innerHTML = options;
+  });
+}
+
+// 5. PRESENTES
+function renderGifts() {
+  const giftGrid = document.getElementById("giftGrid");
+  if (!giftGrid) return;
+
+  giftGrid.innerHTML = gifts.map(g => {
+    const count = claimsFor(g.id).length;
+    return `<article class="gift"><div class="gift-icon">${g.icon}</div><h3>${g.title}</h3><p>${g.description}</p><div class="price">${g.price}</div>
+    ${count ? `<div class="already">✓ Este presente já foi escolhido ${count === 1 ? "uma vez" : count + " vezes"}.<br>Você também pode escolher o mesmo presente, se desejar.</div>` : ""}
+    <button class="btn primary" onclick="openGift(${g.id})">${count ? "Escolher mesmo assim" : "Escolher este presente"}</button></article>`;
+  }).join("");
+}
+
+function openGift(id) {
+  selectedGift = gifts.find(g => g.id === id);
+  const count = claimsFor(id).length;
+  document.getElementById("modalTitle").textContent = selectedGift.title;
+  document.getElementById("modalPrice").textContent = selectedGift.price;
+  document.getElementById("modalWarning").textContent = count ? `Este presente já foi escolhido por ${count === 1 ? "outro convidado" : "outros convidados"}. Mesmo assim, você pode presentear com este mesmo item.` : "Você está escolhendo este presente para os noivos.";
+  document.getElementById("giftName").value = "";
+  document.getElementById("giftModal").classList.remove("hidden");
+}
+
+function closeGift() {
+  document.getElementById("giftModal").classList.add("hidden");
+  selectedGift = null;
+}
+
+const closeModalBtn = document.getElementById("closeModal");
+if (closeModalBtn) closeModalBtn.onclick = closeGift;
+
+const cancelGiftBtn = document.getElementById("cancelGift");
+if (cancelGiftBtn) cancelGiftBtn.onclick = closeGift;
+
+const confirmGiftBtn = document.getElementById("confirmGift");
+if (confirmGiftBtn) {
+  confirmGiftBtn.onclick = async () => {
+    const name = document.getElementById("giftName").value.trim();
+    if (!name) return alert("Informe seu nome.");
+
+    const { error } = await supabase.from('claims').insert([{ gift_id: selectedGift.id, name }]);
+    if (error) return alert("Erro ao salvar presente.");
+
+    await loadData();
+    closeGift();
+    alert("Presente registrado com sucesso! Obrigado pelo carinho.");
+  };
+}
+
+// 6. ENVIAR RESPOSTA
+async function addGuest(name, people, status, source, phone = "") {
+  const { error } = await supabase.from('guests').insert([{
+    name,
+    people: Number(people) + 1,
+    status,
+    source,
+    phone
+  }]);
+
+  if (error) return alert("Erro ao salvar confirmação.");
+  await loadData();
+}
+
+const rsvpForm = document.getElementById("rsvpForm");
+if (rsvpForm) {
+  rsvpForm.onsubmit = async e => {
+    e.preventDefault();
+    const name = document.getElementById("rsvpName").value;
+    if (!name) return alert("Por favor, selecione seu nome na lista.");
+
+    const answer = e.submitter.dataset.answer;
+    const people = Number(document.getElementById("rsvpGuests").value);
+    const source = document.getElementById("rsvpSource").value;
+
+    await addGuest(name, people, answer, source);
+
+    const m = document.getElementById("rsvpMessage");
+    m.classList.remove("hidden");
+    m.innerHTML = answer === "sim" 
+      ? `<b>Presença confirmada!</b><br>Obrigado, ${esc(name)}. Você está confirmado.` 
+      : `<b>Sentiremos sua falta!</b><br>Obrigado por avisar, ${esc(name)}. Você pode acessar nossa lista abaixo.`;
+
+    if (answer === "nao") document.getElementById("presentes").scrollIntoView({ behavior: "smooth" });
+  };
+}
+
+// 7. PAINEL DOS NOIVOS (PROTEÇÃO POR SENHA)
+const adminLoginBtn = document.getElementById("adminLoginBtn");
+if (adminLoginBtn) {
+  adminLoginBtn.onclick = () => {
+    const inputPass = document.getElementById("adminPassword").value.trim();
+    const errorMsg = document.getElementById("adminError");
+
+    if (inputPass === ADMIN_PASSWORD) {
+      document.getElementById("adminAuth").classList.add("hidden");
+      document.getElementById("adminContent").classList.remove("hidden");
+      errorMsg.classList.add("hidden");
+    } else {
+      errorMsg.classList.remove("hidden");
+    }
+  };
+}
+
+function renderAdmin() {
+  const yes = state.guests.filter(g => g.status === "sim");
+  const no = state.guests.filter(g => g.status === "nao");
+
+  const confirmedCountEl = document.getElementById("confirmedCount");
+  if (confirmedCountEl) confirmedCountEl.textContent = yes.length;
+
+  const declinedCountEl = document.getElementById("declinedCount");
+  if (declinedCountEl) declinedCountEl.textContent = no.length;
+
+  const peopleCountEl = document.getElementById("peopleCount");
+  if (peopleCountEl) peopleCountEl.textContent = yes.reduce((a, g) => a + Number(g.people), 0);
+
+  const guestTable = document.getElementById("guestTable");
+  if (guestTable) {
+    guestTable.innerHTML = state.guests.length 
+      ? state.guests.map(g => `<tr><td><b>${esc(g.name)}</b>${g.phone ? `<br><small>${esc(g.phone)}</small>` : ""}</td><td class="${g.status === "sim" ? "status-yes" : "status-no"}">${g.status === "sim" ? "✓ Vai" : "Não vai"}</td><td>${g.status === "sim" ? g.people : "—"}</td><td>${g.source === "organizador" ? "Você" : "Convidado"}</td><td><button class="mini" onclick="deleteGuest(${g.id})">Excluir</button></td></tr>`).join("") 
+      : `<tr><td colspan="5">Nenhum registro.</td></tr>`;
+  }
+
+  const giftTable = document.getElementById("giftTable");
+  if (giftTable) {
+    giftTable.innerHTML = gifts.map(g => {
+      const c = claimsFor(g.id);
+      return `<tr><td>${g.icon} ${g.title}</td><td>${c.length}</td><td>${c.length ? c.map(x => esc(x.name)).join("<br>") : "—"}</td><td>${c.length ? c.map(x => new Date(x.created_at).toLocaleDateString("pt-BR")).join("<br>") : "—"}</td><td>${c.length ? `<button class="mini" onclick="releaseClaims(${g.id})">Liberar registros</button>` : "—"}</td></tr>`;
+    }).join("");
+  }
+}
+
+// FORM MANUAL (DENTRO DA ÁREA DOS NOIVOS)
+const manualForm = document.getElementById("manualForm");
+if (manualForm) {
+  manualForm.onsubmit = async e => {
+    e.preventDefault();
+    const name = document.getElementById("manualName").value.trim();
+    const people = document.getElementById("manualGuests").value;
+    const phone = document.getElementById("manualPhone").value.trim();
+
+    await addGuest(name, people, "sim", "organizador", phone);
+    showManual("Presença de " + name + " registrada.");
+    e.target.reset();
+  };
+}
+
+const manualDeclineBtn = document.getElementById("manualDecline");
+if (manualDeclineBtn) {
+  manualDeclineBtn.onclick = async () => {
+    const name = document.getElementById("manualName").value.trim();
+    const phone = document.getElementById("manualPhone").value.trim();
+    if (!name) return alert("Digite o nome.");
+
+    await addGuest(name, 0, "nao", "organizador", phone);
+    showManual("Ausência de " + name + " registrada.");
+  };
+}
+
+function showManual(t) {
+  const m = document.getElementById("manualMessage");
+  if (m) {
+    m.textContent = t;
+    m.classList.remove("hidden");
+  }
+}
+
+async function deleteGuest(id) {
+  if (confirm("Excluir este convidado?")) {
+    await supabase.from('guests').delete().eq('id', id);
+    await loadData();
+  }
+}
+
+async function releaseClaims(giftId) {
+  if (confirm("Excluir todas as escolhas deste presente?")) {
+    await supabase.from('claims').delete().eq('gift_id', giftId);
+    await loadData();
+  }
+}
+
+document.querySelectorAll(".tab").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  b.classList.add("active");
+  document.querySelectorAll(".tab-content").forEach(x => x.classList.add("hidden"));
+  document.getElementById(b.dataset.tab).classList.remove("hidden");
+});
+
+function renderAll() {
+  renderGifts();
+  renderAdmin();
+}
+
+loadData();

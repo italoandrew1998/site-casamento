@@ -13,15 +13,42 @@
 <div class="actions"><a class="btn primary" href="#presenca">Confirmar presença</a><a class="btn light" href="#presentes">Lista de presentes</a></div></div>
 </header>
 <main>
-<section class="section" id="presenca"><div class="section-title"><div class="eyebrow">01 · PRESENÇA</div>
-<h2>Você estará conosco?</h2><p>Você pode confirmar sua própria presença. Se preferir, outra pessoa pode registrar por você.</p></div>
-<div class="card"><form id="rsvpForm">
-<label>Nome completo</label><input id="rsvpName" required placeholder="Digite seu nome">
-<label>Acompanhantes</label><select id="rsvpGuests"><option value="0">Somente eu</option><option value="1">+ 1 acompanhante</option><option value="2">+ 2 acompanhantes</option><option value="3">+ 3 acompanhantes</option><option value="4">+ 4 acompanhantes</option></select>
-<label>Quem está preenchendo?</label><select id="rsvpSource"><option value="convidado">O próprio convidado</option><option value="organizador">Outra pessoa pelo convidado</option></select>
-<div class="choice-grid"><button type="submit" class="choice yes" data-answer="sim"><b>✓ Vou ao casamento</b><small>Confirmar presença</small></button>
-<button type="submit" class="choice no" data-answer="nao"><b>♡ Não poderei comparecer</b><small>Registrar ausência e ir aos presentes</small></button></div>
-</form><div id="rsvpMessage" class="message hidden"></div></div></section>
+<section class="section" id="presenca">
+  <div class="section-title">
+    <div class="eyebrow">01 · PRESENÇA</div>
+    <h2>Você estará conosco?</h2>
+    <p>Selecione seu nome na lista para confirmar ou registrar sua ausência.</p>
+  </div>
+  <div class="card">
+    <form id="rsvpForm">
+      <label>Selecione seu nome na lista</label>
+      <select id="rsvpName" required>
+        <option value="">Carregando lista...</option>
+      </select>
+
+      <label>Acompanhantes</label>
+      <select id="rsvpGuests">
+        <option value="0">Somente eu</option>
+      </select>
+
+      <label>Quem está preenchendo?</label>
+      <select id="rsvpSource">
+        <option value="convidado">O próprio convidado</option>
+        <option value="organizador">Outra pessoa pelo convidado</option>
+      </select>
+
+      <div class="choice-grid">
+        <button type="submit" class="choice yes" data-answer="sim">
+          <b>✓ Vou ao casamento</b><small>Confirmar presença</small>
+        </button>
+        <button type="submit" class="choice no" data-answer="nao">
+          <b>♡ Não poderei comparecer</b><small>Registrar ausência e ir aos presentes</small>
+        </button>
+      </div>
+    </form>
+    <div id="rsvpMessage" class="message hidden"></div>
+  </div>
+</section>
 
 <section class="section gifts" id="presentes"><div class="section-title"><div class="eyebrow">02 · CARINHO</div>
 <h2>Lista de presentes</h2><p>Se um presente já tiver sido escolhido, você será avisado, mas poderá escolher o mesmo item se quiser.</p></div>
@@ -100,7 +127,7 @@
       </div>
     </div>
   </div>
-</section><footer><strong>Nome dos Noivos</strong> · Com amor Milene♥Italo</footer>
+</section><footer><strong></strong> · Com amor Milene♥Italo</footer>
 
 <div id="giftModal" class="modal hidden"><div class="modal-box"><button id="closeModal" class="close">×</button>
 <div class="eyebrow">LISTA DE PRESENTES</div><h2 id="modalTitle"></h2><p id="modalPrice" class="price"></p><p id="modalWarning" class="warning"></p>
