@@ -47,3 +47,21 @@ const SUPABASE_KEY = "SUA_CHAVE_ANON_AQUI"; // sb_publishable_P5IF22W7EqooeYWhrD
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
 </body></html>
+// CONFIGURAÇÃO DA SENHA DOS NOIVOS
+// Altere o valor abaixo para a senha que você desejar:
+const ADMIN_PASSWORD = "1234"; // <-- Coloque sua senha aqui!
+
+document.getElementById("adminLoginBtn").onclick = () => {
+  const inputPass = document.getElementById("adminPassword").value.trim();
+  const errorMsg = document.getElementById("adminError");
+
+  if (inputPass === ADMIN_PASSWORD) {
+    // Esconde o campo de login e exibe o painel
+    document.getElementById("adminAuth").classList.add("hidden");
+    document.getElementById("adminContent").classList.remove("hidden");
+    errorMsg.classList.add("hidden");
+  } else {
+    // Exibe mensagem de erro
+    errorMsg.classList.remove("hidden");
+  }
+};
