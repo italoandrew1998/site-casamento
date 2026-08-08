@@ -3,11 +3,8 @@ const SUPABASE_URL = "https://huilegqmbxrtxgauccbpy.supabase.co";
 const SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";
 const ADMIN_PASSWORD = "mfsq&iars26092026"; // Senha para acessar a Área dos Noivos
 
-// Garante a inicialização correta do Supabase mesmo se a biblioteca demorar alguns milissegundos para carregar
-let supabase = window._supabase;
-if (!supabase && window.supabase && typeof window.supabase.createClient === 'function') {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-}
+// Criando a conexão (usamos 'supabaseClient' para não conflitar com a biblioteca 'supabase')
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // 2. LISTA FIXA DE PRESENTES
 const gifts = [
@@ -27,20 +24,10 @@ const claimsFor = id => state.claims.filter(c => Number(c.gift_id) === Number(id
 
 // 3. CARREGAR DADOS DO SUPABASE
 async function loadData() {
-  // Se o cliente ainda não estiver pronto, tenta buscar no escopo global
-  if (!supabase) {
-    if (window.supabase && typeof window.supabase.createClient === 'function') {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    } else {
-      console.error("Cliente Supabase não inicializado.");
-      return;
-    }
-  }
-
   try {
-    const { data: guests, error: errGuests } = await supabase.from('guests').select('*');
-    const { data: claims, error: errClaims } = await supabase.from('claims').select('*');
-    const { data: allowed, error: errAllowed } = await supabase.from('allowed_guests').select('*').order('name', { ascending: true });
+    const { data: guests, error: errGuests } = await supabaseClient.from('guests').select('*');
+    const { data: claims, error: errClaims } = await supabaseClient.from('claims').select('*');
+    const { data: allowed, error: errAllowed } = await supabaseClient.from('allowed_guests').select('*').order('name', { ascending: true });
 
     if (errGuests) console.error("Erro ao carregar convidados:", errGuests);
     if (errClaims) console.error("Erro ao carregar presentes:", errClaims);
@@ -138,7 +125,7 @@ if (confirmGiftBtn) {
     if (!name) return alert("Informe seu nome.");
     if (!selectedGift) return alert("Nenhum presente selecionado.");
 
-    const { error } = await supabase.from('claims').insert([{ gift_id: selectedGift.id, name }]);
+    const { error } = await supabaseClient.from('claims').insert([{ gift_id: selectedGift.id, name }]);
     if (error) {
       console.error(error);
       return alert("Erro ao salvar presente.");
@@ -152,7 +139,7 @@ if (confirmGiftBtn) {
 
 // 6. ENVIAR RESPOSTA DA CONFIRMAÇÃO
 async function addGuest(name, people, status, source, phone = "") {
-  const { error } = await supabase.from('guests').insert([{
+  const { error } = await supabaseClient.from('guests').insert([{
     name,
     people: Number(people) + 1,
     status,
@@ -293,14 +280,14 @@ function showManual(t) {
 
 window.deleteGuest = async function(id) {
   if (confirm("Excluir este convidado?")) {
-    await supabase.from('guests').delete().eq('id', id);
+    await supabaseClient.from('guests').delete().eq('id', id);
     await loadData();
   }
 };
 
 window.releaseClaims = async function(giftId) {
   if (confirm("Excluir todas as escolhas deste presente?")) {
-    await supabase.from('claims').delete().eq('gift_id', giftId);
+    await supabaseClient.from('claims').delete().eq('gift_id', giftId);
     await loadData();
   }
 };
