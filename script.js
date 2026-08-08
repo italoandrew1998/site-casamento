@@ -1,5 +1,5 @@
 // 1. CONFIGURAÇÕES DO SUPABASE E ADMIN
-const SUPABASE_URL = "https://huilegqmbxrtxgauccbpy.supabase.co";
+const SUPABASE_URL = "https://uilegqmbxrtxgauccbpy.supabase.co";
 const SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";
 const ADMIN_PASSWORD = "mfsq&iars26092026"; // Senha para acessar a Área dos Noivos
 
