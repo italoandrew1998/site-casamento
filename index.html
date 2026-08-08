@@ -135,7 +135,9 @@
             <p>Ideal para idosos ou convidados que confirmarem por telefone.</p>
             <form id="manualForm">
               <label for="manualName">Nome</label>
-              <input id="manualName" required placeholder="Nome completo">
+              <select id="manualName" required>
+                <option value="">Carregando lista de convidados...</option>
+              </select>
               
               <label for="manualPhone">Telefone (opcional)</label>
               <input id="manualPhone" placeholder="(00) 00000-0000">
@@ -143,9 +145,6 @@
               <label for="manualGuests">Acompanhantes</label>
               <select id="manualGuests">
                 <option value="0">Somente o convidado</option>
-                <option value="1">+ 1 acompanhante</option>
-                <option value="2">+ 2 acompanhantes</option>
-                <option value="3">+ 3 acompanhantes</option>
               </select>
               
               <div class="manual-actions">
@@ -173,8 +172,10 @@
       <p id="modalPrice" class="price"></p>
       <p id="modalWarning" class="warning"></p>
       
-      <label for="giftName">Seu nome</label>
-      <input id="giftName" placeholder="Nome de quem está presenteando">
+      <label for="giftName">Selecione seu nome na lista</label>
+      <select id="giftName" required>
+        <option value="">Carregando lista...</option>
+      </select>
       
       <button id="confirmGift" class="btn primary full">Confirmar este presente</button>
       <button id="cancelGift" class="btn secondary full">Voltar</button>
