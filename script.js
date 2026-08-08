@@ -1,9 +1,10 @@
 // 1. CONFIGURAÇÕES DO SUPABASE E ADMIN
 const SUPABASE_URL = "https://huilegqmbxrtxgauccbpy.supabase.co";
 const SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";
-const ADMIN_PASSWORD = "mfsq&iars26092026"; // Senha padrão para acessar a Área dos Noivos
+const ADMIN_PASSWORD = "mfsq&iars26092026"; // Senha para acessar a Área dos Noivos
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Garante o reuso do cliente Supabase inicializado no index.html ou cria uma nova instância
+const supabase = window._supabase || (window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null);
 
 // 2. LISTA FIXA DE PRESENTES
 const gifts = [
@@ -23,16 +24,29 @@ const claimsFor = id => state.claims.filter(c => Number(c.gift_id) === Number(id
 
 // 3. CARREGAR DADOS DO SUPABASE
 async function loadData() {
-  const { data: guests } = await supabase.from('guests').select('*');
-  const { data: claims } = await supabase.from('claims').select('*');
-  const { data: allowed } = await supabase.from('allowed_guests').select('*').order('name', { ascending: true });
+  if (!supabase) {
+    console.error("Cliente Supabase não inicializado.");
+    return;
+  }
 
-  state.guests = guests || [];
-  state.claims = claims || [];
-  state.allowed = allowed || [];
+  try {
+    const { data: guests, error: errGuests } = await supabase.from('guests').select('*');
+    const { data: claims, error: errClaims } = await supabase.from('claims').select('*');
+    const { data: allowed, error: errAllowed } = await supabase.from('allowed_guests').select('*').order('name', { ascending: true });
 
-  renderAllowedGuestsSelect();
-  renderAll();
+    if (errGuests) console.error("Erro ao carregar convidados:", errGuests);
+    if (errClaims) console.error("Erro ao carregar presentes:", errClaims);
+    if (errAllowed) console.error("Erro ao carregar lista de autorizados:", errAllowed);
+
+    state.guests = guests || [];
+    state.claims = claims || [];
+    state.allowed = allowed || [];
+
+    renderAllowedGuestsSelect();
+    renderAll();
+  } catch (err) {
+    console.error("Falha ao se conectar com o banco de dados:", err);
+  }
 }
 
 // 4. ALIMENTAR MENU DA LISTA FECHADA
@@ -54,7 +68,7 @@ const rsvpNameEl = document.getElementById("rsvpName");
 if (rsvpNameEl) {
   rsvpNameEl.addEventListener("change", (e) => {
     const selectedOption = e.target.options[e.target.selectedIndex];
-    const maxGuests = Number(selectedOption.dataset.max || 0);
+    const maxGuests = Number(selectedOption ? selectedOption.dataset.max : 0) || 0;
     const guestsSelect = document.getElementById("rsvpGuests");
 
     let options = '<option value="0">Somente eu</option>';
@@ -72,24 +86,34 @@ function renderGifts() {
 
   giftGrid.innerHTML = gifts.map(g => {
     const count = claimsFor(g.id).length;
-    return `<article class="gift"><div class="gift-icon">${g.icon}</div><h3>${g.title}</h3><p>${g.description}</p><div class="price">${g.price}</div>
-    ${count ? `<div class="already">✓ Este presente já foi escolhido ${count === 1 ? "uma vez" : count + " vezes"}.<br>Você também pode escolher o mesmo presente, se desejar.</div>` : ""}
-    <button class="btn primary" onclick="openGift(${g.id})">${count ? "Escolher mesmo assim" : "Escolher este presente"}</button></article>`;
+    return `<article class="gift">
+      <div class="gift-icon">${g.icon}</div>
+      <h3>${g.title}</h3>
+      <p>${g.description}</p>
+      <div class="price">${g.price}</div>
+      ${count ? `<div class="already">✓ Este presente já foi escolhido ${count === 1 ? "uma vez" : count + " vezes"}.<br>Você também pode escolher o mesmo presente, se desejar.</div>` : ""}
+      <button class="btn primary" onclick="openGift(${g.id})">${count ? "Escolher mesmo assim" : "Escolher este presente"}</button>
+    </article>`;
   }).join("");
 }
 
-function openGift(id) {
+window.openGift = function(id) {
   selectedGift = gifts.find(g => g.id === id);
+  if (!selectedGift) return;
+
   const count = claimsFor(id).length;
   document.getElementById("modalTitle").textContent = selectedGift.title;
   document.getElementById("modalPrice").textContent = selectedGift.price;
-  document.getElementById("modalWarning").textContent = count ? `Este presente já foi escolhido por ${count === 1 ? "outro convidado" : "outros convidados"}. Mesmo assim, você pode presentear com este mesmo item.` : "Você está escolhendo este presente para os noivos.";
+  document.getElementById("modalWarning").textContent = count 
+    ? `Este presente já foi escolhido por ${count === 1 ? "outro convidado" : "outros convidados"}. Mesmo assim, você pode presentear com este mesmo item.` 
+    : "Você está escolhendo este presente para os noivos.";
   document.getElementById("giftName").value = "";
   document.getElementById("giftModal").classList.remove("hidden");
-}
+};
 
 function closeGift() {
-  document.getElementById("giftModal").classList.add("hidden");
+  const modal = document.getElementById("giftModal");
+  if (modal) modal.classList.add("hidden");
   selectedGift = null;
 }
 
@@ -104,9 +128,13 @@ if (confirmGiftBtn) {
   confirmGiftBtn.onclick = async () => {
     const name = document.getElementById("giftName").value.trim();
     if (!name) return alert("Informe seu nome.");
+    if (!selectedGift) return alert("Nenhum presente selecionado.");
 
     const { error } = await supabase.from('claims').insert([{ gift_id: selectedGift.id, name }]);
-    if (error) return alert("Erro ao salvar presente.");
+    if (error) {
+      console.error(error);
+      return alert("Erro ao salvar presente.");
+    }
 
     await loadData();
     closeGift();
@@ -114,7 +142,7 @@ if (confirmGiftBtn) {
   };
 }
 
-// 6. ENVIAR RESPOSTA
+// 6. ENVIAR RESPOSTA DA CONFIRMAÇÃO
 async function addGuest(name, people, status, source, phone = "") {
   const { error } = await supabase.from('guests').insert([{
     name,
@@ -124,8 +152,14 @@ async function addGuest(name, people, status, source, phone = "") {
     phone
   }]);
 
-  if (error) return alert("Erro ao salvar confirmação.");
+  if (error) {
+    console.error(error);
+    alert("Erro ao salvar confirmação.");
+    return false;
+  }
+  
   await loadData();
+  return true;
 }
 
 const rsvpForm = document.getElementById("rsvpForm");
@@ -135,19 +169,21 @@ if (rsvpForm) {
     const name = document.getElementById("rsvpName").value;
     if (!name) return alert("Por favor, selecione seu nome na lista.");
 
-    const answer = e.submitter.dataset.answer;
+    const answer = e.submitter ? e.submitter.dataset.answer : "sim";
     const people = Number(document.getElementById("rsvpGuests").value);
     const source = document.getElementById("rsvpSource").value;
 
-    await addGuest(name, people, answer, source);
+    const success = await addGuest(name, people, answer, source);
 
-    const m = document.getElementById("rsvpMessage");
-    m.classList.remove("hidden");
-    m.innerHTML = answer === "sim" 
-      ? `<b>Presença confirmada!</b><br>Obrigado, ${esc(name)}. Você está confirmado.` 
-      : `<b>Sentiremos sua falta!</b><br>Obrigado por avisar, ${esc(name)}. Você pode acessar nossa lista abaixo.`;
+    if (success) {
+      const m = document.getElementById("rsvpMessage");
+      m.classList.remove("hidden");
+      m.innerHTML = answer === "sim" 
+        ? `<b>Presença confirmada!</b><br>Obrigado, ${esc(name)}. Você está confirmado.` 
+        : `<b>Sentiremos sua falta!</b><br>Obrigado por avisar, ${esc(name)}. Você pode acessar nossa lista abaixo.`;
 
-    if (answer === "nao") document.getElementById("presentes").scrollIntoView({ behavior: "smooth" });
+      if (answer === "nao") document.getElementById("presentes").scrollIntoView({ behavior: "smooth" });
+    }
   };
 }
 
@@ -184,7 +220,13 @@ function renderAdmin() {
   const guestTable = document.getElementById("guestTable");
   if (guestTable) {
     guestTable.innerHTML = state.guests.length 
-      ? state.guests.map(g => `<tr><td><b>${esc(g.name)}</b>${g.phone ? `<br><small>${esc(g.phone)}</small>` : ""}</td><td class="${g.status === "sim" ? "status-yes" : "status-no"}">${g.status === "sim" ? "✓ Vai" : "Não vai"}</td><td>${g.status === "sim" ? g.people : "—"}</td><td>${g.source === "organizador" ? "Você" : "Convidado"}</td><td><button class="mini" onclick="deleteGuest(${g.id})">Excluir</button></td></tr>`).join("") 
+      ? state.guests.map(g => `<tr>
+          <td><b>${esc(g.name)}</b>${g.phone ? `<br><small>${esc(g.phone)}</small>` : ""}</td>
+          <td class="${g.status === "sim" ? "status-yes" : "status-no"}">${g.status === "sim" ? "✓ Vai" : "Não vai"}</td>
+          <td>${g.status === "sim" ? g.people : "—"}</td>
+          <td>${g.source === "organizador" ? "Você" : "Convidado"}</td>
+          <td><button class="mini" onclick="deleteGuest(${g.id})">Excluir</button></td>
+        </tr>`).join("") 
       : `<tr><td colspan="5">Nenhum registro.</td></tr>`;
   }
 
@@ -192,7 +234,13 @@ function renderAdmin() {
   if (giftTable) {
     giftTable.innerHTML = gifts.map(g => {
       const c = claimsFor(g.id);
-      return `<tr><td>${g.icon} ${g.title}</td><td>${c.length}</td><td>${c.length ? c.map(x => esc(x.name)).join("<br>") : "—"}</td><td>${c.length ? c.map(x => new Date(x.created_at).toLocaleDateString("pt-BR")).join("<br>") : "—"}</td><td>${c.length ? `<button class="mini" onclick="releaseClaims(${g.id})">Liberar registros</button>` : "—"}</td></tr>`;
+      return `<tr>
+        <td>${g.icon} ${g.title}</td>
+        <td>${c.length}</td>
+        <td>${c.length ? c.map(x => esc(x.name)).join("<br>") : "—"}</td>
+        <td>${c.length ? c.map(x => new Date(x.created_at).toLocaleDateString("pt-BR")).join("<br>") : "—"}</td>
+        <td>${c.length ? `<button class="mini" onclick="releaseClaims(${g.id})">Liberar registros</button>` : "—"}</td>
+      </tr>`;
     }).join("");
   }
 }
@@ -205,6 +253,8 @@ if (manualForm) {
     const name = document.getElementById("manualName").value.trim();
     const people = document.getElementById("manualGuests").value;
     const phone = document.getElementById("manualPhone").value.trim();
+
+    if (!name) return alert("Digite o nome.");
 
     await addGuest(name, people, "sim", "organizador", phone);
     showManual("Presença de " + name + " registrada.");
@@ -221,6 +271,7 @@ if (manualDeclineBtn) {
 
     await addGuest(name, 0, "nao", "organizador", phone);
     showManual("Ausência de " + name + " registrada.");
+    document.getElementById("manualForm").reset();
   };
 }
 
@@ -232,25 +283,29 @@ function showManual(t) {
   }
 }
 
-async function deleteGuest(id) {
+window.deleteGuest = async function(id) {
   if (confirm("Excluir este convidado?")) {
     await supabase.from('guests').delete().eq('id', id);
     await loadData();
   }
-}
+};
 
-async function releaseClaims(giftId) {
+window.releaseClaims = async function(giftId) {
   if (confirm("Excluir todas as escolhas deste presente?")) {
     await supabase.from('claims').delete().eq('gift_id', giftId);
     await loadData();
   }
-}
+};
 
-document.querySelectorAll(".tab").forEach(b => b.onclick = () => {
-  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
-  b.classList.add("active");
-  document.querySelectorAll(".tab-content").forEach(x => x.classList.add("hidden"));
-  document.getElementById(b.dataset.tab).classList.remove("hidden");
+// COMPORTAMENTO DAS ABAS NO PAINEL DOS NOIVOS
+document.querySelectorAll(".tab").forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    document.querySelectorAll(".tab-content").forEach(x => x.classList.add("hidden"));
+    const targetTab = document.getElementById(b.dataset.tab);
+    if (targetTab) targetTab.classList.remove("hidden");
+  };
 });
 
 function renderAll() {
@@ -258,4 +313,7 @@ function renderAll() {
   renderAdmin();
 }
 
-loadData();
+// Inicialização dos dados ao carregar a página
+document.addEventListener("DOMContentLoaded", () => {
+  loadData();
+});
