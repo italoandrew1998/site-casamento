@@ -1,10 +1,10 @@
 // 1. CONFIGURAÇÕES DO SUPABASE E ADMIN
-const SUPABASE_URL = "https://huilegqmbxrtxgauccbpy.supabase.co";
-const SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";
-const ADMIN_PASSWORD = "mfsq&iars26092026"; // Senha para acessar a Área dos Noivos
+var SUPABASE_URL = "https://huilegqmbxrtxgauccbpy.supabase.co";
+var SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";
+var ADMIN_PASSWORD = "mfsq&iars26092026"; // Senha para acessar a Área dos Noivos
 
-// Garante o reuso do cliente Supabase inicializado no index.html ou cria uma nova instância
-const supabase = window._supabase || (window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null);
+// Garante o reuso da instância do Supabase sem conflitos
+var supabase = window._supabase || (window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null);
 
 // 2. LISTA FIXA DE PRESENTES
 const gifts = [
