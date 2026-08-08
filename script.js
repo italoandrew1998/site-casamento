@@ -1,10 +1,13 @@
 // 1. CONFIGURAÇÕES DO SUPABASE E ADMIN
-var SUPABASE_URL = "https://huilegqmbxrtxgauccbpy.supabase.co";
-var SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";
-var ADMIN_PASSWORD = "mfsq&iars26092026"; // Senha para acessar a Área dos Noivos
+const SUPABASE_URL = "https://huilegqmbxrtxgauccbpy.supabase.co";
+const SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";
+const ADMIN_PASSWORD = "mfsq&iars26092026"; // Senha para acessar a Área dos Noivos
 
-// Garante o reuso da instância do Supabase sem conflitos
-var supabase = window._supabase || (window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null);
+// Garante a inicialização correta do Supabase mesmo se a biblioteca demorar alguns milissegundos para carregar
+let supabase = window._supabase;
+if (!supabase && window.supabase && typeof window.supabase.createClient === 'function') {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
 
 // 2. LISTA FIXA DE PRESENTES
 const gifts = [
@@ -24,9 +27,14 @@ const claimsFor = id => state.claims.filter(c => Number(c.gift_id) === Number(id
 
 // 3. CARREGAR DADOS DO SUPABASE
 async function loadData() {
+  // Se o cliente ainda não estiver pronto, tenta buscar no escopo global
   if (!supabase) {
-    console.error("Cliente Supabase não inicializado.");
-    return;
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } else {
+      console.error("Cliente Supabase não inicializado.");
+      return;
+    }
   }
 
   try {
@@ -313,7 +321,9 @@ function renderAll() {
   renderAdmin();
 }
 
-// Inicialização dos dados ao carregar a página
-document.addEventListener("DOMContentLoaded", () => {
+// Execução imediata e escuta do DOM
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", loadData);
+} else {
   loadData();
-});
+}
