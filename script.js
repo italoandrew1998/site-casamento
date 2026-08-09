@@ -6,48 +6,132 @@ const ADMIN_PASSWORD = "mfsq&iars26092026"; // Senha para acessar a Área dos No
 // Criando a conexão
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 2. LISTA DE PRESENTES ATUALIZADA
+// 2. LISTA DE PRESENTES ATUALIZADA (COM ITENS CENTRALIZADOS, FOTOS E AVISO DE COTA)
 const gifts = [
- // 🍳 COZINHA (Com o forno elétrico atualizado)
+  // 🍳 COZINHA
   { 
     id: 1, 
     icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="liquidificador.jpg" alt="Liquidificador" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Liquidificador", 
-    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/liquidificador-l1200-bi-turbo-black-pretoinox-mondial-127v/up/MLBU1091019903" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a>', 
+    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/liquidificador-l1200-bi-turbo-black-pretoinox-mondial-127v/up/MLBU1091019903" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small>', 
     price: "Sugestão" 
   },
-  { id: 2, icon: "🧁", title: "Batedeira", description: "Cozinha", price: "Sugestão" },
+  { 
+    id: 2, 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="batedeira.jpg" alt="Batedeira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    title: "Batedeira", 
+    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/batedeira-planetaria-philco-900w-5l-preta-12-velocidades-turbo-pbp90a/p/MLB49822923" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small>', 
+    price: "Sugestão" 
+  },
   { 
     id: 3, 
     icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="sanduicheira.jpg" alt="Sanduicheira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Sanduicheira", 
-    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/grill-e-sanduicheira-pgr21pi-maxx-clean-1000w-cinza-philco/p/MLB22852655" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a>', 
+    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/grill-e-sanduicheira-pgr21pi-maxx-clean-1000w-cinza-philco/p/MLB22852655" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small>', 
     price: "Sugestão" 
   },
-  { id: 4, icon: "☕", title: "Cafeteira", description: "Cozinha", price: "Sugestão" },
-  { id: 5, icon: "🍲", title: "Panela de pressão elétrica", description: "Cozinha", price: "Sugestão" },
-  { id: 6, icon: "🍽️", title: "Jogo de travessas", description: "Cozinha", price: "Sugestão" },
-  { id: 7, icon: "🍴", title: "Faqueiro", description: "Cozinha", price: "Sugestão" },
-  { id: 8, icon: "🍷", title: "Jogo de taças", description: "Cozinha", price: "Sugestão" },
-  { id: 9, icon: "🥧", title: "Conjunto de assadeiras", description: "Cozinha", price: "Sugestão" },
+  { 
+    id: 4, 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="cafeteira.jpg" alt="Cafeteira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    title: "Cafeteira", 
+    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/wap-wcd1500-cafeteira-digital-15l-timer-automatica/p/MLB42197196" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 5, 
+    icon: "🍲", 
+    title: "Panela de pressão elétrica", 
+    description: 'Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 6, 
+    icon: "🍽️", 
+    title: "Jogo de travessas", 
+    description: 'Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 7, 
+    icon: "🍴", 
+    title: "Faqueiro", 
+    description: 'Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 8, 
+    icon: "🍷", 
+    title: "Jogo de taças", 
+    description: 'Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 9, 
+    icon: "🥧", 
+    title: "Conjunto de assadeiras", 
+    description: 'Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    price: "Sugestão" 
+  },
   { 
     id: 10, 
     icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="forno elétrico.jpg" alt="Forno elétrico" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Forno elétrico", 
-    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/forno-eletrico-philco-pfe65-com-grelha-65-litros-110v-preto/p/MLB64872179" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a>', 
+    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/forno-eletrico-philco-pfe65-com-grelha-65-litros-110v-preto/p/MLB64872179" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small>', 
     price: "Sugestão" 
   },
 
   // 🏠 CASA
-  { id: 11, icon: "👕", title: "Tábua de passar", description: "Casa", price: "Sugestão" },
-  { id: 12, icon: "🛏️", title: "Jogo de cama", description: "Casa — Cama tamanho queen", price: "Sugestão" },
-  { id: 13, icon: "🛌", title: "Edredom", description: "Casa — Cama tamanho queen", price: "Sugestão" },
-  { id: 14, icon: "🧶", title: "Cobertor", description: "Casa — Cama tamanho queen", price: "Sugestão" },
-  { id: 15, icon: "🛁", title: "Jogo de toalhas", description: "Casa", price: "Sugestão" },
-  { id: 16, icon: "🏠", title: "Tapete para sala", description: "Casa", price: "Sugestão" },
-  { id: 17, icon: "🏠", title: "Tapete para quarto", description: "Casa", price: "Sugestão" },
+  { 
+    id: 11, 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="tábua de passar.jpg" alt="Tábua de passar" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    title: "Tábua de passar", 
+    description: 'Casa<br><a href="https://produto.mercadolivre.com.br/MLB-3332613795-tabua-mesa-de-passar-roupa-suprema-extra-grande-tampo-de-aco-_JM" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 12, 
+    icon: "🛏️", 
+    title: "Jogo de cama", 
+    description: 'Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 13, 
+    icon: "🛌", 
+    title: "Edredom", 
+    description: 'Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 14, 
+    icon: "🧶", 
+    title: "Cobertor", 
+    description: 'Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 15, 
+    icon: "🛁", 
+    title: "Jogo de toalhas", 
+    description: 'Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 16, 
+    icon: "🏠", 
+    title: "Tapete para sala", 
+    description: 'Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 17, 
+    icon: "🏠", 
+    title: "Tapete para quarto", 
+    description: 'Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    price: "Sugestão" 
+  },
 
-// 💎 PRESENTES ESPECIAIS (Com fundo branco na imagem)
+  // 💎 PRESENTES ESPECIAIS
   { 
     id: 18, 
     icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="cadeiras.jpg" alt="Jogo de Cadeiras" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
@@ -59,7 +143,7 @@ const gifts = [
     id: 19, 
     icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="sofá.jpg" alt="Sofá" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Sofá", 
-    description: 'Presentes Especiais<br><a href="https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223?pdp_filters=item_id:MLB4434367220&matt_tool=73099662&matt_internal_campaign_id=349107489&matt_word=&matt_source=google&matt_campaign_id=23825084879&matt_ad_group_id=199805781298&matt_match_type=&matt_network=g&matt_device=c&matt_creative=818786804086&matt_keyword=&matt_ad_position=&matt_ad_type=pla&matt_merchant_id=5752257395&matt_product_id=MLB4434367220&matt_product_partition_id=2463771778011&matt_target_id=aud-2495935283228:pla-2463771778011&cq_src=google_ads&cq_cmp=23825084879&cq_net=g&cq_plt=gp&cq_med=pla&gad_source=1&gad_campaignid=23825084879&gclid=CjwKCAjwyuDTBhB-EiwANCQhLLKGeXldHl3X_BC3pIb1y5NDO4YuHpDk1p8VoZlo0edxgO5pURymUxoC-TgQAvD_BwE" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small>', 
+    description: 'Presentes Especiais<br><a href="https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small>', 
     price: "Sugestão" 
   },
 
