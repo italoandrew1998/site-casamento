@@ -340,37 +340,7 @@ async function handleConfirmFullGift() {
   }
 }
 
-// Confirmar uma Cota (Redireciona para a Etapa do Pix)
-async function handleConfirmQuotaGift() {
-  const nameSelect = document.getElementById("giftName");
-  const name = nameSelect ? nameSelect.value.trim() : "";
-
-  if (!name) {
-    alert("Por favor, selecione seu nome na lista.");
-    return;
-  }
-
-  try {
-    const { error } = await supabaseClient.from("claims").insert({
-      gift_id: selectedGift.id,
-      gift_title: selectedGift.title,
-      name: `${name} (Cota)`
-    });
-
-    if (error) throw error;
-
-    // Transiciona o modal para a Etapa 2 (Exibição do Pix)
-    document.getElementById("giftStepSelection").classList.add("hidden");
-    document.getElementById("giftStepPix").classList.remove("hidden");
-
-    await loadClaims();
-    renderGifts();
-    renderAdmin();
-  } catch (err) {
-    console.error("Erro ao salvar cota:", err);
-    alert("Ocorreu um erro ao registrar sua cota. Tente novamente.");
-  }
-}
+/handleConfirmQu
 
 // Event Listeners dos botões do Modal de Presentes
 document.addEventListener("DOMContentLoaded", () => {
