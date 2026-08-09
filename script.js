@@ -231,21 +231,42 @@ if (manualNameEl) {
     if (manualGuestsSelect) manualGuestsSelect.innerHTML = options;
   });
 }
-
+// ==========================================
 // 5. PRESENTES E FLUXO DE ESCOLHA (ITEM COMPLETO OU COTA)
+// ==========================================
+
 function renderGifts() {
   const giftGrid = document.getElementById("giftGrid");
   if (!giftGrid) return;
 
   giftGrid.innerHTML = gifts.map(g => {
-    const count = claimsFor(g.id).length;
+    const allClaims = claimsFor(g.id);
+    const quotaClaims = allClaims.filter(c => c.name.includes("(Cota)"));
+    const fullClaims = allClaims.filter(c => !c.name.includes("(Cota)"));
+
+    let statusMsg = "";
+
+    // Se houver presentes dados por inteiro
+    if (fullClaims.length > 0) {
+      statusMsg += `✓ Este presente já foi escolhido ${fullClaims.length === 1 ? "uma vez" : fullClaims.length + " vezes"}.<br>`;
+    }
+
+    // Se houver cotas recebidas para este presente
+    if (quotaClaims.length > 0) {
+      statusMsg += `💖 Já recebemos <b>${quotaClaims.length} cota(s)</b> para este item.<br>`;
+    }
+
+    if (allClaims.length > 0) {
+      statusMsg += `Você também pode presenteá-lo ou contribuir com uma cota.`;
+    }
+
     return `<article class="gift" style="text-align: center;">
       <div class="gift-icon">${g.icon}</div>
       <h3 style="text-align: center;">${g.title}</h3>
       ${g.description}
       <div class="price" style="text-align: center;">${g.price}</div>
-      ${count ? `<div class="already" style="text-align: center;">✓ Este presente já foi escolhido ${count === 1 ? "uma vez" : count + " vezes"}.<br>Você também pode escolhê-lo.</div>` : ""}
-      <button class="btn primary" onclick="openGift(${g.id})" style="margin: 0 auto; display: block;">${count ? "Escolher mesmo assim" : "Escolher este presente"}</button>
+      ${statusMsg ? `<div class="already" style="text-align: center; margin-top: 10px; font-size: 13px;">${statusMsg}</div>` : ""}
+      <button class="btn primary" onclick="openGift(${g.id})" style="margin: 10px auto 0 auto; display: block;">${allClaims.length ? "Presentear também" : "Escolher este presente"}</button>
     </article>`;
   }).join("");
 }
@@ -254,17 +275,28 @@ window.openGift = function(id) {
   selectedGift = gifts.find(g => g.id === id);
   if (!selectedGift) return;
 
-  const count = claimsFor(id).length;
+  const allClaims = claimsFor(id);
+  const quotaClaims = allClaims.filter(c => c.name.includes("(Cota)"));
+  const fullClaims = allClaims.filter(c => !c.name.includes("(Cota)"));
+
   document.getElementById("modalTitle").textContent = selectedGift.title;
   document.getElementById("modalPrice").innerHTML = selectedGift.description;
-  document.getElementById("modalWarning").textContent = count 
-    ? `Este presente já foi escolhido por ${count === 1 ? "outro convidado" : "outros convidados"}. Mesmo assim, você pode presentear com este mesmo item.` 
-    : "Você está escolhendo este presente para os noivos.";
+
+  let warningMsg = "Você está escolhendo este presente para os noivos.";
+  if (fullClaims.length > 0 || quotaClaims.length > 0) {
+    let partes = [];
+    if (fullClaims.length > 0) partes.push(`${fullClaims.length} vez(es) por inteiro`);
+    if (quotaClaims.length > 0) partes.push(`${quotaClaims.length} cota(s)`);
+    
+    warningMsg = `Este item já recebeu ${partes.join(" e ")}, mas você também pode presentear ou enviar uma cota!`;
+  }
+
+  document.getElementById("modalWarning").textContent = warningMsg;
   
   const giftNameSelect = document.getElementById("giftName");
   if (giftNameSelect) giftNameSelect.value = "";
   
-  // Reseta a visualização do modal para a etapa inicial
+  // Reseta a visualização do modal para a Etapa 1
   const giftStepSelection = document.getElementById("giftStepSelection");
   const giftStepPix = document.getElementById("giftStepPix");
   if (giftStepSelection) giftStepSelection.classList.remove("hidden");
@@ -273,56 +305,85 @@ window.openGift = function(id) {
   document.getElementById("giftModal").classList.remove("hidden");
 };
 
-function closeGift() {
-  const modal = document.getElementById("giftModal");
-  if (modal) modal.classList.add("hidden");
+window.closeGift = function() {
+  document.getElementById("giftModal").classList.add("hidden");
   selectedGift = null;
-}
+};
 
-const closeModalEl = document.getElementById("closeModal");
-if (closeModalEl) closeModalEl.onclick = closeGift;
-const cancelGiftEl = document.getElementById("cancelGift");
-if (cancelGiftEl) cancelGiftEl.onclick = closeGift;
+// Confirmar o Item Inteiro
+async function handleConfirmFullGift() {
+  const nameSelect = document.getElementById("giftName");
+  const name = nameSelect ? nameSelect.value.trim() : "";
 
-// Botão para confirmar o Item Inteiro
-const confirmFullGiftEl = document.getElementById("confirmFullGift");
-if (confirmFullGiftEl) {
-  confirmFullGiftEl.onclick = async () => {
-    const name = document.getElementById("giftName").value;
-    if (!name) return alert("Por favor, selecione seu nome na lista.");
-    if (!selectedGift) return alert("Nenhum presente selecionado.");
+  if (!name) {
+    alert("Por favor, selecione seu nome na lista.");
+    return;
+  }
 
-    const { error } = await supabaseClient.from('claims').insert([{ gift_id: selectedGift.id, name }]);
-    if (error) {
-      console.error(error);
-      return alert("Erro ao salvar presente.");
-    }
+  try {
+    const { error } = await supabaseClient.from("claims").insert({
+      gift_id: selectedGift.id,
+      gift_title: selectedGift.title,
+      name: name
+    });
 
-    await loadData();
+    if (error) throw error;
+
+    alert(`Muito obrigado, ${name}! Seu presente (${selectedGift.title}) foi registrado com sucesso.`);
     closeGift();
-    alert("Presente registrado com sucesso! Obrigado pelo carinho.");
-  };
+    await loadClaims();
+    renderGifts();
+    renderAdmin();
+  } catch (err) {
+    console.error("Erro ao salvar presente:", err);
+    alert("Ocorreu um erro ao registrar seu presente. Tente novamente.");
+  }
 }
 
-// Botão para escolher Cota (Avança para a tela do Pix/QR Code)
-const confirmQuotaGiftEl = document.getElementById("confirmQuotaGift");
-if (confirmQuotaGiftEl) {
-  confirmQuotaGiftEl.onclick = async () => {
-    const name = document.getElementById("giftName").value;
-    if (!name) return alert("Por favor, selecione seu nome na lista antes de prosseguir para a cota.");
-    if (!selectedGift) return alert("Nenhum presente selecionado.");
+// Confirmar uma Cota (Redireciona para a Etapa do Pix)
+async function handleConfirmQuotaGift() {
+  const nameSelect = document.getElementById("giftName");
+  const name = nameSelect ? nameSelect.value.trim() : "";
 
-    // Registra a intenção no banco
-    await supabaseClient.from('claims').insert([{ gift_id: selectedGift.id, name: `${name} (Cota)` }]);
-    await loadData();
+  if (!name) {
+    alert("Por favor, selecione seu nome na lista.");
+    return;
+  }
 
-    // Alterna para a etapa de exibição do QR Code / Chave Pix
-    const giftStepSelection = document.getElementById("giftStepSelection");
-    const giftStepPix = document.getElementById("giftStepPix");
-    if (giftStepSelection) giftStepSelection.classList.add("hidden");
-    if (giftStepPix) giftStepPix.classList.remove("hidden");
-  };
+  try {
+    const { error } = await supabaseClient.from("claims").insert({
+      gift_id: selectedGift.id,
+      gift_title: selectedGift.title,
+      name: `${name} (Cota)`
+    });
+
+    if (error) throw error;
+
+    // Transiciona o modal para a Etapa 2 (Exibição do Pix)
+    document.getElementById("giftStepSelection").classList.add("hidden");
+    document.getElementById("giftStepPix").classList.remove("hidden");
+
+    await loadClaims();
+    renderGifts();
+    renderAdmin();
+  } catch (err) {
+    console.error("Erro ao salvar cota:", err);
+    alert("Ocorreu um erro ao registrar sua cota. Tente novamente.");
+  }
 }
+
+// Event Listeners dos botões do Modal de Presentes
+document.addEventListener("DOMContentLoaded", () => {
+  const closeModalBtn = document.getElementById("closeModal");
+  const cancelGiftBtn = document.getElementById("cancelGift");
+  const confirmFullBtn = document.getElementById("confirmFullGift");
+  const confirmQuotaBtn = document.getElementById("confirmQuotaGift");
+
+  if (closeModalBtn) closeModalBtn.addEventListener("click", closeGift);
+  if (cancelGiftBtn) cancelGiftBtn.addEventListener("click", closeGift);
+  if (confirmFullBtn) confirmFullBtn.addEventListener("click", handleConfirmFullGift);
+  if (confirmQuotaBtn) confirmQuotaBtn.addEventListener("click", handleConfirmQuotaGift);
+});
 
 // 6. ENVIAR RESPOSTA DA CONFIRMAÇÃO (RSVP)
 async function addGuest(name, people, status, source, phone = "") {
