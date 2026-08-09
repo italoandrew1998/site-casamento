@@ -17,8 +17,9 @@ const gifts = [
     price: "Sugestão" 
   },
   { 
+    { 
     id: 2, 
-    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="batedeira.jpg" alt="Batedeira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="Batedeira.jpg" alt="Batedeira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Batedeira", 
     description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/batedeira-planetaria-philco-900w-5l-preta-12-velocidades-turbo-pbp90a/p/MLB49822923" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small>', 
     price: "Sugestão" 
