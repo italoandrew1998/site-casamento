@@ -417,7 +417,7 @@ function renderAdmin() {
     giftTable.innerHTML = gifts.map(g => {
       const c = claimsFor(g.id);
       return `<tr>
-        <td>${g.icon} ${g.title} <br><small>(${g.description})</small></td>
+        <td>${g.icon} ${g.title} <br><small>${g.description}</small></td>
         <td>${c.length}</td>
         <td>${c.length ? c.map(x => esc(x.name)).join("<br>") : "—"}</td>
         <td>${c.length ? c.map(x => new Date(x.created_at).toLocaleDateString("pt-BR")).join("<br>") : "—"}</td>
