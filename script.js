@@ -8,17 +8,35 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // 2. LISTA DE PRESENTES ATUALIZADA
 const gifts = [
-  // 🍳 COZINHA
-  { id: 1, icon: "🥤", title: "Liquidificador", description: "Cozinha", price: "Sugestão" },
+ // 🍳 COZINHA (Com o forno elétrico atualizado)
+  { 
+    id: 1, 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="liquidificador.jpg" alt="Liquidificador" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    title: "Liquidificador", 
+    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/liquidificador-l1200-bi-turbo-black-pretoinox-mondial-127v/up/MLBU1091019903" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a>', 
+    price: "Sugestão" 
+  },
   { id: 2, icon: "🧁", title: "Batedeira", description: "Cozinha", price: "Sugestão" },
-  { id: 3, icon: "🥪", title: "Sanduicheira", description: "Cozinha", price: "Sugestão" },
+  { 
+    id: 3, 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="sanduicheira.jpg" alt="Sanduicheira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    title: "Sanduicheira", 
+    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/grill-e-sanduicheira-pgr21pi-maxx-clean-1000w-cinza-philco/p/MLB22852655" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a>', 
+    price: "Sugestão" 
+  },
   { id: 4, icon: "☕", title: "Cafeteira", description: "Cozinha", price: "Sugestão" },
   { id: 5, icon: "🍲", title: "Panela de pressão elétrica", description: "Cozinha", price: "Sugestão" },
   { id: 6, icon: "🍽️", title: "Jogo de travessas", description: "Cozinha", price: "Sugestão" },
   { id: 7, icon: "🍴", title: "Faqueiro", description: "Cozinha", price: "Sugestão" },
   { id: 8, icon: "🍷", title: "Jogo de taças", description: "Cozinha", price: "Sugestão" },
   { id: 9, icon: "🥧", title: "Conjunto de assadeiras", description: "Cozinha", price: "Sugestão" },
-  { id: 10, icon: "🔥", title: "Forno elétrico", description: "Cozinha", price: "Sugestão" },
+  { 
+    id: 10, 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="forno elétrico.jpg" alt="Forno elétrico" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    title: "Forno elétrico", 
+    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/forno-eletrico-philco-pfe65-com-grelha-65-litros-110v-preto/p/MLB64872179" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a>', 
+    price: "Sugestão" 
+  },
 
   // 🏠 CASA
   { id: 11, icon: "👕", title: "Tábua de passar", description: "Casa", price: "Sugestão" },
