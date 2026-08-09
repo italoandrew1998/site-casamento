@@ -6,7 +6,7 @@ const ADMIN_PASSWORD = "mfsq&iars26092026"; // Senha para acessar a Área dos No
 // Criando a conexão
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 2. LISTA DE PRESENTES ATUALIZADA (COM A FOTO E LINK DAS CADEIRAS E DO SOFÁ)
+// 2. LISTA DE PRESENTES ATUALIZADA (COM IMAGENS LOCAIS)
 const gifts = [
   // 🍳 COZINHA
   { id: 1, icon: "🥤", title: "Liquidificador", description: "Cozinha", price: "Sugestão" },
@@ -29,17 +29,17 @@ const gifts = [
   { id: 16, icon: "🏠", title: "Tapete para sala", description: "Casa", price: "Sugestão" },
   { id: 17, icon: "🏠", title: "Tapete para quarto", description: "Casa", price: "Sugestão" },
 
-  // 💎 PRESENTES ESPECIAIS
+  // 💎 PRESENTES ESPECIAIS (Com fotos locais e links das lojas)
   { 
     id: 18, 
-    icon: '<img src="https://i.imgur.com/vHqL9x4.png" alt="Cadeiras" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px;">', 
+    icon: '<img src="cadeiras.jpg" alt="Jogo de Cadeiras" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px;">', 
     title: "Jogo de 6 Cadeiras", 
     description: 'Presentes Especiais<br><a href="https://br.shp.ee/2U1wV6Kx" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto na Shopee</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small>', 
     price: "Sugestão" 
   },
   { 
     id: 19, 
-    icon: '<img src="https://i.imgur.com/8QjL4y3.png" alt="Sofá" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px;">', 
+    icon: '<img src="sofa.jpg" alt="Sofá" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px;">', 
     title: "Sofá", 
     description: 'Presentes Especiais<br><a href="https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223?pdp_filters=item_id:MLB4434367220&matt_tool=73099662&matt_internal_campaign_id=349107489&matt_word=&matt_source=google&matt_campaign_id=23825084879&matt_ad_group_id=199805781298&matt_match_type=&matt_network=g&matt_device=c&matt_creative=818786804086&matt_keyword=&matt_ad_position=&matt_ad_type=pla&matt_merchant_id=5752257395&matt_product_id=MLB4434367220&matt_product_partition_id=2463771778011&matt_target_id=aud-2495935283228:pla-2463771778011&cq_src=google_ads&cq_cmp=23825084879&cq_net=g&cq_plt=gp&cq_med=pla&gad_source=1&gad_campaignid=23825084879&gclid=CjwKCAjwyuDTBhB-EiwANCQhLLKGeXldHl3X_BC3pIb1y5NDO4YuHpDk1p8VoZlo0edxgO5pURymUxoC-TgQAvD_BwE" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small>', 
     price: "Sugestão" 
