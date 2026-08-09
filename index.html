@@ -28,49 +28,51 @@
       </div>
     </div>
   </header>
-<!-- 00. O CASAL / INFORMAÇÕES DO CONVITE -->
-    <section class="section invitation-info" style="text-align: center; background: #faf8f5; padding: 40px 20px;">
-      <div class="section-title">
-        <p style="font-style: italic; font-size: 1.1rem; color: #555; max-width: 600px; margin: 0 auto 15px auto;">
-          "Deus escreveu nossa história, e celebraremos o início de um novo capítulo."
-        </p>
-        <div class="eyebrow">COM A BENÇÃO DE DEUS E DE SEUS PAIS</div>
-        
-        <div style="display: flex; justify-content: center; gap: 40px; margin: 20px 0; font-size: 0.95rem; color: #444;">
-          <div>
-            <strong>Pais da Noiva:</strong><br>
-            Oscar Ferreira de Souza<br>
-            Rosely Ferreira de Queiroz
-          </div>
-          <div>
-            <strong>Pais do Noivo:</strong><br>
-            Djalma Diógenes Rodrigues<br>
-            Maria Beatriz Gonçalves Rodrigues
-          </div>
-        </div>
 
-        <h2 style="margin-top: 30px;">26 de setembro de 2026 às 16:30</h2>
-        <p style="font-weight: 500; margin-top: 10px;">
-          Chácara Princesa do Bosque<br>
-          Rua São José, Bairro Nova Brasília<br>
-          Brasília de Minas — MG
-        </p>
-        
-        <!-- BOTÃO COM LINK DIRETO PARA A NOVA COORDENADA -->
-        <div style="margin-top: 20px;">
-          <a href="https://maps.google.com/?q=-16.211728127606,-44.41459548590755" 
-             target="_blank" 
-             class="btn primary" 
-             style="display: inline-block; text-decoration: none; padding: 10px 20px; border-radius: 5px;">
-            📍 Ver localização no Google Maps
-          </a>
+  <!-- 00. O CASAL / INFORMAÇÕES DO CONVITE -->
+  <section class="section invitation-info" style="text-align: center; background: #faf8f5; padding: 40px 20px;">
+    <div class="section-title">
+      <p style="font-style: italic; font-size: 1.1rem; color: #555; max-width: 600px; margin: 0 auto 15px auto;">
+        "Deus escreveu nossa história, e celebraremos o início de um novo capítulo."
+      </p>
+      <div class="eyebrow">COM A BENÇÃO DE DEUS E DE SEUS PAIS</div>
+      
+      <div style="display: flex; justify-content: center; gap: 40px; margin: 20px 0; font-size: 0.95rem; color: #444;">
+        <div>
+          <strong>Pais da Noiva:</strong><br>
+          Oscar Ferreira de Souza<br>
+          Rosely Ferreira de Queiroz
         </div>
-
-        <p style="font-style: italic; color: #666; margin-top: 15px;">
-          Após a cerimônia, a recepção será no mesmo local.
-        </p>
+        <div>
+          <strong>Pais do Noivo:</strong><br>
+          Djalma Diógenes Rodrigues<br>
+          Maria Beatriz Gonçalves Rodrigues
+        </div>
       </div>
-    </section>
+
+      <h2 style="margin-top: 30px;">26 de setembro de 2026 às 16:30</h2>
+      <p style="font-weight: 500; margin-top: 10px;">
+        Chácara Princesa do Bosque<br>
+        Rua São José, Bairro Nova Brasília<br>
+        Brasília de Minas — MG
+      </p>
+      
+      <!-- BOTÃO COM LINK DIRETO PARA A NOVA COORDENADA -->
+      <div style="margin-top: 20px;">
+        <a href="https://maps.google.com/?q=-16.211728127606,-44.41459548590755" 
+           target="_blank" 
+           class="btn primary" 
+           style="display: inline-block; text-decoration: none; padding: 10px 20px; border-radius: 5px;">
+          📍 Ver localização no Google Maps
+        </a>
+      </div>
+
+      <p style="font-style: italic; color: #666; margin-top: 15px;">
+        Após a cerimônia, a recepção será no mesmo local.
+      </p>
+    </div>
+  </section>
+
   <main>
     <!-- 01. PRESENÇA -->
     <section class="section" id="presenca">
@@ -205,7 +207,7 @@
     <p>Com carinho, Milene & Ítalo ♡</p>
   </footer>
 
- <!-- MODAL DE PRESENTES -->
+  <!-- MODAL DE PRESENTES -->
   <div id="giftModal" class="modal hidden">
     <div class="modal-box card">
       <button id="closeModal" class="close">&times;</button>
@@ -229,7 +231,28 @@
         <button type="button" id="cancelGift" class="btn light full" style="margin-top:10px;">Cancelar</button>
       </div>
 
-     div id="giftStepPix"
+      <!-- Etapa 2: Exibição do QR Code e Chave Pix -->
+      <div id="giftStepPix" class="hidden" style="text-align: center; margin-top: 15px;">
+        <p style="font-size: 13px; line-height: 1.5; margin-bottom: 15px;">
+          Muito obrigado pelo carinho! Escolha abaixo como deseja realizar o pagamento da sua cota para este presente:
+        </p>
+        
+        <div style="background: #fff; padding: 10px; display: inline-block; border: 1px solid var(--line); border-radius: 4px; margin-bottom: 15px;">
+          <img src="QRCODE.JPG" alt="QR Code Pix" style="width: 160px; height: 160px; object-fit: contain;">
+        </div>
+
+        <label style="text-align: left; display: block; margin-bottom: 5px; font-size: 12px;">
+          Pix Copia e Cola (ou Chave E-mail: <b>italoandrew1998l@gmail.com</b>):
+        </label>
+        
+        <input type="text" readonly value="00020126550014br.gov.bcb.pix0126italoandrew1998l@gmail.com0203Pix5204000053039865802BR5925ITALO_ANDREW_RODRIGUES_SA6008JANUARIA62130509Presentes6304E23F" style="text-align: center; font-weight: bold; background: #f0f0f0; width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 10px;" onclick="this.select(); alert('Código Pix copiado!');">
+        
+        <small style="display: block; color: var(--muted); margin-top: 5px; font-size: 11px;">
+          Clique na caixa acima para copiar o código automaticamente.
+        </small>
+
+        <button type="button" class="btn primary full" style="margin-top:20px;" onclick="closeGift();">Concluir</button>
+      </div>
 
     </div>
   </div>

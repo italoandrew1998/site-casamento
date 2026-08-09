@@ -6,78 +6,77 @@ const ADMIN_PASSWORD = "mfsq&iars26092026"; // Senha para acessar a Área dos No
 // Criando a conexão
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 2. LISTA DE PRESENTES ATUALIZADA (COM ITENS CENTRALIZADOS, FOTOS E AVISO DE COTA)
+// 2. LISTA DE PRESENTES ATUALIZADA (COM TEXTOS CENTRALIZADOS, IMAGENS E DADOS CORRIGIDOS)
 const gifts = [
   // 🍳 COZINHA
   { 
     id: 1, 
     icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="liquidificador.jpg" alt="Liquidificador" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Liquidificador", 
-    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/liquidificador-l1200-bi-turbo-black-pretoinox-mondial-127v/up/MLBU1091019903" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small>', 
+    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/liquidificador-l1200-bi-turbo-black-pretoinox-mondial-127v/up/MLBU1091019903" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
-    { 
     id: 2, 
     icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="Batedeira.jpg" alt="Batedeira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Batedeira", 
-    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/batedeira-planetaria-philco-900w-5l-preta-12-velocidades-turbo-pbp90a/p/MLB49822923" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small>', 
+    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/batedeira-planetaria-philco-900w-5l-preta-12-velocidades-turbo-pbp90a/p/MLB49822923" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 3, 
     icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="sanduicheira.jpg" alt="Sanduicheira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Sanduicheira", 
-    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/grill-e-sanduicheira-pgr21pi-maxx-clean-1000w-cinza-philco/p/MLB22852655" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small>', 
+    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/grill-e-sanduicheira-pgr21pi-maxx-clean-1000w-cinza-philco/p/MLB22852655" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 4, 
     icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="cafeteira.jpg" alt="Cafeteira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Cafeteira", 
-    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/wap-wcd1500-cafeteira-digital-15l-timer-automatica/p/MLB42197196" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small>', 
+    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/wap-wcd1500-cafeteira-digital-15l-timer-automatica/p/MLB42197196" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 5, 
     icon: "🍲", 
     title: "Panela de pressão elétrica", 
-    description: 'Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 6, 
     icon: "🍽️", 
     title: "Jogo de travessas", 
-    description: 'Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 7, 
     icon: "🍴", 
     title: "Faqueiro", 
-    description: 'Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 8, 
     icon: "🍷", 
     title: "Jogo de taças", 
-    description: 'Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 9, 
     icon: "🥧", 
     title: "Conjunto de assadeiras", 
-    description: 'Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 10, 
     icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="forno elétrico.jpg" alt="Forno elétrico" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Forno elétrico", 
-    description: 'Cozinha<br><a href="https://www.mercadolivre.com.br/forno-eletrico-philco-pfe65-com-grelha-65-litros-110v-preto/p/MLB64872179" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small>', 
+    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/forno-eletrico-philco-pfe65-com-grelha-65-litros-110v-preto/p/MLB64872179" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
     price: "Sugestão" 
   },
 
@@ -86,49 +85,49 @@ const gifts = [
     id: 11, 
     icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="tábua de passar.jpg" alt="Tábua de passar" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Tábua de passar", 
-    description: 'Casa<br><a href="https://produto.mercadolivre.com.br/MLB-3332613795-tabua-mesa-de-passar-roupa-suprema-extra-grande-tampo-de-aco-_JM" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small>', 
+    description: '<div style="text-align: center;">Casa<br><a href="https://produto.mercadolivre.com.br/MLB-3332613795-tabua-mesa-de-passar-roupa-suprema-extra-grande-tampo-de-aco-_JM" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 12, 
     icon: "🛏️", 
     title: "Jogo de cama", 
-    description: 'Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    description: '<div style="text-align: center;">Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 13, 
     icon: "🛌", 
     title: "Edredom", 
-    description: 'Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    description: '<div style="text-align: center;">Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 14, 
     icon: "🧶", 
     title: "Cobertor", 
-    description: 'Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    description: '<div style="text-align: center;">Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 15, 
     icon: "🛁", 
     title: "Jogo de toalhas", 
-    description: 'Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    description: '<div style="text-align: center;">Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 16, 
     icon: "🏠", 
     title: "Tapete para sala", 
-    description: 'Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    description: '<div style="text-align: center;">Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 17, 
     icon: "🏠", 
     title: "Tapete para quarto", 
-    description: 'Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small>', 
+    description: '<div style="text-align: center;">Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
     price: "Sugestão" 
   },
 
@@ -137,23 +136,23 @@ const gifts = [
     id: 18, 
     icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="cadeiras.jpg" alt="Jogo de Cadeiras" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Jogo de 8 Cadeiras", 
-    description: 'Presentes Especiais<br><a href="https://br.shp.ee/2U1wV6Kx" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto na Shopee</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small>', 
+    description: '<div style="text-align: center;">Presentes Especiais<br><a href="https://br.shp.ee/2U1wV6Kx" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto na Shopee</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
     id: 19, 
-    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="sofá.jpg" alt="Sofá" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="sofá_2.jpg" alt="Sofá" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Sofá", 
-    description: 'Presentes Especiais<br><a href="https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small>', 
+    description: '<div style="text-align: center;">Presentes Especiais<br><a href="https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small></div>', 
     price: "Sugestão" 
   },
 
   // 💰 COTAS / PRESENTES EM DINHEIRO
-  { id: 20, icon: "✈️", title: "Cota para lua de mel", description: "Cotas / Presentes em dinheiro", price: "R$ 500,00" },
-  { id: 21, icon: "🛋️", title: "Cota para móveis", description: "Cotas / Presentes em dinheiro", price: "R$ 300,00" },
-  { id: 22, icon: "⚡", title: "Cota para eletrodomésticos", description: "Cotas / Presentes em dinheiro", price: "R$ 300,00" },
-  { id: 23, icon: "🖼️", title: "Cota para decoração", description: "Cotas / Presentes em dinheiro", price: "R$ 200,00" },
-  { id: 24, icon: "🎁", title: "Cota para algum item especial da casa", description: "Cotas / Presentes em dinheiro", price: "R$ 250,00" }
+  { id: 20, icon: "✈️", title: "Cota para lua de mel", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 500,00" },
+  { id: 21, icon: "🛋️", title: "Cota para móveis", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 300,00" },
+  { id: 22, icon: "⚡", title: "Cota para eletrodomésticos", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 300,00" },
+  { id: 23, icon: "🖼️", title: "Cota para decoração", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 200,00" },
+  { id: 24, icon: "🎁", title: "Cota para algum item especial da casa", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 250,00" }
 ];
  
 let state = { guests: [], claims: [], allowed: [] };
@@ -240,13 +239,13 @@ function renderGifts() {
 
   giftGrid.innerHTML = gifts.map(g => {
     const count = claimsFor(g.id).length;
-    return `<article class="gift">
+    return `<article class="gift" style="text-align: center;">
       <div class="gift-icon">${g.icon}</div>
-      <h3>${g.title}</h3>
-      <p>${g.description}</p>
-      <div class="price">${g.price}</div>
-      ${count ? `<div class="already">✓ Este presente já foi escolhido ${count === 1 ? "uma vez" : count + " vezes"}.<br>Você também pode escolhê-lo.</div>` : ""}
-      <button class="btn primary" onclick="openGift(${g.id})">${count ? "Escolher mesmo assim" : "Escolher este presente"}</button>
+      <h3 style="text-align: center;">${g.title}</h3>
+      ${g.description}
+      <div class="price" style="text-align: center;">${g.price}</div>
+      ${count ? `<div class="already" style="text-align: center;">✓ Este presente já foi escolhido ${count === 1 ? "uma vez" : count + " vezes"}.<br>Você também pode escolhê-lo.</div>` : ""}
+      <button class="btn primary" onclick="openGift(${g.id})" style="margin: 0 auto; display: block;">${count ? "Escolher mesmo assim" : "Escolher este presente"}</button>
     </article>`;
   }).join("");
 }
@@ -257,7 +256,7 @@ window.openGift = function(id) {
 
   const count = claimsFor(id).length;
   document.getElementById("modalTitle").textContent = selectedGift.title;
-  document.getElementById("modalPrice").textContent = selectedGift.description;
+  document.getElementById("modalPrice").innerHTML = selectedGift.description;
   document.getElementById("modalWarning").textContent = count 
     ? `Este presente já foi escolhido por ${count === 1 ? "outro convidado" : "outros convidados"}. Mesmo assim, você pode presentear com este mesmo item.` 
     : "Você está escolhendo este presente para os noivos.";
@@ -265,7 +264,7 @@ window.openGift = function(id) {
   const giftNameSelect = document.getElementById("giftName");
   if (giftNameSelect) giftNameSelect.value = "";
   
-  // Reseta a visualização do modal para a etapa inicial (seleção de nome e opção)
+  // Reseta a visualização do modal para a etapa inicial
   const giftStepSelection = document.getElementById("giftStepSelection");
   const giftStepPix = document.getElementById("giftStepPix");
   if (giftStepSelection) giftStepSelection.classList.remove("hidden");
@@ -313,7 +312,7 @@ if (confirmQuotaGiftEl) {
     if (!name) return alert("Por favor, selecione seu nome na lista antes de prosseguir para a cota.");
     if (!selectedGift) return alert("Nenhum presente selecionado.");
 
-    // Registra a intenção no banco também, se desejar
+    // Registra a intenção no banco
     await supabaseClient.from('claims').insert([{ gift_id: selectedGift.id, name: `${name} (Cota)` }]);
     await loadData();
 
@@ -468,7 +467,6 @@ function showManual(t) {
     m.textContent = t;
     m.classList.remove("hidden");
     
-    // Esconder a mensagem depois de 5 segundos
     setTimeout(() => {
       m.classList.add("hidden");
     }, 5000);
