@@ -6,62 +6,51 @@ const ADMIN_PASSWORD = "mfsq&iars26092026"; // Senha para acessar a Área dos No
 // Criando a conexão
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 2. LISTA COMPLETA DE PRESENTES (50 itens)
+// 2. LISTA DE PRESENTES ATUALIZADA (COM A FOTO E LINK DAS CADEIRAS E DO SOFÁ)
 const gifts = [
-  // Clássicos
-  { id: 1, icon: "🍽️", title: "Jogo de jantar", description: "Para nossa nova casa.", price: "R$ 250,00" },
-  { id: 2, icon: "🍳", title: "Air Fryer", description: "Um presente para nossa cozinha.", price: "R$ 600,00" },
-  { id: 3, icon: "🛏️", title: "Jogo de cama", description: "Para deixar nosso quarto aconchegante.", price: "R$ 300,00" },
-  { id: 4, icon: "☕", title: "Cafeteira", description: "Para os cafés das manhãs de casados.", price: "R$ 450,00" },
-  { id: 5, icon: "🧳", title: "Cota para lua de mel", description: "Uma contribuição para uma lembrança inesquecível.", price: "R$ 500,00" },
-  { id: 6, icon: "🏠", title: "Cota para casa nova", description: "Ajude-nos a construir nosso cantinho.", price: "R$ 200,00" },
-  // Cozinha
-  { id: 7, icon: "🍴", title: "Jogo de talheres", description: "Cozinha", price: "Sugestão" },
-  { id: 8, icon: "🥛", title: "Jogo de copos", description: "Cozinha", price: "Sugestão" },
-  { id: 9, icon: "🍨", title: "Jogo de sobremesa", description: "Cozinha", price: "Sugestão" },
-  { id: 10, icon: "🔪", title: "Faqueiro", description: "Cozinha", price: "Sugestão" },
-  { id: 11, icon: "🍷", title: "Conjunto de taças", description: "Cozinha", price: "Sugestão" },
-  { id: 12, icon: "🍟", title: "Air freyer", description: "Cozinha", price: "Sugestão" },
-  { id: 13, icon: "🍳", title: "Jogo de panelas", description: "Cozinha", price: "Sugestão" },
-  { id: 14, icon: "🍽️", title: "Jogo de pratos", description: "Cozinha", price: "Sugestão" },
-  { id: 15, icon: "🥤", title: "Liquidificador", description: "Cozinha", price: "Sugestão" },
-  { id: 16, icon: "🧁", title: "Batedeira", description: "Cozinha", price: "Sugestão" },
-  { id: 17, icon: "☕", title: "Jogo de xícaras", description: "Cozinha", price: "Sugestão" },
-  { id: 18, icon: "🥪", title: "Sanduicheira", description: "Cozinha", price: "Sugestão" },
-  { id: 19, icon: "☕", title: "Cafeteira", description: "Cozinha", price: "Sugestão" },
-  { id: 20, icon: "🍽️", title: "Escorredor de louças", description: "Cozinha", price: "Sugestão" },
-  { id: 21, icon: "🏺", title: "Garrafa térmica", description: "Cozinha", price: "Sugestão" },
-  { id: 22, icon: "🥘", title: "Panela de pressão", description: "Cozinha", price: "Sugestão" },
-  { id: 23, icon: "🥄", title: "Utilidades de silicone", description: "Cozinha", price: "Sugestão" },
-  { id: 24, icon: "🥧", title: "Formas", description: "Cozinha", price: "Sugestão" },
-  { id: 25, icon: "🔥", title: "Forno", description: "Cozinha", price: "Sugestão" },
-  { id: 26, icon: "🧵", title: "Pano de prato", description: "Cozinha", price: "Sugestão" },
-  { id: 27, icon: "🫙", title: "Potes", description: "Cozinha", price: "Sugestão" },
-  { id: 28, icon: "🧊", title: "Jarra de vidro", description: "Cozinha", price: "Sugestão" },
-  { id: 29, icon: "🍯", title: "Açucareiro", description: "Cozinha", price: "Sugestão" },
-  { id: 30, icon: "🧂", title: "Saleiro", description: "Cozinha", price: "Sugestão" },
-  { id: 31, icon: "🪵", title: "Descanso de panela", description: "Cozinha", price: "Sugestão" },
-  { id: 32, icon: "🍽️", title: "Jogo americano", description: "Cozinha", price: "Sugestão" },
-  { id: 33, icon: "🫖", title: "Bule", description: "Cozinha", price: "Sugestão" },
-  { id: 34, icon: "🧀", title: "Ralador", description: "Cozinha", price: "Sugestão" },
-  { id: 35, icon: "🍽️", title: "Travessa (Pq., Med. e Gr.)", description: "Cozinha", price: "Sugestão" },
-  { id: 36, icon: "🌿", title: "Porta Tempero", description: "Cozinha", price: "Sugestão" },
-  { id: 37, icon: "🍴", title: "Utensílio de Cozinha", description: "Cozinha", price: "Sugestão" },
-  { id: 38, icon: "👕", title: "Varal de roupas", description: "Cozinha", price: "Sugestão" },
-  { id: 39, icon: "🪑", title: "Cadeira", description: "Cozinha", price: "Sugestão" },
-  // Quarto
-  { id: 40, icon: "🛏️", title: "Jogo de cama casal Queen", description: "Quarto", price: "Sugestão" },
-  { id: 41, icon: "🛏️", title: "Fronha", description: "Quarto", price: "Sugestão" },
-  { id: 42, icon: "🛌", title: "Edredom", description: "Quarto", price: "Sugestão" },
-  { id: 43, icon: "🛏️", title: "Lençol", description: "Quarto", price: "Sugestão" },
-  // Banheiro
-  { id: 44, icon: "🛁", title: "Jogo de toalhas de banho", description: "Banheiro", price: "Sugestão" },
-  { id: 45, icon: "🧖", title: "Jogo de toalhas de rosto", description: "Banheiro", price: "Sugestão" },
-  { id: 46, icon: "🧴", title: "Porta sabonete líquido", description: "Banheiro", price: "Sugestão" },
-  { id: 47, icon: "🦷", title: "Porta escova", description: "Banheiro", price: "Sugestão" },
-  { id: 48, icon: "🧼", title: "Porta sabonete", description: "Banheiro", price: "Sugestão" },
-  { id: 49, icon: "🗑️", title: "Lixeira de inox", description: "Banheiro", price: "Sugestão" },
-  { id: 50, icon: "🧶", title: "Jogo de tapetes", description: "Banheiro", price: "Sugestão" }
+  // 🍳 COZINHA
+  { id: 1, icon: "🥤", title: "Liquidificador", description: "Cozinha", price: "Sugestão" },
+  { id: 2, icon: "🧁", title: "Batedeira", description: "Cozinha", price: "Sugestão" },
+  { id: 3, icon: "🥪", title: "Sanduicheira", description: "Cozinha", price: "Sugestão" },
+  { id: 4, icon: "☕", title: "Cafeteira", description: "Cozinha", price: "Sugestão" },
+  { id: 5, icon: "🍲", title: "Panela de pressão elétrica", description: "Cozinha", price: "Sugestão" },
+  { id: 6, icon: "🍽️", title: "Jogo de travessas", description: "Cozinha", price: "Sugestão" },
+  { id: 7, icon: "🍴", title: "Faqueiro", description: "Cozinha", price: "Sugestão" },
+  { id: 8, icon: "🍷", title: "Jogo de taças", description: "Cozinha", price: "Sugestão" },
+  { id: 9, icon: "🥧", title: "Conjunto de assadeiras", description: "Cozinha", price: "Sugestão" },
+  { id: 10, icon: "🔥", title: "Forno elétrico", description: "Cozinha", price: "Sugestão" },
+
+  // 🏠 CASA
+  { id: 11, icon: "👕", title: "Tábua de passar", description: "Casa", price: "Sugestão" },
+  { id: 12, icon: "🛏️", title: "Jogo de cama", description: "Casa — Cama tamanho queen", price: "Sugestão" },
+  { id: 13, icon: "🛌", title: "Edredom", description: "Casa — Cama tamanho queen", price: "Sugestão" },
+  { id: 14, icon: "🧶", title: "Cobertor", description: "Casa — Cama tamanho queen", price: "Sugestão" },
+  { id: 15, icon: "🛁", title: "Jogo de toalhas", description: "Casa", price: "Sugestão" },
+  { id: 16, icon: "🏠", title: "Tapete para sala", description: "Casa", price: "Sugestão" },
+  { id: 17, icon: "🏠", title: "Tapete para quarto", description: "Casa", price: "Sugestão" },
+
+  // 💎 PRESENTES ESPECIAIS
+  { 
+    id: 18, 
+    icon: '<img src="https://i.imgur.com/vHqL9x4.png" alt="Cadeiras" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px;">', 
+    title: "Jogo de 6 Cadeiras", 
+    description: 'Presentes Especiais<br><a href="https://br.shp.ee/2U1wV6Kx" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto na Shopee</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 19, 
+    icon: '<img src="https://i.imgur.com/8QjL4y3.png" alt="Sofá" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px;">', 
+    title: "Sofá", 
+    description: 'Presentes Especiais<br><a href="https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223?pdp_filters=item_id:MLB4434367220&matt_tool=73099662&matt_internal_campaign_id=349107489&matt_word=&matt_source=google&matt_campaign_id=23825084879&matt_ad_group_id=199805781298&matt_match_type=&matt_network=g&matt_device=c&matt_creative=818786804086&matt_keyword=&matt_ad_position=&matt_ad_type=pla&matt_merchant_id=5752257395&matt_product_id=MLB4434367220&matt_product_partition_id=2463771778011&matt_target_id=aud-2495935283228:pla-2463771778011&cq_src=google_ads&cq_cmp=23825084879&cq_net=g&cq_plt=gp&cq_med=pla&gad_source=1&gad_campaignid=23825084879&gclid=CjwKCAjwyuDTBhB-EiwANCQhLLKGeXldHl3X_BC3pIb1y5NDO4YuHpDk1p8VoZlo0edxgO5pURymUxoC-TgQAvD_BwE" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small>', 
+    price: "Sugestão" 
+  },
+
+  // 💰 COTAS / PRESENTES EM DINHEIRO
+  { id: 20, icon: "✈️", title: "Cota para lua de mel", description: "Cotas / Presentes em dinheiro", price: "R$ 500,00" },
+  { id: 21, icon: "🛋️", title: "Cota para móveis", description: "Cotas / Presentes em dinheiro", price: "R$ 300,00" },
+  { id: 22, icon: "⚡", title: "Cota para eletrodomésticos", description: "Cotas / Presentes em dinheiro", price: "R$ 300,00" },
+  { id: 23, icon: "🖼️", title: "Cota para decoração", description: "Cotas / Presentes em dinheiro", price: "R$ 200,00" },
+  { id: 24, icon: "🎁", title: "Cota para algum item especial da casa", description: "Cotas / Presentes em dinheiro", price: "R$ 250,00" }
 ];
 
 let state = { guests: [], claims: [], allowed: [] };
