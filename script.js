@@ -232,7 +232,7 @@ if (manualNameEl) {
   });
 }
 
-// 5. PRESENTES
+// 5. PRESENTES E FLUXO DE ESCOLHA (ITEM COMPLETO OU COTA)
 function renderGifts() {
   const giftGrid = document.getElementById("giftGrid");
   if (!giftGrid) return;
@@ -264,6 +264,12 @@ window.openGift = function(id) {
   const giftNameSelect = document.getElementById("giftName");
   if (giftNameSelect) giftNameSelect.value = "";
   
+  // Reseta a visualização do modal para a etapa inicial (seleção de nome e opção)
+  const giftStepSelection = document.getElementById("giftStepSelection");
+  const giftStepPix = document.getElementById("giftStepPix");
+  if (giftStepSelection) giftStepSelection.classList.remove("hidden");
+  if (giftStepPix) giftStepPix.classList.add("hidden");
+
   document.getElementById("giftModal").classList.remove("hidden");
 };
 
@@ -273,24 +279,50 @@ function closeGift() {
   selectedGift = null;
 }
 
-document.getElementById("closeModal").onclick = closeGift;
-document.getElementById("cancelGift").onclick = closeGift;
+const closeModalEl = document.getElementById("closeModal");
+if (closeModalEl) closeModalEl.onclick = closeGift;
+const cancelGiftEl = document.getElementById("cancelGift");
+if (cancelGiftEl) cancelGiftEl.onclick = closeGift;
 
-document.getElementById("confirmGift").onclick = async () => {
-  const name = document.getElementById("giftName").value;
-  if (!name) return alert("Por favor, selecione seu nome na lista.");
-  if (!selectedGift) return alert("Nenhum presente selecionado.");
+// Botão para confirmar o Item Inteiro
+const confirmFullGiftEl = document.getElementById("confirmFullGift");
+if (confirmFullGiftEl) {
+  confirmFullGiftEl.onclick = async () => {
+    const name = document.getElementById("giftName").value;
+    if (!name) return alert("Por favor, selecione seu nome na lista.");
+    if (!selectedGift) return alert("Nenhum presente selecionado.");
 
-  const { error } = await supabaseClient.from('claims').insert([{ gift_id: selectedGift.id, name }]);
-  if (error) {
-    console.error(error);
-    return alert("Erro ao salvar presente.");
-  }
+    const { error } = await supabaseClient.from('claims').insert([{ gift_id: selectedGift.id, name }]);
+    if (error) {
+      console.error(error);
+      return alert("Erro ao salvar presente.");
+    }
 
-  await loadData();
-  closeGift();
-  alert("Presente registrado com sucesso! Obrigado pelo carinho.");
-};
+    await loadData();
+    closeGift();
+    alert("Presente registrado com sucesso! Obrigado pelo carinho.");
+  };
+}
+
+// Botão para escolher Cota (Avança para a tela do Pix/QR Code)
+const confirmQuotaGiftEl = document.getElementById("confirmQuotaGift");
+if (confirmQuotaGiftEl) {
+  confirmQuotaGiftEl.onclick = async () => {
+    const name = document.getElementById("giftName").value;
+    if (!name) return alert("Por favor, selecione seu nome na lista antes de prosseguir para a cota.");
+    if (!selectedGift) return alert("Nenhum presente selecionado.");
+
+    // Registra a intenção no banco também, se desejar
+    await supabaseClient.from('claims').insert([{ gift_id: selectedGift.id, name: `${name} (Cota)` }]);
+    await loadData();
+
+    // Alterna para a etapa de exibição do QR Code / Chave Pix
+    const giftStepSelection = document.getElementById("giftStepSelection");
+    const giftStepPix = document.getElementById("giftStepPix");
+    if (giftStepSelection) giftStepSelection.classList.add("hidden");
+    if (giftStepPix) giftStepPix.classList.remove("hidden");
+  };
+}
 
 // 6. ENVIAR RESPOSTA DA CONFIRMAÇÃO (RSVP)
 async function addGuest(name, people, status, source, phone = "") {
