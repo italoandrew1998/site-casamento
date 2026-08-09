@@ -141,7 +141,7 @@ const gifts = [
   },
   { 
     id: 19, 
-    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="sofá_2.jpg" alt="Sofá" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="sofá.jpg" alt="Sofá" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Sofá", 
     description: '<div style="text-align: center;">Presentes Especiais<br><a href="https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small></div>', 
     price: "Sugestão" 
