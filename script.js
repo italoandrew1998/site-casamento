@@ -10,9 +10,21 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // Variáveis de Estado
 let state = { guests: [], claims: [], allowed: [] };
 let selectedGift = null;
-let currentGuestName = ""; 
 let pendingRsvpData = null; 
-let quotaPendingConfirmation = false; // Controle de segurança para cota Pix
+let quotaPendingConfirmation = false; 
+
+// Gerenciamento seguro do nome do convidado via sessionStorage para não perder ao navegar
+function getStoredGuestName() {
+  return sessionStorage.getItem("wedding_guest_name") || "";
+}
+
+function setStoredGuestName(name) {
+  if (name) {
+    sessionStorage.setItem("wedding_guest_name", name);
+  } else {
+    sessionStorage.removeItem("wedding_guest_name");
+  }
+}
 
 // LISTA DE PRESENTES ATUALIZADA
 const gifts = [
@@ -47,9 +59,9 @@ const gifts = [
   },
   { 
     id: 5, 
-    icon: "🍲", 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="panela de pressao eletrica.jpg" alt="Panela de pressão elétrica" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Panela de pressão elétrica", 
-    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
+    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/panela-de-pressao-eletrica-5-litros-aco-inox-preto-multifuncional-kian-ppe-101/p/MLB50190417?pdp_filters=item_id%3AMLB4327641775&matt_tool=38524122&ua=MyZ0I6KppWEtVmDZVSHhpJhwqhP686UPULkJ-FEyOKroQYLD#origin=whatsapp&sid=whatsapp&wid=MLB4327641775" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
@@ -68,9 +80,9 @@ const gifts = [
   },
   { 
     id: 8, 
-    icon: "🍷", 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="tacajogo.jpg" alt="Jogo de taças" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Jogo de taças", 
-    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
+    description: '<div style="text-align: center;">Cozinha<br><a href="https://br.shp.ee/MJv2LsJ3" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto na Shopee</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
@@ -284,7 +296,7 @@ window.confirmRSVP = async function() {
   }
   
   await loadData();
-  currentGuestName = name;
+  setStoredGuestName(name);
 
   document.getElementById("rsvpConfirmScreen").classList.add("hidden");
   const m = document.getElementById("rsvpMessage");
@@ -312,9 +324,10 @@ function renderGifts() {
   giftGrid.innerHTML = gifts.map(g => {
     const allClaims = claimsFor(g.id);
     const iconElement = g.icon.startsWith('<div') ? g.icon : `<div class="gift-icon" style="font-size: 40px; text-align: center; margin-bottom: 10px;">${g.icon}</div>`;
-    const displayPrice = g.price !== "Sugestão" ? `<div class="price" style="font-weight: bold; color: #2c5e3b; margin-bottom: 10px;">${g.price}</div>` : '';
+    
+    // CORREÇÃO: Renderiza o preço APENAS se não for "Sugestão" para evitar campo visual desnecessário
+    const displayPrice = (g.price !== "Sugestão" && g.price) ? `<div class="price" style="font-weight: bold; color: #2c5e3b; margin-bottom: 10px;">${g.price}</div>` : '';
 
-    // CAMPO QUE INFORMA QUEM JÁ GANHOU / ESCOLHEU O ITEM OU COTA
     let claimsInfoHtml = '';
     if (allClaims.length > 0) {
       const nomes = allClaims.map(c => esc(c.name)).join(", ");
@@ -340,29 +353,32 @@ window.openGift = function(id) {
   selectedGift = gifts.find(g => g.id === id);
   if (!selectedGift) return;
   
-  // Reseta o estado de segurança da cota ao abrir o modal
   quotaPendingConfirmation = false;
 
   document.getElementById("modalTitle").textContent = selectedGift.title;
   
   let modalContentHtml = selectedGift.description;
-  if (selectedGift.price !== "Sugestão") {
+  if (selectedGift.price !== "Sugestão" && selectedGift.price) {
     modalContentHtml += `<br><b style="color: #2c5e3b;">Valor: ${selectedGift.price}</b>`;
   }
   document.getElementById("modalPrice").innerHTML = modalContentHtml;
 
   const wrapper = document.getElementById("giftSelectWrapper");
   const nameAuto = document.getElementById("giftNameAuto");
+  const registeredName = getStoredGuestName();
 
-  if (currentGuestName) {
+  if (registeredName) {
     if(wrapper) wrapper.classList.add("hidden");
     if(nameAuto) {
       nameAuto.classList.remove("hidden");
-      nameAuto.innerHTML = `Presenteando como: <br><b>${esc(currentGuestName)}</b>`;
+      nameAuto.innerHTML = `Presenteando como: <br><b>${esc(registeredName)}</b>`;
     }
   } else {
     if(wrapper) wrapper.classList.remove("hidden");
-    if(nameAuto) nameAuto.classList.add("hidden");
+    if(nameAuto) {
+      nameAuto.classList.add("hidden");
+      nameAuto.innerHTML = "";
+    }
     const giftSelect = document.getElementById("giftName");
     if (giftSelect) giftSelect.value = "";
   }
@@ -376,19 +392,15 @@ window.openGift = function(id) {
 };
 
 window.closeGift = function() {
-  // SE ESTIVER NA TELA DO PIX COM COTA PENDENTE, PEDE CONFIRMAÇÃO ANTES DE FECHAR
   const giftStepPix = document.getElementById("giftStepPix");
   const isPixVisible = giftStepPix && !giftStepPix.classList.contains("hidden");
 
   if (isPixVisible && quotaPendingConfirmation) {
     const confirmou = confirm("Você realizou o pagamento via PIX desta cota e deseja confirmar o registro na lista?");
-    if (confirmou) {
-      // Se ele confirmou que deu, o item já foi inserido no banco na etapa anterior, apenas fecha o modal limpo
-      quotaPendingConfirmation = false;
-    } else {
-      // Se ele desistiu ou não pagou, remove o registro inserido no banco para não contar indevidamente
+    if (!confirmou) {
       reverterUltimaCota();
     }
+    quotaPendingConfirmation = false;
   }
 
   document.getElementById("giftModal").classList.add("hidden");
@@ -396,13 +408,11 @@ window.closeGift = function() {
   quotaPendingConfirmation = false;
 };
 
-// Função auxiliar para remover a última cota inserida caso o usuário desista ao fechar o Pix
 async function reverterUltimaCota() {
   if (!selectedGift) return;
   const name = getGifterName();
   const nameWithQuota = `${name} (Cota)`;
 
-  // Localiza e remove o registro correspondente no Supabase
   const claimParaRemover = state.claims.find(c => Number(c.gift_id) === Number(selectedGift.id) && c.name === nameWithQuota);
   if (claimParaRemover) {
     await supabaseClient.from("claims").delete().eq('id', claimParaRemover.id);
@@ -411,7 +421,8 @@ async function reverterUltimaCota() {
 }
 
 function getGifterName() {
-  if (currentGuestName) return currentGuestName;
+  const stored = getStoredGuestName();
+  if (stored) return stored;
   const select = document.getElementById("giftName");
   return select ? select.value.trim() : "";
 }
@@ -450,7 +461,6 @@ async function handleConfirmQuotaGift(e) {
     });
     if (error) throw error;
 
-    // Ativa a bandeira de cota pendente de confirmação ao exibir o Pix
     quotaPendingConfirmation = true;
 
     document.getElementById("giftStepSelection").classList.add("hidden");
