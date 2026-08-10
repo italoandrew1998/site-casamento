@@ -25,7 +25,7 @@ function setStoredGuestName(name) {
   }
 }
 
-// LISTA DE PRESENTES ATUALIZADA
+// LISTA DE PRESENTES COMPLETA
 const gifts = [
   // 🍳 COZINHA
   { 
@@ -60,7 +60,7 @@ const gifts = [
     id: 5, 
     icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="panela de pressao eletrica.jpg" alt="Panela de pressão elétrica" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Panela de pressão elétrica", 
-    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/panela-de-pressao-eletrica-5-litros-aco-inox-preto-multifuncional-kian-ppe-101/p/MLB50190417?pdp_filters=item_id%3AMLB4327641775&matt_tool=38524122&ua=MyZ0I6KppWEtVmDZVSHhpJhwqhP686UPULkJ-FEyOKroQYLD#origin=whatsapp&sid=whatsapp&wid=MLB4327641775" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
+    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/panela-de-pressao-eletrica-5-litros-aco-inox-preto-multifuncional-kian-ppe-101/p/MLB50190417" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
     price: "Sugestão" 
   },
   { 
@@ -182,16 +182,20 @@ const claimsFor = id => state.claims.filter(c => Number(c.gift_id) === Number(id
 // ==========================================
 async function loadData() {
   try {
-    const { data: guests, error: errGuests } = await supabaseClient.from('guests').select('*');
-    const { data: claims, error: errClaims } = await supabaseClient.from('claims').select('*');
-    const { data: allowed, error: errAllowed } = await supabaseClient.from('allowed_guests').select('*').order('name', { ascending: true });
+    const { data: guests } = await supabaseClient.from('guests').select('*');
+    const { data: claims } = await supabaseClient.from('claims').select('*');
+    const { data: allowed } = await supabaseClient.from('allowed_guests').select('*').order('name', { ascending: true });
 
     state.guests = guests || [];
     state.claims = claims || [];
     state.allowed = allowed || [];
 
     renderAllSelects(); 
-    renderAll();
+    renderGifts();
+    
+    // Atualiza tabelas do admin se visíveis
+    if (typeof carregarConvidados === "function") carregarConvidados();
+    if (typeof carregarPresentesEscolhidos === "function") carregarPresentesEscolhidos();
   } catch (err) {
     console.error("Falha ao conectar com banco de dados:", err);
   }
@@ -232,7 +236,7 @@ const rsvpNameEl = document.getElementById("rsvpName");
 if (rsvpNameEl) {
   rsvpNameEl.addEventListener("change", (e) => {
     const name = e.target.value.trim();
-    if (name) setStoredGuestName(name); // Salva ao trocar a opção
+    if (name) setStoredGuestName(name);
 
     const selectedOption = e.target.options[e.target.selectedIndex];
     const maxGuests = Number(selectedOption ? selectedOption.dataset.max : 0) || 0;
@@ -256,13 +260,13 @@ if (rsvpForm) {
     const name = document.getElementById("rsvpName").value;
     if (!name) return alert("Por favor, selecione seu nome na lista.");
 
-    // FORÇA O SALVAMENTO DO NOME AQUI COMO GARANTIA EXTRA
     setStoredGuestName(name);
 
     const answer = e.submitter ? e.submitter.dataset.answer : "sim";
     const people = Number(document.getElementById("rsvpGuests").value);
+    const source = document.getElementById("rsvpSource") ? document.getElementById("rsvpSource").value : "convidado";
     
-    pendingRsvpData = { name, people, answer, source: "convidado" };
+    pendingRsvpData = { name, people, answer, source };
 
     document.getElementById("rsvpFormContent").classList.add("hidden");
     const confirmScreen = document.getElementById("rsvpConfirmScreen");
@@ -381,11 +385,8 @@ window.openGift = function(id) {
   
   let registeredName = getStoredGuestName();
   
-  // SOLUÇÃO DEFINITIVA DO NOME: Se tem nome salvo, força no input/select, mesmo que a interface não mude.
   if (registeredName) {
-    if (giftSelect) {
-      giftSelect.value = registeredName; // Força a escolha na lista oculta
-    }
+    if (giftSelect) giftSelect.value = registeredName;
     if (wrapper) wrapper.classList.add("hidden");
     if (nameAuto) {
       nameAuto.classList.remove("hidden");
@@ -439,7 +440,7 @@ async function reverterUltimaCota() {
 
 function getGifterName() {
   let stored = getStoredGuestName();
-  if (stored) return stored; // Retorna direto se já estiver salvo
+  if (stored) return stored;
   
   const select = document.getElementById("giftName");
   const val = select ? select.value.trim() : "";
@@ -496,7 +497,169 @@ async function handleConfirmQuotaGift(e) {
 }
 
 // ==========================================
-// 6. INICIALIZAÇÃO E DELEGAÇÃO DE EVENTOS GLOBAIS
+// 6. FUNÇÕES DO PAINEL ADMIN
+// ==========================================
+window.login = function(event) {
+  if (event) event.preventDefault();
+  
+  const campoSenha = document.getElementById("adminPassword");
+  if (!campoSenha) return;
+
+  const senhaDigitada = campoSenha.value; 
+  
+  if (senhaDigitada === ADMIN_PASSWORD) {
+    document.getElementById("adminAuth").classList.add("hidden");
+    document.getElementById("adminContent").classList.remove("hidden");
+    
+    const errorMsg = document.getElementById("adminError");
+    if (errorMsg) errorMsg.classList.add("hidden");
+    
+    carregarConvidados();
+    carregarPresentesEscolhidos();
+  } else {
+    const errorMsg = document.getElementById("adminError");
+    if (errorMsg) errorMsg.classList.remove("hidden");
+    else alert("Senha incorreta!");
+  }
+};
+
+async function carregarConvidados() {
+  try {
+    const { data, error } = await supabaseClient.from('guests').select('*');
+    if (error) throw error;
+
+    const guestTable = document.getElementById('guestTable');
+    if (!guestTable) return;
+
+    guestTable.innerHTML = '';
+
+    let confirmedCount = 0;
+    let declinedCount = 0;
+    let peopleCount = 0;
+
+    data.forEach(guest => {
+      if (guest.status === 'sim') {
+        confirmedCount++;
+        peopleCount += Number(guest.people) || 1;
+      } else if (guest.status === 'nao') {
+        declinedCount++;
+      }
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${esc(guest.name || 'Convidado')}</td>
+        <td>${guest.status === 'sim' ? 'Vai ao casamento' : guest.status === 'nao' ? 'Não vai' : 'Pendente'}</td>
+        <td>${guest.people || 1}</td>
+        <td>${esc(guest.source || 'Convidado')}</td>
+        <td><button class="btn secondary" onclick="removerConvidado('${guest.id}')">Excluir</button></td>
+      `;
+      guestTable.appendChild(tr);
+    });
+
+    document.getElementById('confirmedCount').textContent = confirmedCount;
+    document.getElementById('declinedCount').textContent = declinedCount;
+    document.getElementById('peopleCount').textContent = peopleCount;
+  } catch (err) {
+    console.error('Erro ao carregar convidados:', err);
+  }
+}
+
+window.removerConvidado = async function(id) {
+  if (!confirm("Deseja realmente remover este convidado?")) return;
+  const { error } = await supabaseClient.from('guests').delete().eq('id', id);
+  if (error) alert("Erro ao remover.");
+  else carregarConvidados();
+};
+
+async function carregarPresentesEscolhidos() {
+  try {
+    const { data, error } = await supabaseClient.from('claims').select('*');
+    if (error) throw error;
+
+    const giftTable = document.getElementById('giftTable');
+    if (!giftTable) return;
+
+    giftTable.innerHTML = '';
+
+    if (!data || data.length === 0) {
+      giftTable.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum presente escolhido ainda.</td></tr>`;
+      return;
+    }
+
+    data.forEach(item => {
+      const giftObj = gifts.find(g => Number(g.id) === Number(item.gift_id));
+      const giftName = giftObj ? giftObj.title : `Presente #${item.gift_id}`;
+      
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${esc(giftName)}</td>
+        <td>${esc(item.name || 'Convidado')}</td>
+        <td>${item.created_at ? new Date(item.created_at).toLocaleDateString('pt-BR') : '-'}</td>
+        <td><button class="btn secondary" onclick="removerPresenteEscolhido('${item.id}')">Remover</button></td>
+      `;
+      giftTable.appendChild(tr);
+    });
+  } catch (err) {
+    console.error('Erro ao carregar presentes:', err);
+  }
+}
+
+window.removerPresenteEscolhido = async function(id) {
+  if (!confirm("Deseja remover este registro de presente?")) return;
+  const { error } = await supabaseClient.from('claims').delete().eq('id', id);
+  if (error) alert("Erro ao remover.");
+  else {
+    await loadData();
+    carregarPresentesEscolhidos();
+  }
+};
+
+// Formulário manual do admin
+const manualForm = document.getElementById("manualForm");
+if (manualForm) {
+  manualForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("manualName").value;
+    const phone = document.getElementById("manualPhone").value;
+    const people = Number(document.getElementById("manualGuests").value) + 1;
+
+    if (!name) return alert("Selecione um nome.");
+
+    const { error } = await supabaseClient.from('guests').insert([{
+      name, phone, people, status: 'sim', source: 'organizador'
+    }]);
+
+    if (error) alert("Erro ao registrar.");
+    else {
+      alert("Presença registrada com sucesso!");
+      manualForm.reset();
+      loadData();
+    }
+  };
+}
+
+const manualDeclineBtn = document.getElementById("manualDecline");
+if (manualDeclineBtn) {
+  manualDeclineBtn.onclick = async () => {
+    const name = document.getElementById("manualName").value;
+    const phone = document.getElementById("manualPhone").value;
+    if (!name) return alert("Selecione um nome.");
+
+    const { error } = await supabaseClient.from('guests').insert([{
+      name, phone, people: 1, status: 'nao', source: 'organizador'
+    }]);
+
+    if (error) alert("Erro ao registrar.");
+    else {
+      alert("Ausência registrada com sucesso!");
+      manualForm.reset();
+      loadData();
+    }
+  };
+}
+
+// ==========================================
+// 7. INICIALIZAÇÃO E DELEGAÇÃO DE EVENTOS
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
   const closeModalBtn = document.getElementById("closeModal");
@@ -509,28 +672,41 @@ document.addEventListener("DOMContentLoaded", () => {
   if (confirmFullBtn) confirmFullBtn.addEventListener("click", handleConfirmFullGift);
   if (confirmQuotaBtn) confirmQuotaBtn.addEventListener("click", handleConfirmQuotaGift);
 
+  // Controle de abas do admin
+  const tabButtons = document.querySelectorAll(".admin-tabs .tab");
+  tabButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      const targetTabId = button.getAttribute("data-tab");
+      if (!targetTabId) return;
+
+      document.querySelectorAll(".admin-tabs .tab").forEach(btn => btn.classList.remove("active"));
+      button.classList.add("active");
+
+      document.querySelectorAll(".tab-content").forEach(content => content.classList.add("hidden"));
+      const activeContent = document.getElementById(targetTabId);
+      if (activeContent) {
+        activeContent.classList.remove("hidden");
+        if (targetTabId === "giftsTab") carregarPresentesEscolhidos();
+        if (targetTabId === "guestsTab") carregarConvidados();
+      }
+    });
+  });
+
   loadData();
 });
 
-// SOLUÇÃO DEFINITIVA DO BOTÃO "ÁREA DOS NOIVOS"
+// Rolagem para a área dos noivos
 document.addEventListener("click", (e) => {
-  // PROTEÇÃO BLINDADA: Se o clique acontecer dentro do #adminAuth, 
-  // o script ignora a rolagem e deixa o botão de login funcionar.
-  if (e.target.closest('#adminAuth')) {
-    return; 
-  }
+  if (e.target.closest('#adminAuth')) return;
 
   const targetElement = e.target.closest('a, button, [role="button"], .btn-noivos, #btnNoivos');
-  
   if (targetElement) {
     const href = targetElement.getAttribute("href") ? targetElement.getAttribute("href").toLowerCase() : "";
     const text = targetElement.textContent ? targetElement.textContent.toLowerCase().trim() : "";
     
     if (text.includes("área dos noivos") || href.includes("noivos") || href.includes("admin")) {
       e.preventDefault(); 
-      
       const targetSection = document.getElementById("admin");
-
       if (targetSection) {
         targetSection.scrollIntoView({ behavior: "smooth" });
       } else {
@@ -539,170 +715,3 @@ document.addEventListener("click", (e) => {
     }
   }
 });
-
-function renderAll() {
-  renderGifts();
-}
-
-// ==========================================
-// 7. FUNÇÃO DE LOGIN DO PAINEL ADMIN (CORRIGIDA)
-// ==========================================
-window.login = function(event) {
-  // Evita que a página recarregue caso o botão esteja dentro de um <form>
-  if(event) event.preventDefault();
-  
-  const campoSenha = document.getElementById("adminPassword");
-  
-  if (!campoSenha) {
-    alert("Erro no código HTML: Campo de senha não encontrado.");
-    return;
-  }
-
-  const senhaDigitada = campoSenha.value; 
-  
-  if (senhaDigitada === ADMIN_PASSWORD) {
-    // Esconde a área de login (Nome corrigido para adminAuth)
-    const loginArea = document.getElementById("adminAuth");
-    if (loginArea) loginArea.classList.add("hidden");
-    
-    // Mostra o painel com as informações (Nome corrigido para adminContent)
-    const adminPanel = document.getElementById("adminContent");
-    if (adminPanel) adminPanel.classList.remove("hidden");
-    
-    // Tenta esconder a mensagem de erro caso ela esteja visível de uma tentativa anterior
-    const errorMsg = document.getElementById("adminError");
-    if (errorMsg) errorMsg.classList.add("hidden");
-    
-  } else {
-    // Mostra a mensagem de erro na tela ao invés de um alerta chato
-    const errorMsg = document.getElementById("adminError");
-    if (errorMsg) {
-      errorMsg.classList.remove("hidden");
-    } else {
-      alert("Senha incorreta!");
-    }
-  }
-};
-// ==========================================
-// CONTROLE DE ABAS DA ÁREA DOS NOIVOS (CORRIGIDO)
-// ==========================================
-document.addEventListener("DOMContentLoaded", () => {
-  const tabButtons = document.querySelectorAll(".admin-tabs .tab");
-  
-  tabButtons.forEach(button => {
-    button.addEventListener("click", () => {
-      const targetTabId = button.getAttribute("data-tab"); // Ex: guestsTab, giftsTab, addTab
-      if (!targetTabId) return;
-
-      // Remove a classe 'active' de todos os botões de aba e adiciona no clicado
-      document.querySelectorAll(".admin-tabs .tab").forEach(btn => btn.classList.remove("active"));
-      button.classList.add("active");
-
-      // Esconde todos os conteúdos de aba (tab-content) e mostra apenas o alvo
-      document.querySelectorAll(".tab-content").forEach(content => {
-        content.classList.add("hidden");
-      });
-
-      const activeContent = document.getElementById(targetTabId);
-      if (activeContent) {
-        activeContent.classList.remove("hidden");
-        
-        // Se a aba clicada for a de presentes escolhidos (giftsTab), 
-        // chama a função que busca e renderiza os dados na tabela (giftTable)
-        if (targetTabId === "giftsTab" && typeof carregarPresentesEscolhidos === "function") {
-          carregarPresentesEscolhidos();
-        }
-        
-        // Se for a aba de convidados, garante a atualização também (se houver a função)
-        if (targetTabId === "guestsTab" && typeof carregarConvidados === "function") {
-          carregarConvidados();
-        }
-      }
-    });
-  });
-});
-// ==========================================
-// FUNÇÕES DE CARREGAMENTO DO PAINEL ADMINISTRATIVO
-// ==========================================
-
-// Função para buscar e exibir os convidados no painel
-async function carregarConvidados() {
-  try {
-    // Substitua "guests" pelo nome exato da sua tabela de convidados no Supabase se for diferente
-    const { data, error } = await supabaseClient.from('guests').select('*');
-    
-    if (error) throw error;
-
-    const guestTable = document.getElementById('guestTable');
-    if (!guestTable) return;
-
-    guestTable.innerHTML = ''; // Limpa a tabela antes de preencher
-
-    let confirmedCount = 0;
-    let declinedCount = 0;
-    let peopleCount = 0;
-
-    data.forEach(guest => {
-      // Ajuste os nomes dos campos (status, name, companions, etc.) conforme a sua estrutura no banco
-      if (guest.status === 'sim') {
-        confirmedCount++;
-        peopleCount += 1 + (Number(guest.companions) || 0);
-      } else if (guest.status === 'nao') {
-        declinedCount++;
-      }
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${guest.name || 'Convidado'}</td>
-        <td>${guest.status === 'sim' ? 'Vai ao casamento' : guest.status === 'nao' ? 'Não vai' : 'Pendente'}</td>
-        <td>${1 + (Number(guest.companions) || 0)}</td>
-        <td>${guest.source || 'Convidado'}</td>
-        <td><button class="btn secondary" onclick="removerConvidado('${guest.id}')">Excluir</button></td>
-      `;
-      guestTable.appendChild(tr);
-    });
-
-    // Atualiza os contadores na tela
-    document.getElementById('confirmedCount').textContent = confirmedCount;
-    document.getElementById('declinedCount').textContent = declinedCount;
-    document.getElementById('peopleCount').textContent = peopleCount;
-
-  } catch (err) {
-    console.error('Erro ao carregar convidados:', err);
-  }
-}
-
-// Função para buscar e exibir os presentes escolhidos no painel
-async function carregarPresentesEscolhidos() {
-  try {
-    // Substitua "gifts" ou o nome da sua tabela/coluna de presentes escolhidos no Supabase
-    const { data, error } = await supabaseClient.from('gift_choices').select('*');
-    
-    if (error) throw error;
-
-    const giftTable = document.getElementById('giftTable');
-    if (!giftTable) return;
-
-    giftTable.innerHTML = ''; // Limpa a tabela
-
-    if (data.length === 0) {
-      giftTable.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum presente escolhido ainda.</td></tr>`;
-      return;
-    }
-
-    data.forEach(item => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${item.gift_name || item.name || 'Presente'}</td>
-        <td>${item.quantity || 1}</td>
-        <td>${item.chosen_by || 'Convidado'}</td>
-        <td>${item.created_at ? new Date(item.created_at).toLocaleDateString('pt-BR') : '-'}</td>
-        <td><button class="btn secondary" onclick="removerPresenteEscolhido('${item.id}')">Remover</button></td>
-      `;
-      giftTable.appendChild(tr);
-    });
-
-  } catch (err) {
-    console.error('Erro ao carregar presentes:', err);
-  }
-}
