@@ -81,33 +81,57 @@
         <h2>Você estará conosco?</h2>
         <p>Selecione seu nome na lista para confirmar ou registrar sua ausência.</p>
       </div>
+      
       <div class="card">
-        <form id="rsvpForm">
-          <label for="rsvpName">Selecione seu nome na lista</label>
-          <select id="rsvpName" required>
-            <option value="">Carregando lista...</option>
-          </select>
-
-          <label for="rsvpGuests">Acompanhantes</label>
-          <select id="rsvpGuests">
-            <option value="0">Somente eu</option>
-          </select>
-
-          <label for="rsvpSource">Quem está preenchendo?</label>
-          <select id="rsvpSource">
-            <option value="convidado">O próprio convidado</option>
-            <option value="organizador">Outra pessoa pelo convidado</option>
-          </select>
-
-          <div class="choice-grid">
-            <button type="submit" class="choice yes" data-answer="sim">
-              <b>✓ Vou ao casamento</b><small>Confirmar presença</small>
-            </button>
-            <button type="submit" class="choice no" data-answer="nao">
-              <b>♡ Não poderei comparecer</b><small>Registrar ausência e ir aos presentes</small>
-            </button>
+        <!-- ETAPA 1: ESCOLHA DE LADO -->
+        <div id="sideSelection" style="text-align: center; margin-bottom: 20px;">
+          <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Quem te convidou?</h3>
+          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button type="button" class="btn primary" onclick="selectSide('noiva')">Sou convidado da Noiva</button>
+            <button type="button" class="btn primary" onclick="selectSide('noivo')">Sou convidado do Noivo</button>
           </div>
-        </form>
+        </div>
+
+        <!-- ETAPA 2: FORMULÁRIO DE NOME E ACOMPANHANTES (Começa oculto) -->
+        <div id="rsvpFormContent" class="hidden">
+          <form id="rsvpForm">
+            <label for="rsvpName">Selecione seu nome na lista</label>
+            <select id="rsvpName" required>
+              <option value="">Carregando lista...</option>
+            </select>
+
+            <label for="rsvpGuests">Acompanhantes</label>
+            <select id="rsvpGuests">
+              <option value="0">Somente eu</option>
+            </select>
+
+            <label for="rsvpSource">Quem está preenchendo?</label>
+            <select id="rsvpSource">
+              <option value="convidado">O próprio convidado</option>
+              <option value="organizador">Outra pessoa pelo convidado</option>
+            </select>
+
+            <div class="choice-grid" style="margin-top: 20px;">
+              <button type="submit" class="choice yes" data-answer="sim">
+                <b>✓ Vou ao casamento</b><small>Confirmar presença</small>
+              </button>
+              <button type="submit" class="choice no" data-answer="nao">
+                <b>♡ Não poderei comparecer</b><small>Registrar ausência</small>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ETAPA 3: TELA DE REVISÃO (Começa oculta) -->
+        <div id="rsvpConfirmScreen" class="hidden" style="text-align: center;">
+          <p id="rsvpConfirmText" style="font-size: 18px; margin-bottom: 20px; color: #444; line-height: 1.5;"></p>
+          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button type="button" class="btn primary" onclick="confirmRSVP()">Sim, os dados estão corretos</button>
+            <button type="button" class="btn secondary" onclick="cancelRSVP()">Voltar e corrigir</button>
+          </div>
+        </div>
+
+        <!-- MENSAGEM DE SUCESSO/ERRO -->
         <div id="rsvpMessage" class="message hidden"></div>
       </div>
     </section>
