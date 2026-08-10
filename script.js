@@ -231,6 +231,14 @@ window.selectSide = function(lado) {
 const rsvpNameEl = document.getElementById("rsvpName");
 if (rsvpNameEl) {
   rsvpNameEl.addEventListener("change", (e) => {
+    const name = e.target.value.trim();
+
+    // Salva o nome imediatamente ao selecionar no RSVP,
+    // para que a lista de presentes não peça o nome novamente.
+    if (name) {
+      setStoredGuestName(name);
+    }
+
     const selectedOption = e.target.options[e.target.selectedIndex];
     const maxGuests = Number(selectedOption ? selectedOption.dataset.max : 0) || 0;
     const guestsSelect = document.getElementById("rsvpGuests");
@@ -323,7 +331,6 @@ function renderGifts() {
   giftGrid.innerHTML = gifts.map(g => {
     const allClaims = claimsFor(g.id);
     
-    // CORREÇÃO: Tratamento seguro para renderizar ícones/imagens HTML ou emojis
     const iconElement = (typeof g.icon === 'string' && g.icon.trim().startsWith('<')) 
       ? g.icon 
       : `<div class="gift-icon" style="font-size: 40px; text-align: center; margin-bottom: 10px;">${g.icon}</div>`;
@@ -374,7 +381,6 @@ window.openGift = function(id) {
   const wrapper = document.getElementById("giftSelectWrapper");
   const nameAuto = document.getElementById("giftNameAuto");
   
-  // CORREÇÃO: Verificação imediata e persistente do nome armazenado
   let registeredName = getStoredGuestName();
   
   if (registeredName) {
@@ -438,7 +444,7 @@ function getGifterName() {
   const val = select ? select.value.trim() : "";
   
   if (val) {
-    setStoredGuestName(val); // Salva automaticamente para não pedir de novo na próxima vez
+    setStoredGuestName(val); 
   }
   return val;
 }
@@ -501,8 +507,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (confirmFullBtn) confirmFullBtn.addEventListener("click", handleConfirmFullGift);
   if (confirmQuotaBtn) confirmQuotaBtn.addEventListener("click", handleConfirmQuotaGift);
 
-  // CORREÇÃO AMPLIADA: Captura qualquer botão ou link direcionado aos Noivos / Painel
-  const areaNoivosButtons = document.querySelectorAll('a[href*="noivos"], a[href*="admin"], #btnNoivos, .btn-noivos, [data-section="noivos"], button');
+  // CORREÇÃO: Removido o seletor universal "button" para preservar modais e ações gerais
+  const areaNoivosButtons = document.querySelectorAll('a[href*="noivos"], a[href*="admin"], #btnNoivos, .btn-noivos, [data-section="noivos"]');
   areaNoivosButtons.forEach(btn => {
     const text = btn.textContent.toLowerCase();
     if (text.includes("noivos") || text.includes("painel") || text.includes("área")) {
