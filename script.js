@@ -322,7 +322,12 @@ function renderGifts() {
 
   giftGrid.innerHTML = gifts.map(g => {
     const allClaims = claimsFor(g.id);
-    const iconElement = g.icon.startsWith('<div') ? g.icon : `<div class="gift-icon" style="font-size: 40px; text-align: center; margin-bottom: 10px;">${g.icon}</div>`;
+    
+    // CORREÇÃO: Tratamento seguro para renderizar ícones/imagens HTML ou emojis
+    const iconElement = (typeof g.icon === 'string' && g.icon.trim().startsWith('<')) 
+      ? g.icon 
+      : `<div class="gift-icon" style="font-size: 40px; text-align: center; margin-bottom: 10px;">${g.icon}</div>`;
+      
     const displayPrice = (g.price !== "Sugestão" && g.price) ? `<div class="price" style="font-weight: bold; color: #2c5e3b; margin-bottom: 10px;">${g.price}</div>` : '';
 
     let claimsInfoHtml = '';
@@ -369,16 +374,9 @@ window.openGift = function(id) {
   const wrapper = document.getElementById("giftSelectWrapper");
   const nameAuto = document.getElementById("giftNameAuto");
   
-  // VERIFICAÇÃO ROBUSTA: Checa o sessionStorage e também se o nome já está na lista de convidados confirmados
+  // CORREÇÃO: Verificação imediata e persistente do nome armazenado
   let registeredName = getStoredGuestName();
-  if (!registeredName) {
-    const foundGuest = state.guests.find(g => g.status === 'sim');
-    if (foundGuest) {
-      registeredName = foundGuest.name;
-      setStoredGuestName(registeredName);
-    }
-  }
-
+  
   if (registeredName) {
     if(wrapper) wrapper.classList.add("hidden");
     if(nameAuto) {
@@ -433,14 +431,16 @@ async function reverterUltimaCota() {
 }
 
 function getGifterName() {
-  let stored = getStoredGuestName();
-  if (!stored && state.guests.length > 0) {
-    const found = state.guests.find(g => g.status === 'sim');
-    if (found) stored = found.name;
-  }
+  const stored = getStoredGuestName();
   if (stored) return stored;
+  
   const select = document.getElementById("giftName");
-  return select ? select.value.trim() : "";
+  const val = select ? select.value.trim() : "";
+  
+  if (val) {
+    setStoredGuestName(val); // Salva automaticamente para não pedir de novo na próxima vez
+  }
+  return val;
 }
 
 async function handleConfirmFullGift(e) {
@@ -501,19 +501,22 @@ document.addEventListener("DOMContentLoaded", () => {
   if (confirmFullBtn) confirmFullBtn.addEventListener("click", handleConfirmFullGift);
   if (confirmQuotaBtn) confirmQuotaBtn.addEventListener("click", handleConfirmQuotaGift);
 
-  // CORREÇÃO DO BOTÃO "ÁREA DOS NOIVOS"
-  const areaNoivosBtn = document.querySelector('a[href="#noivos"], #btnNoivos, .btn-noivos, [data-section="noivos"]');
-  if (areaNoivosBtn) {
-    areaNoivosBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      const targetSection = document.getElementById("noivos") || document.querySelector(".noivos-section") || document.querySelector("#nossa-historia");
-      if (targetSection) {
-        targetSection.scrollIntoView({ behavior: "smooth" });
-      } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    });
-  }
+  // CORREÇÃO AMPLIADA: Captura qualquer botão ou link direcionado aos Noivos / Painel
+  const areaNoivosButtons = document.querySelectorAll('a[href*="noivos"], a[href*="admin"], #btnNoivos, .btn-noivos, [data-section="noivos"], button');
+  areaNoivosButtons.forEach(btn => {
+    const text = btn.textContent.toLowerCase();
+    if (text.includes("noivos") || text.includes("painel") || text.includes("área")) {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const targetSection = document.getElementById("noivos") || document.getElementById("admin") || document.querySelector(".noivos-section") || document.querySelector("#nossa-historia");
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: "smooth" });
+        } else {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      });
+    }
+  });
 
   loadData();
 });
