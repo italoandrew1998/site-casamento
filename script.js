@@ -621,3 +621,88 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+// ==========================================
+// FUNÇÕES DE CARREGAMENTO DO PAINEL ADMINISTRATIVO
+// ==========================================
+
+// Função para buscar e exibir os convidados no painel
+async function carregarConvidados() {
+  try {
+    // Substitua "guests" pelo nome exato da sua tabela de convidados no Supabase se for diferente
+    const { data, error } = await supabaseClient.from('guests').select('*');
+    
+    if (error) throw error;
+
+    const guestTable = document.getElementById('guestTable');
+    if (!guestTable) return;
+
+    guestTable.innerHTML = ''; // Limpa a tabela antes de preencher
+
+    let confirmedCount = 0;
+    let declinedCount = 0;
+    let peopleCount = 0;
+
+    data.forEach(guest => {
+      // Ajuste os nomes dos campos (status, name, companions, etc.) conforme a sua estrutura no banco
+      if (guest.status === 'sim') {
+        confirmedCount++;
+        peopleCount += 1 + (Number(guest.companions) || 0);
+      } else if (guest.status === 'nao') {
+        declinedCount++;
+      }
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${guest.name || 'Convidado'}</td>
+        <td>${guest.status === 'sim' ? 'Vai ao casamento' : guest.status === 'nao' ? 'Não vai' : 'Pendente'}</td>
+        <td>${1 + (Number(guest.companions) || 0)}</td>
+        <td>${guest.source || 'Convidado'}</td>
+        <td><button class="btn secondary" onclick="removerConvidado('${guest.id}')">Excluir</button></td>
+      `;
+      guestTable.appendChild(tr);
+    });
+
+    // Atualiza os contadores na tela
+    document.getElementById('confirmedCount').textContent = confirmedCount;
+    document.getElementById('declinedCount').textContent = declinedCount;
+    document.getElementById('peopleCount').textContent = peopleCount;
+
+  } catch (err) {
+    console.error('Erro ao carregar convidados:', err);
+  }
+}
+
+// Função para buscar e exibir os presentes escolhidos no painel
+async function carregarPresentesEscolhidos() {
+  try {
+    // Substitua "gifts" ou o nome da sua tabela/coluna de presentes escolhidos no Supabase
+    const { data, error } = await supabaseClient.from('gift_choices').select('*');
+    
+    if (error) throw error;
+
+    const giftTable = document.getElementById('giftTable');
+    if (!giftTable) return;
+
+    giftTable.innerHTML = ''; // Limpa a tabela
+
+    if (data.length === 0) {
+      giftTable.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum presente escolhido ainda.</td></tr>`;
+      return;
+    }
+
+    data.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${item.gift_name || item.name || 'Presente'}</td>
+        <td>${item.quantity || 1}</td>
+        <td>${item.chosen_by || 'Convidado'}</td>
+        <td>${item.created_at ? new Date(item.created_at).toLocaleDateString('pt-BR') : '-'}</td>
+        <td><button class="btn secondary" onclick="removerPresenteEscolhido('${item.id}')">Remover</button></td>
+      `;
+      giftTable.appendChild(tr);
+    });
+
+  } catch (err) {
+    console.error('Erro ao carregar presentes:', err);
+  }
+}
