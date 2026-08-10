@@ -19,7 +19,7 @@ function getStoredGuestName() {
 
 function setStoredGuestName(name) {
   if (name) {
-    sessionStorage.setItem("wedding_guest_name", name);
+    sessionStorage.setItem("wedding_guest_name", name.trim());
   } else {
     sessionStorage.removeItem("wedding_guest_name");
   }
@@ -233,8 +233,6 @@ if (rsvpNameEl) {
   rsvpNameEl.addEventListener("change", (e) => {
     const name = e.target.value.trim();
 
-    // Salva o nome imediatamente ao selecionar no RSVP,
-    // para que a lista de presentes não peça o nome novamente.
     if (name) {
       setStoredGuestName(name);
     }
@@ -437,7 +435,7 @@ async function reverterUltimaCota() {
 }
 
 function getGifterName() {
-  const stored = getStoredGuestName();
+  let stored = getStoredGuestName();
   if (stored) return stored;
   
   const select = document.getElementById("giftName");
@@ -445,8 +443,10 @@ function getGifterName() {
   
   if (val) {
     setStoredGuestName(val); 
+    return val;
   }
-  return val;
+  
+  return "";
 }
 
 async function handleConfirmFullGift(e) {
@@ -507,12 +507,20 @@ document.addEventListener("DOMContentLoaded", () => {
   if (confirmFullBtn) confirmFullBtn.addEventListener("click", handleConfirmFullGift);
   if (confirmQuotaBtn) confirmQuotaBtn.addEventListener("click", handleConfirmQuotaGift);
 
-  // CORREÇÃO: Removido o seletor universal "button" para preservar modais e ações gerais
-  const areaNoivosButtons = document.querySelectorAll('a[href*="noivos"], a[href*="admin"], #btnNoivos, .btn-noivos, [data-section="noivos"]');
-  areaNoivosButtons.forEach(btn => {
-    const text = btn.textContent.toLowerCase();
-    if (text.includes("noivos") || text.includes("painel") || text.includes("área")) {
-      btn.addEventListener("click", (e) => {
+  // CORREÇÃO AMPLIADA DO BOTÃO DA ÁREA DOS NOIVOS (captura links, botões do rodapé e áreas administrativas)
+  const areaNoivosButtons = document.querySelectorAll('a, button, [role="button"]');
+  areaNoivosButtons.forEach(el => {
+    const text = el.textContent ? el.textContent.toLowerCase() : "";
+    const href = el.getAttribute("href") ? el.getAttribute("href").toLowerCase() : "";
+    
+    if (
+      text.includes("noivos") || 
+      text.includes("painel") || 
+      text.includes("área dos noivos") || 
+      href.includes("noivos") || 
+      href.includes("admin")
+    ) {
+      el.addEventListener("click", (e) => {
         e.preventDefault();
         const targetSection = document.getElementById("noivos") || document.getElementById("admin") || document.querySelector(".noivos-section") || document.querySelector("#nossa-historia");
         if (targetSection) {
