@@ -583,3 +583,27 @@ window.login = function(event) {
     }
   }
 };
+// ==========================================
+// CONTROLE DE ABAS DA ÁREA DOS NOIVOS
+// ==========================================
+document.addEventListener("DOMContentLoaded", () => {
+  const tabButtons = document.querySelectorAll(".admin-tab-btn, [data-tab]"); // Seleciona os botões das abas
+  
+  tabButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      const targetTab = button.getAttribute("data-tab");
+      if (!targetTab) return;
+
+      // Remove a classe ativa de todos os botões e oculta os conteúdos
+      document.querySelectorAll("[data-tab]").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(content => content.classList.add("hidden"));
+
+      // Ativa o botão clicado e mostra o conteúdo correspondente
+      button.classList.add("active");
+      const activeContent = document.getElementById(targetTab);
+      if (activeContent) {
+        activeContent.classList.remove("hidden");
+      }
+    });
+  });
+});
