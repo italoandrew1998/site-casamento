@@ -141,7 +141,7 @@ const gifts = [
   },
   { 
     id: 19, 
-    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="sofá.jpg" alt="Sofá" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="sofa.jpg" alt="Sofá" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
     title: "Sofá", 
     description: '<div style="text-align: center;">Presentes Especiais<br><a href="https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small></div>', 
     price: "Sugestão" 
@@ -154,7 +154,7 @@ const gifts = [
   { id: 23, icon: "🖼️", title: "Cota para decoração", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 200,00" },
   { id: 24, icon: "🎁", title: "Cota para algum item especial da casa", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 250,00" }
 ];
- 
+
 let state = { guests: [], claims: [], allowed: [] };
 let selectedGift = null;
 
@@ -231,6 +231,7 @@ if (manualNameEl) {
     if (manualGuestsSelect) manualGuestsSelect.innerHTML = options;
   });
 }
+
 // ==========================================
 // 5. PRESENTES E FLUXO DE ESCOLHA (ITEM COMPLETO OU COTA)
 // ==========================================
@@ -241,8 +242,8 @@ function renderGifts() {
 
   giftGrid.innerHTML = gifts.map(g => {
     const allClaims = claimsFor(g.id);
-    const quotaClaims = allClaims.filter(c => c.name.includes("(Cota)"));
-    const fullClaims = allClaims.filter(c => !c.name.includes("(Cota)"));
+    const quotaClaims = allClaims.filter(c => c.name && c.name.includes("(Cota)"));
+    const fullClaims = allClaims.filter(c => c.name && !c.name.includes("(Cota)"));
 
     let statusMsg = "";
 
@@ -276,8 +277,8 @@ window.openGift = function(id) {
   if (!selectedGift) return;
 
   const allClaims = claimsFor(id);
-  const quotaClaims = allClaims.filter(c => c.name.includes("(Cota)"));
-  const fullClaims = allClaims.filter(c => !c.name.includes("(Cota)"));
+  const quotaClaims = allClaims.filter(c => c.name && c.name.includes("(Cota)"));
+  const fullClaims = allClaims.filter(c => c.name && !c.name.includes("(Cota)"));
 
   document.getElementById("modalTitle").textContent = selectedGift.title;
   document.getElementById("modalPrice").innerHTML = selectedGift.description;
@@ -331,16 +332,46 @@ async function handleConfirmFullGift() {
 
     alert(`Muito obrigado, ${name}! Seu presente (${selectedGift.title}) foi registrado com sucesso.`);
     closeGift();
-    await loadClaims();
-    renderGifts();
-    renderAdmin();
+    await loadData();
   } catch (err) {
     console.error("Erro ao salvar presente:", err);
     alert("Ocorreu um erro ao registrar seu presente. Tente novamente.");
   }
 }
 
-/handleConfirmQu
+// Confirmar uma Cota (Redireciona para a Etapa do Pix)
+async function handleConfirmQuotaGift() {
+  const nameSelect = document.getElementById("giftName");
+  const rawName = nameSelect ? nameSelect.value.trim() : "";
+
+  if (!rawName) {
+    alert("Por favor, selecione seu nome na lista.");
+    return;
+  }
+
+  const nameWithQuota = `${rawName} (Cota)`;
+
+  try {
+    const { error } = await supabaseClient.from("claims").insert({
+      gift_id: selectedGift.id,
+      gift_title: selectedGift.title,
+      name: nameWithQuota
+    });
+
+    if (error) throw error;
+
+    // Transiciona o modal para a Etapa 2 (Exibição do Pix)
+    const giftStepSelection = document.getElementById("giftStepSelection");
+    const giftStepPix = document.getElementById("giftStepPix");
+    if (giftStepSelection) giftStepSelection.classList.add("hidden");
+    if (giftStepPix) giftStepPix.classList.remove("hidden");
+
+    await loadData();
+  } catch (err) {
+    console.error("Erro ao salvar cota:", err);
+    alert(`Ocorreu um erro ao registrar sua cota. Tente novamente.`);
+  }
+}
 
 // Event Listeners dos botões do Modal de Presentes
 document.addEventListener("DOMContentLoaded", () => {
