@@ -324,9 +324,9 @@ async function handleConfirmFullGift(e) {
   }
 
   try {
+    // CORREÇÃO AQUI: Removido o gift_title que não existe no Supabase
     const { error } = await supabaseClient.from("claims").insert({
       gift_id: selectedGift.id,
-      gift_title: selectedGift.title,
       name: name
     });
 
@@ -357,13 +357,12 @@ async function handleConfirmQuotaGift(e) {
     return;
   }
 
-  // Adiciona a tag para diferenciar, mas pode ser o que está causando o erro no banco
   const nameWithQuota = `${rawName} (Cota)`;
 
   try {
+    // CORREÇÃO AQUI: Removido o gift_title que não existe no Supabase
     const { error } = await supabaseClient.from("claims").insert({
       gift_id: selectedGift.id,
-      gift_title: selectedGift.title,
       name: nameWithQuota 
     });
 
@@ -385,7 +384,6 @@ async function handleConfirmQuotaGift(e) {
     alert(`Erro inesperado na cota: ${err.message || err}`);
   }
 }
-
 // Event Listeners dos botões do Modal de Presentes
 document.addEventListener("DOMContentLoaded", () => {
   const closeModalBtn = document.getElementById("closeModal");
