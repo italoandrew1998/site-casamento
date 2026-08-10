@@ -312,7 +312,9 @@ window.closeGift = function() {
 };
 
 // Confirmar o Item Inteiro
-async function handleConfirmFullGift() {
+async function handleConfirmFullGift(e) {
+  if (e) e.preventDefault(); // Impede que o botão recarregue a página
+  
   const nameSelect = document.getElementById("giftName");
   const name = nameSelect ? nameSelect.value.trim() : "";
 
@@ -328,19 +330,25 @@ async function handleConfirmFullGift() {
       name: name
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Erro Supabase Presente:", error);
+      alert(`Erro do Banco de Dados: ${error.message}`);
+      return;
+    }
 
     alert(`Muito obrigado, ${name}! Seu presente (${selectedGift.title}) foi registrado com sucesso.`);
     closeGift();
     await loadData();
   } catch (err) {
-    console.error("Erro ao salvar presente:", err);
-    alert("Ocorreu um erro ao registrar seu presente. Tente novamente.");
+    console.error("Erro interno:", err);
+    alert(`Erro inesperado: ${err.message || err}`);
   }
 }
 
 // Confirmar uma Cota (Redireciona para a Etapa do Pix)
-async function handleConfirmQuotaGift() {
+async function handleConfirmQuotaGift(e) {
+  if (e) e.preventDefault(); // Impede que o botão recarregue a página
+  
   const nameSelect = document.getElementById("giftName");
   const rawName = nameSelect ? nameSelect.value.trim() : "";
 
@@ -349,16 +357,21 @@ async function handleConfirmQuotaGift() {
     return;
   }
 
+  // Adiciona a tag para diferenciar, mas pode ser o que está causando o erro no banco
   const nameWithQuota = `${rawName} (Cota)`;
 
   try {
     const { error } = await supabaseClient.from("claims").insert({
       gift_id: selectedGift.id,
       gift_title: selectedGift.title,
-      name: nameWithQuota
+      name: nameWithQuota 
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Erro Supabase Cota:", error);
+      alert(`⚠️ ERRO DO SUPABASE AO SALVAR COTA:\n\n${error.message}`);
+      return;
+    }
 
     // Transiciona o modal para a Etapa 2 (Exibição do Pix)
     const giftStepSelection = document.getElementById("giftStepSelection");
@@ -368,8 +381,8 @@ async function handleConfirmQuotaGift() {
 
     await loadData();
   } catch (err) {
-    console.error("Erro ao salvar cota:", err);
-    alert(`Ocorreu um erro ao registrar sua cota. Tente novamente.`);
+    console.error("Erro interno:", err);
+    alert(`Erro inesperado na cota: ${err.message || err}`);
   }
 }
 
