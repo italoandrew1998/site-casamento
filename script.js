@@ -512,33 +512,24 @@ document.addEventListener("DOMContentLoaded", () => {
   loadData();
 });
 
-// SOLUÇÃO DEFINITIVA DO BOTÃO "ÁREA DOS NOIVOS" (Corrigida)
+// SOLUÇÃO DEFINITIVA DO BOTÃO "ÁREA DOS NOIVOS"
 document.addEventListener("click", (e) => {
+  // PROTEÇÃO BLINDADA: Se o clique acontecer dentro do #adminAuth, 
+  // o script ignora a rolagem e deixa o botão de login funcionar.
+  if (e.target.closest('#adminAuth')) {
+    return; 
+  }
+
   const targetElement = e.target.closest('a, button, [role="button"], .btn-noivos, #btnNoivos');
   
   if (targetElement) {
-    // PROTEÇÃO: Se o botão clicado for o de fazer login (dentro da área de senha), 
-    // ignoramos este script para que o login funcione normalmente.
+    const href = targetElement.getAttribute("href") ? targetElement.getAttribute("href").toLowerCase() : "";
     const text = targetElement.textContent ? targetElement.textContent.toLowerCase().trim() : "";
     
-    if (text === "acessar painel" || targetElement.closest('form')) {
-        return; // Sai da função de rolagem e permite o login
-    }
-
-    const href = targetElement.getAttribute("href") ? targetElement.getAttribute("href").toLowerCase() : "";
-    
-    if (
-      text.includes("área dos noivos") || 
-      href.includes("noivos") || 
-      href.includes("admin")
-    ) {
+    if (text.includes("área dos noivos") || href.includes("noivos") || href.includes("admin")) {
       e.preventDefault(); 
-
-      const targetSection = document.getElementById("noivos") || 
-                            document.getElementById("admin") || 
-                            document.querySelector(".noivos-section") || 
-                            document.querySelector("#nossa-historia") ||
-                            document.getElementById("loginAdmin");
+      
+      const targetSection = document.getElementById("admin");
 
       if (targetSection) {
         targetSection.scrollIntoView({ behavior: "smooth" });
