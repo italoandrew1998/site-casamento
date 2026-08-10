@@ -545,7 +545,7 @@ function renderAll() {
 }
 
 // ==========================================
-// 7. FUNÇÃO DE LOGIN DO PAINEL ADMIN (ADICIONADA)
+// 7. FUNÇÃO DE LOGIN DO PAINEL ADMIN (CORRIGIDA)
 // ==========================================
 window.login = function(event) {
   // Evita que a página recarregue caso o botão esteja dentro de um <form>
@@ -561,18 +561,25 @@ window.login = function(event) {
   const senhaDigitada = campoSenha.value; 
   
   if (senhaDigitada === ADMIN_PASSWORD) {
-    // Esconde a área de login
-    const loginAdmin = document.getElementById("loginAdmin");
-    if (loginAdmin) loginAdmin.classList.add("hidden");
+    // Esconde a área de login (Nome corrigido para adminAuth)
+    const loginArea = document.getElementById("adminAuth");
+    if (loginArea) loginArea.classList.add("hidden");
     
-    // Mostra o painel com as informações dos convidados/presentes
-    const adminPanel = document.getElementById("adminPanel");
+    // Mostra o painel com as informações (Nome corrigido para adminContent)
+    const adminPanel = document.getElementById("adminContent");
     if (adminPanel) adminPanel.classList.remove("hidden");
     
-    // Se você tiver uma função que constrói as tabelas da área admin, ela deve ser chamada aqui. 
-    // Exemplo: if (typeof renderAdminTables === 'function') renderAdminTables();
+    // Tenta esconder a mensagem de erro caso ela esteja visível de uma tentativa anterior
+    const errorMsg = document.getElementById("adminError");
+    if (errorMsg) errorMsg.classList.add("hidden");
     
   } else {
-    alert("Senha incorreta!");
+    // Mostra a mensagem de erro na tela ao invés de um alerta chato
+    const errorMsg = document.getElementById("adminError");
+    if (errorMsg) {
+      errorMsg.classList.remove("hidden");
+    } else {
+      alert("Senha incorreta!");
+    }
   }
 };
