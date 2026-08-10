@@ -584,25 +584,39 @@ window.login = function(event) {
   }
 };
 // ==========================================
-// CONTROLE DE ABAS DA ÁREA DOS NOIVOS
+// CONTROLE DE ABAS DA ÁREA DOS NOIVOS (CORRIGIDO)
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
-  const tabButtons = document.querySelectorAll(".admin-tab-btn, [data-tab]"); // Seleciona os botões das abas
+  const tabButtons = document.querySelectorAll(".admin-tabs .tab");
   
   tabButtons.forEach(button => {
     button.addEventListener("click", () => {
-      const targetTab = button.getAttribute("data-tab");
-      if (!targetTab) return;
+      const targetTabId = button.getAttribute("data-tab"); // Ex: guestsTab, giftsTab, addTab
+      if (!targetTabId) return;
 
-      // Remove a classe ativa de todos os botões e oculta os conteúdos
-      document.querySelectorAll("[data-tab]").forEach(btn => btn.classList.remove("active"));
-      document.querySelectorAll(".tab-content").forEach(content => content.classList.add("hidden"));
-
-      // Ativa o botão clicado e mostra o conteúdo correspondente
+      // Remove a classe 'active' de todos os botões de aba e adiciona no clicado
+      document.querySelectorAll(".admin-tabs .tab").forEach(btn => btn.classList.remove("active"));
       button.classList.add("active");
-      const activeContent = document.getElementById(targetTab);
+
+      // Esconde todos os conteúdos de aba (tab-content) e mostra apenas o alvo
+      document.querySelectorAll(".tab-content").forEach(content => {
+        content.classList.add("hidden");
+      });
+
+      const activeContent = document.getElementById(targetTabId);
       if (activeContent) {
         activeContent.classList.remove("hidden");
+        
+        // Se a aba clicada for a de presentes escolhidos (giftsTab), 
+        // chama a função que busca e renderiza os dados na tabela (giftTable)
+        if (targetTabId === "giftsTab" && typeof carregarPresentesEscolhidos === "function") {
+          carregarPresentesEscolhidos();
+        }
+        
+        // Se for a aba de convidados, garante a atualização também (se houver a função)
+        if (targetTabId === "guestsTab" && typeof carregarConvidados === "function") {
+          carregarConvidados();
+        }
       }
     });
   });
