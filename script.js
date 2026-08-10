@@ -1,717 +1,626 @@
-// ==========================================
-// 1. CONFIGURAÇÕES DO SUPABASE E ADMIN
-// ==========================================
+// ============================================================
+// SITE DE CASAMENTO MILENE E ITALO
+// Versao revisada para o HTML e as tabelas atuais do Supabase
+// ============================================================
+
+// 1. CONFIGURACOES
 const SUPABASE_URL = "https://uilegqmbxrtxgauccbpy.supabase.co";
 const SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";
-const ADMIN_PASSWORD = "mfsq&iars26092026"; 
+
+// ATENCAO: esta senha funciona apenas como bloqueio visual.
+// Troque por uma senha nova antes de publicar. A seguranca real depende das politicas RLS.
+const ADMIN_PASSWORD = "mfsq&iars26092026";
+
+const PIX_KEY = "italoandrew1998l@gmail.com";
+const PIX_CODE = "00020126550014br.gov.bcb.pix0126italoandrew1998l@gmail.com0203Pix5204000053039865802BR5925ITALO_ANDREW_RODRIGUES_SA6008JANUARIA62130509Presentes6304E23F";
+
+if (typeof supabase === "undefined") {
+  throw new Error("A biblioteca do Supabase nao foi carregada. Verifique a tag script no HTML.");
+}
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Variáveis de Estado
-let state = { guests: [], claims: [], allowed: [] };
+const state = {
+  guests: [],
+  claims: [],
+  allowed: [],
+  adminUnlocked: false
+};
+
 let selectedGift = null;
-let pendingRsvpData = null; 
-let quotaPendingConfirmation = false; 
+let pendingRsvpData = null;
+let pendingQuotaData = null;
+let isSaving = false;
+
+// 2. LISTA DE PRESENTES
+const gifts = [
+  { id: 1, image: "liquidificador.jpg", title: "Liquidificador", category: "Cozinha", url: "https://www.mercadolivre.com.br/liquidificador-l1200-bi-turbo-black-pretoinox-mondial-127v/up/MLBU1091019903", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 2, image: "Batedeira.jpg", title: "Batedeira", category: "Cozinha", url: "https://www.mercadolivre.com.br/batedeira-planetaria-philco-900w-5l-preta-12-velocidades-turbo-pbp90a/p/MLB49822923", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 3, image: "sanduicheira.jpg", title: "Sanduicheira", category: "Cozinha", url: "https://www.mercadolivre.com.br/grill-e-sanduicheira-pgr21pi-maxx-clean-1000w-cinza-philco/p/MLB22852655", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 4, image: "cafeteira.jpg", title: "Cafeteira", category: "Cozinha", url: "https://www.mercadolivre.com.br/wap-wcd1500-cafeteira-digital-15l-timer-automatica/p/MLB42197196", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 5, image: "panela de pressao eletrica.jpg", title: "Panela de pressao eletrica", category: "Cozinha", url: "https://www.mercadolivre.com.br/panela-de-pressao-eletrica-5-litros-aco-inox-preto-multifuncional-kian-ppe-101/p/MLB50190417", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 6, icon: "🍽️", title: "Jogo de travessas", category: "Cozinha", price: "Sugestao", acceptsQuota: true },
+  { id: 7, icon: "🍴", title: "Faqueiro", category: "Cozinha", price: "Sugestao", acceptsQuota: true },
+  { id: 8, image: "tacajogo.jpg", title: "Jogo de tacas", category: "Cozinha", url: "https://br.shp.ee/MJv2LsJ3", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 9, icon: "🥧", title: "Conjunto de assadeiras", category: "Cozinha", price: "Sugestao", acceptsQuota: true },
+  { id: 10, image: "forno eletrico.jpg", title: "Forno eletrico", category: "Cozinha", url: "https://www.mercadolivre.com.br/forno-eletrico-philco-pfe65-com-grelha-65-litros-110v-preto/p/MLB64872179", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 11, image: "tabua de passar.jpg", title: "Tabua de passar", category: "Casa", url: "https://produto.mercadolivre.com.br/MLB-3332613795-tabua-mesa-de-passar-roupa-suprema-extra-grande-tampo-de-aco-_JM", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 12, icon: "🛏️", title: "Jogo de cama", category: "Casa, cama tamanho queen", price: "Sugestao", acceptsQuota: true },
+  { id: 13, icon: "🛌", title: "Edredom", category: "Casa, cama tamanho queen", price: "Sugestao", acceptsQuota: true },
+  { id: 14, icon: "🧶", title: "Cobertor", category: "Casa, cama tamanho queen", price: "Sugestao", acceptsQuota: true },
+  { id: 15, icon: "🛁", title: "Jogo de toalhas", category: "Casa", price: "Sugestao", acceptsQuota: true },
+  { id: 16, icon: "🏠", title: "Tapete para sala", category: "Casa", price: "Sugestao", acceptsQuota: true },
+  { id: 17, icon: "🏠", title: "Tapete para quarto", category: "Casa", price: "Sugestao", acceptsQuota: true },
+  { id: 18, image: "cadeiras.jpg", title: "Jogo de 8 Cadeiras", category: "Presentes Especiais", url: "https://br.shp.ee/2U1wV6Kx", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 19, image: "sofa.jpg", title: "Sofa", category: "Presentes Especiais", url: "https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 20, icon: "✈️", title: "Cota para lua de mel", category: "Cotas / Presentes em dinheiro", price: "R$ 500,00", quotaOnly: true },
+  { id: 21, icon: "🛋️", title: "Cota para moveis", category: "Cotas / Presentes em dinheiro", price: "R$ 300,00", quotaOnly: true },
+  { id: 22, icon: "⚡", title: "Cota para eletrodomesticos", category: "Cotas / Presentes em dinheiro", price: "R$ 300,00", quotaOnly: true },
+  { id: 23, icon: "🖼️", title: "Cota para decoracao", category: "Cotas / Presentes em dinheiro", price: "R$ 200,00", quotaOnly: true },
+  { id: 24, icon: "🎁", title: "Cota para algum item especial da casa", category: "Cotas / Presentes em dinheiro", price: "R$ 250,00", quotaOnly: true }
+];
+
+// 3. UTILITARIOS
+const byId = id => document.getElementById(id);
+const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+})[char]);
+const normalize = value => String(value || "").trim().toLocaleLowerCase("pt-BR");
+const claimsFor = id => state.claims.filter(claim => Number(claim.gift_id) === Number(id));
+const isQuotaClaim = claim => /\s\(Cota\)$/.test(String(claim.name || ""));
+const cleanClaimName = name => String(name || "Convidado").replace(/\s\(Cota\)$/, "");
 
 function getStoredGuestName() {
   return sessionStorage.getItem("wedding_guest_name") || "";
 }
 
 function setStoredGuestName(name) {
-  if (name) {
-    sessionStorage.setItem("wedding_guest_name", name.trim());
+  const cleanName = String(name || "").trim();
+  if (cleanName) sessionStorage.setItem("wedding_guest_name", cleanName);
+  else sessionStorage.removeItem("wedding_guest_name");
+}
+
+function showMessage(elementId, html, type = "success") {
+  const element = byId(elementId);
+  if (!element) return;
+  element.classList.remove("hidden");
+  element.innerHTML = html;
+  element.style.background = type === "error" ? "#f8d7da" : "#dff3e4";
+  element.style.color = type === "error" ? "#721c24" : "#245c35";
+}
+
+function setButtonLoading(button, loading, loadingText = "Salvando...") {
+  if (!button) return;
+  if (loading) {
+    button.dataset.originalText = button.textContent;
+    button.textContent = loadingText;
+    button.disabled = true;
   } else {
-    sessionStorage.removeItem("wedding_guest_name");
+    button.textContent = button.dataset.originalText || button.textContent;
+    button.disabled = false;
   }
 }
 
-// LISTA DE PRESENTES COMPLETA
-const gifts = [
-  // 🍳 COZINHA
-  { 
-    id: 1, 
-    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="liquidificador.jpg" alt="Liquidificador" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
-    title: "Liquidificador", 
-    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/liquidificador-l1200-bi-turbo-black-pretoinox-mondial-127v/up/MLBU1091019903" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 2, 
-    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="Batedeira.jpg" alt="Batedeira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
-    title: "Batedeira", 
-    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/batedeira-planetaria-philco-900w-5l-preta-12-velocidades-turbo-pbp90a/p/MLB49822923" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 3, 
-    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="sanduicheira.jpg" alt="Sanduicheira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
-    title: "Sanduicheira", 
-    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/grill-e-sanduicheira-pgr21pi-maxx-clean-1000w-cinza-philco/p/MLB22852655" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 4, 
-    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="cafeteira.jpg" alt="Cafeteira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
-    title: "Cafeteira", 
-    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/wap-wcd1500-cafeteira-digital-15l-timer-automatica/p/MLB42197196" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 5, 
-    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="panela de pressao eletrica.jpg" alt="Panela de pressão elétrica" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
-    title: "Panela de pressão elétrica", 
-    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/panela-de-pressao-eletrica-5-litros-aco-inox-preto-multifuncional-kian-ppe-101/p/MLB50190417" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 6, 
-    icon: "🍽️", 
-    title: "Jogo de travessas", 
-    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 7, 
-    icon: "🍴", 
-    title: "Faqueiro", 
-    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 8, 
-    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="tacajogo.jpg" alt="Jogo de taças" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
-    title: "Jogo de taças", 
-    description: '<div style="text-align: center;">Cozinha<br><a href="https://br.shp.ee/MJv2LsJ3" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto na Shopee</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 9, 
-    icon: "🥧", 
-    title: "Conjunto de assadeiras", 
-    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 10, 
-    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="forno elétrico.jpg" alt="Forno elétrico" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
-    title: "Forno elétrico", 
-    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/forno-eletrico-philco-pfe65-com-grelha-65-litros-110v-preto/p/MLB64872179" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
+function populateCompanionSelect(nameSelectId, companionSelectId) {
+  const nameSelect = byId(nameSelectId);
+  const companionSelect = byId(companionSelectId);
+  if (!nameSelect || !companionSelect) return;
 
-  // 🏠 CASA
-  { 
-    id: 11, 
-    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="tábua de passar.jpg" alt="Tábua de passar" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
-    title: "Tábua de passar", 
-    description: '<div style="text-align: center;">Casa<br><a href="https://produto.mercadolivre.com.br/MLB-3332613795-tabua-mesa-de-passar-roupa-suprema-extra-grande-tampo-de-aco-_JM" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 12, 
-    icon: "🛏️", 
-    title: "Jogo de cama", 
-    description: '<div style="text-align: center;">Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 13, 
-    icon: "🛌", 
-    title: "Edredom", 
-    description: '<div style="text-align: center;">Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 14, 
-    icon: "🧶", 
-    title: "Cobertor", 
-    description: '<div style="text-align: center;">Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 15, 
-    icon: "🛁", 
-    title: "Jogo de toalhas", 
-    description: '<div style="text-align: center;">Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 16, 
-    icon: "🏠", 
-    title: "Tapete para sala", 
-    description: '<div style="text-align: center;">Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 17, 
-    icon: "🏠", 
-    title: "Tapete para quarto", 
-    description: '<div style="text-align: center;">Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
-    price: "Sugestão" 
-  },
+  const option = nameSelect.options[nameSelect.selectedIndex];
+  const maxGuests = Number(option?.dataset.max || 0);
+  let html = '<option value="0">Somente o convidado</option>';
+  for (let i = 1; i <= maxGuests; i++) {
+    html += `<option value="${i}">+ ${i} acompanhante(s)</option>`;
+  }
+  companionSelect.innerHTML = html;
+}
 
-  // 💎 PRESENTES ESPECIAIS
-  { 
-    id: 18, 
-    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="cadeiras.jpg" alt="Jogo de Cadeiras" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
-    title: "Jogo de 8 Cadeiras", 
-    description: '<div style="text-align: center;">Presentes Especiais<br><a href="https://br.shp.ee/2U1wV6Kx" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto na Shopee</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small></div>', 
-    price: "Sugestão" 
-  },
-  { 
-    id: 19, 
-    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="sofa.jpg" alt="Sofá" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
-    title: "Sofá", 
-    description: '<div style="text-align: center;">Presentes Especiais<br><a href="https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small></div>', 
-    price: "Sugestão" 
-  },
+function giftDescription(gift) {
+  const productLink = gift.url
+    ? `<br><a href="${esc(gift.url)}" target="_blank" rel="noopener noreferrer" style="color:#2c5e3b;text-decoration:underline;font-weight:bold;">Ver produto ${gift.store ? `na ${esc(gift.store)}` : "sugerido"}</a>`
+    : "";
+  const quotaText = gift.quotaOnly ? "" : "<br><small style=\"color:#666;\">*Aceitamos tambem cota para este item.</small>";
+  return `<div style="text-align:center;">${esc(gift.category)}${productLink}${quotaText}</div>`;
+}
 
-  // 💰 COTAS / PRESENTES EM DINHEIRO
-  { id: 20, icon: "✈️", title: "Cota para lua de mel", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 500,00" },
-  { id: 21, icon: "🛋️", title: "Cota para móveis", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 300,00" },
-  { id: 22, icon: "⚡", title: "Cota para eletrodomésticos", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 300,00" },
-  { id: 23, icon: "🖼️", title: "Cota para decoração", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 200,00" },
-  { id: 24, icon: "🎁", title: "Cota para algum item especial da casa", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 250,00" }
-];
-
-const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m]));
-const claimsFor = id => state.claims.filter(c => Number(c.gift_id) === Number(id));
-
-// ==========================================
-// 2. CARREGAR DADOS DO SUPABASE
-// ==========================================
+// 4. CARREGAMENTO DOS DADOS
 async function loadData() {
   try {
-    const { data: guests } = await supabaseClient.from('guests').select('*');
-    const { data: claims } = await supabaseClient.from('claims').select('*');
-    const { data: allowed } = await supabaseClient.from('allowed_guests').select('*').order('name', { ascending: true });
+    const [guestsResult, claimsResult, allowedResult] = await Promise.all([
+      supabaseClient.from("guests").select("*").order("created_at", { ascending: false }),
+      supabaseClient.from("claims").select("*").order("created_at", { ascending: false }),
+      supabaseClient.from("allowed_guests").select("*").order("name", { ascending: true })
+    ]);
 
-    state.guests = guests || [];
-    state.claims = claims || [];
-    state.allowed = allowed || [];
+    if (guestsResult.error) throw guestsResult.error;
+    if (claimsResult.error) throw claimsResult.error;
+    if (allowedResult.error) throw allowedResult.error;
 
-    renderAllSelects(); 
+    state.guests = guestsResult.data || [];
+    state.claims = claimsResult.data || [];
+    state.allowed = allowedResult.data || [];
+
+    renderAllSelects();
     renderGifts();
-    
-    // Atualiza tabelas do admin se visíveis
-    if (typeof carregarConvidados === "function") carregarConvidados();
-    if (typeof carregarPresentesEscolhidos === "function") carregarPresentesEscolhidos();
-  } catch (err) {
-    console.error("Falha ao conectar com banco de dados:", err);
+
+    if (state.adminUnlocked) {
+      renderGuestAdmin();
+      renderGiftAdmin();
+    }
+  } catch (error) {
+    console.error("Falha ao carregar dados:", error);
+    showMessage("rsvpMessage", "Nao foi possivel carregar os dados. Atualize a pagina e tente novamente.", "error");
   }
 }
 
-// ==========================================
-// 3. PREENCHER MENUS E SELEÇÃO DE LADO
-// ==========================================
-function renderAllSelects() {
-  const optionsHtmlAll = !state.allowed.length
-    ? '<option value="">Nenhum nome cadastrado</option>'
-    : '<option value="">-- Selecione o nome --</option>' +
-      state.allowed.map(g => `<option value="${esc(g.name)}" data-max="${g.max_guests}">${esc(g.name)}</option>`).join("");
-
-  const giftSelect = document.getElementById("giftName");
-  if (giftSelect) giftSelect.innerHTML = optionsHtmlAll;
-
-  const manualSelect = document.getElementById("manualName");
-  if (manualSelect) manualSelect.innerHTML = optionsHtmlAll;
+// 5. SELETORES E ACOMPANHANTES
+function allowedOptions(list, placeholder) {
+  if (!list.length) return '<option value="">Nenhum nome cadastrado</option>';
+  return `<option value="">${esc(placeholder)}</option>` + list.map(guest =>
+    `<option value="${esc(guest.name)}" data-max="${Number(guest.max_guests) || 0}">${esc(guest.name)}</option>`
+  ).join("");
 }
 
-window.selectSide = function(lado) {
-  const listaFiltrada = state.allowed.filter(g => g.lado === lado);
+function renderAllSelects() {
+  const allOptions = allowedOptions(state.allowed, "-- Selecione o nome --");
+  const storedName = getStoredGuestName();
 
-  const optionsHtml = !listaFiltrada.length
-    ? '<option value="">Nenhum nome encontrado para esta lista</option>'
-    : '<option value="">-- Selecione o seu nome --</option>' +
-      listaFiltrada.map(g => `<option value="${esc(g.name)}" data-max="${g.max_guests}">${esc(g.name)}</option>`).join("");
-
-  const rsvpSelect = document.getElementById("rsvpName");
-  if (rsvpSelect) rsvpSelect.innerHTML = optionsHtml;
-
-  document.getElementById("sideSelection").classList.add("hidden");
-  document.getElementById("rsvpFormContent").classList.remove("hidden");
-};
-
-const rsvpNameEl = document.getElementById("rsvpName");
-if (rsvpNameEl) {
-  rsvpNameEl.addEventListener("change", (e) => {
-    const name = e.target.value.trim();
-    if (name) setStoredGuestName(name);
-
-    const selectedOption = e.target.options[e.target.selectedIndex];
-    const maxGuests = Number(selectedOption ? selectedOption.dataset.max : 0) || 0;
-    const guestsSelect = document.getElementById("rsvpGuests");
-
-    let options = '<option value="0">Somente eu</option>';
-    for (let i = 1; i <= maxGuests; i++) {
-      options += `<option value="${i}">+ ${i} acompanhante(s)</option>`;
-    }
-    if (guestsSelect) guestsSelect.innerHTML = options;
+  ["giftName", "manualName"].forEach(id => {
+    const select = byId(id);
+    if (!select) return;
+    const oldValue = select.value;
+    select.innerHTML = allOptions;
+    const desiredValue = oldValue || (id === "giftName" ? storedName : "");
+    if ([...select.options].some(option => option.value === desiredValue)) select.value = desiredValue;
   });
 }
 
-// ==========================================
-// 4. FLUXO DE CONFIRMAÇÃO DE PRESENÇA (RSVP)
-// ==========================================
-const rsvpForm = document.getElementById("rsvpForm");
-if (rsvpForm) {
-  rsvpForm.onsubmit = e => {
-    e.preventDefault();
-    const name = document.getElementById("rsvpName").value;
-    if (!name) return alert("Por favor, selecione seu nome na lista.");
+window.selectSide = function selectSide(side) {
+  const filtered = state.allowed.filter(guest => normalize(guest.lado) === normalize(side));
+  const select = byId("rsvpName");
+  if (select) select.innerHTML = allowedOptions(filtered, "-- Selecione o seu nome --");
+  byId("sideSelection")?.classList.add("hidden");
+  byId("rsvpFormContent")?.classList.remove("hidden");
+};
 
-    setStoredGuestName(name);
+// 6. CONFIRMACAO DE PRESENCA
+function prepareRsvp(event) {
+  event.preventDefault();
+  const name = byId("rsvpName")?.value.trim();
+  if (!name) return alert("Por favor, selecione seu nome na lista.");
 
-    const answer = e.submitter ? e.submitter.dataset.answer : "sim";
-    const people = Number(document.getElementById("rsvpGuests").value);
-    const source = document.getElementById("rsvpSource") ? document.getElementById("rsvpSource").value : "convidado";
-    
-    pendingRsvpData = { name, people, answer, source };
+  const answer = event.submitter?.dataset.answer || "sim";
+  const companions = answer === "sim" ? Number(byId("rsvpGuests")?.value || 0) : 0;
+  const source = byId("rsvpSource")?.value || "convidado";
 
-    document.getElementById("rsvpFormContent").classList.add("hidden");
-    const confirmScreen = document.getElementById("rsvpConfirmScreen");
-    confirmScreen.classList.remove("hidden");
-
-    let textoRevisao = "";
-    if (answer === "sim") {
-       textoRevisao = `Você está confirmando presença para <br><b style="font-size:22px; color:#2c5e3b;">${name}</b><br>`;
-       if (people > 0) textoRevisao += `e mais <b>${people} acompanhante(s)</b>.`;
-       else textoRevisao += `(Somente você).`;
-    } else {
-       textoRevisao = `Você está avisando que <br><b style="font-size:22px; color:#d9534f;">${name}</b><br>NÃO poderá comparecer.`;
-    }
-
-    document.getElementById("rsvpConfirmText").innerHTML = textoRevisao;
-  };
-}
-
-window.cancelRSVP = function() {
-  pendingRsvpData = null;
-  document.getElementById("rsvpConfirmScreen").classList.add("hidden");
-  document.getElementById("rsvpFormContent").classList.remove("hidden");
-}
-
-window.confirmRSVP = async function() {
-  if (!pendingRsvpData) return;
-  const { name, people, answer, source } = pendingRsvpData;
-  
-  const { error } = await supabaseClient.from('guests').insert([{
-    name, people: Number(people) + 1, status: answer, source, phone: ""
-  }]);
-
-  if (error) {
-    alert("Erro ao salvar confirmação. Tente novamente.");
-    return;
-  }
-  
-  await loadData();
+  pendingRsvpData = { name, companions, answer, source };
   setStoredGuestName(name);
 
-  document.getElementById("rsvpConfirmScreen").classList.add("hidden");
-  const m = document.getElementById("rsvpMessage");
-  m.classList.remove("hidden");
-  
-  m.innerHTML = answer === "sim" 
-    ? `<b>Presença confirmada!</b><br>Obrigado, ${esc(name)}. Esperamos você lá!` 
-    : `<b>Sentiremos sua falta!</b><br>Obrigado por nos avisar, ${esc(name)}.`;
+  byId("rsvpFormContent")?.classList.add("hidden");
+  byId("rsvpConfirmScreen")?.classList.remove("hidden");
 
-  setTimeout(() => {
-    const sectionPresentes = document.getElementById("presentes");
-    if (sectionPresentes) {
-      sectionPresentes.scrollIntoView({ behavior: "smooth" });
-    }
-  }, 1200); 
+  const text = answer === "sim"
+    ? `Voce esta confirmando presenca para<br><b style="font-size:22px;color:#2c5e3b;">${esc(name)}</b><br>${companions ? `e mais <b>${companions} acompanhante(s)</b>.` : "Somente voce."}`
+    : `Voce esta avisando que<br><b style="font-size:22px;color:#d9534f;">${esc(name)}</b><br>nao podera comparecer.`;
+
+  if (byId("rsvpConfirmText")) byId("rsvpConfirmText").innerHTML = text;
 }
 
-// ==========================================
-// 5. GESTÃO DE PRESENTES E COTAS
-// ==========================================
+window.cancelRSVP = function cancelRSVP() {
+  pendingRsvpData = null;
+  byId("rsvpConfirmScreen")?.classList.add("hidden");
+  byId("rsvpFormContent")?.classList.remove("hidden");
+};
+
+async function saveGuestResponse(payload) {
+  const existing = state.guests.find(guest => normalize(guest.name) === normalize(payload.name));
+  if (existing) {
+    return supabaseClient.from("guests").update(payload).eq("id", existing.id);
+  }
+  return supabaseClient.from("guests").insert([payload]);
+}
+
+window.confirmRSVP = async function confirmRSVP() {
+  if (!pendingRsvpData || isSaving) return;
+  isSaving = true;
+  const button = byId("rsvpConfirmScreen")?.querySelector(".btn.primary");
+  setButtonLoading(button, true);
+
+  const { name, companions, answer, source } = pendingRsvpData;
+  const payload = {
+    name,
+    people: answer === "sim" ? companions + 1 : 0,
+    status: answer,
+    source,
+    phone: ""
+  };
+
+  try {
+    const { error } = await saveGuestResponse(payload);
+    if (error) throw error;
+
+    pendingRsvpData = null;
+    await loadData();
+    byId("rsvpConfirmScreen")?.classList.add("hidden");
+    showMessage(
+      "rsvpMessage",
+      answer === "sim"
+        ? `<b>Presenca confirmada!</b><br>Obrigado, ${esc(name)}. Esperamos voce la!`
+        : `<b>Sentiremos sua falta!</b><br>Obrigado por nos avisar, ${esc(name)}.`
+    );
+
+    setTimeout(() => byId("presentes")?.scrollIntoView({ behavior: "smooth" }), 1200);
+  } catch (error) {
+    console.error(error);
+    alert("Erro ao salvar a confirmacao. Tente novamente.");
+  } finally {
+    isSaving = false;
+    setButtonLoading(button, false);
+  }
+};
+
+// 7. PRESENTES
 function renderGifts() {
-  const giftGrid = document.getElementById("giftGrid");
-  if (!giftGrid) return;
+  const grid = byId("giftGrid");
+  if (!grid) return;
 
-  giftGrid.innerHTML = gifts.map(g => {
-    const allClaims = claimsFor(g.id);
-    
-    const iconElement = (typeof g.icon === 'string' && g.icon.trim().startsWith('<')) 
-      ? g.icon 
-      : `<div class="gift-icon" style="font-size: 40px; text-align: center; margin-bottom: 10px;">${g.icon}</div>`;
-      
-    const displayPrice = (g.price !== "Sugestão" && g.price) ? `<div class="price" style="font-weight: bold; color: #2c5e3b; margin-bottom: 10px;">${g.price}</div>` : '';
+  grid.innerHTML = gifts.map(gift => {
+    const claims = claimsFor(gift.id);
+    const quotas = claims.filter(isQuotaClaim).length;
+    const fullItems = claims.length - quotas;
+    const visual = gift.image
+      ? `<div style="width:100%;height:110px;background:#fff;display:flex;align-items:center;justify-content:center;border-radius:8px;overflow:hidden;"><img src="${esc(gift.image)}" alt="${esc(gift.title)}" style="max-width:100%;max-height:100%;object-fit:contain;" loading="lazy"></div>`
+      : `<div class="gift-icon" style="font-size:40px;text-align:center;margin-bottom:10px;">${gift.icon || "🎁"}</div>`;
 
-    let claimsInfoHtml = '';
-    if (allClaims.length > 0) {
-      const totalCotas = allClaims.filter(c => c.name.includes("(Cota)")).length;
-      const totalItensCheios = allClaims.length - totalCotas;
+    const status = claims.length
+      ? `<div style="margin:10px 0;padding:8px;background:#f9f9f9;border-left:3px solid #2c5e3b;font-size:13px;text-align:left;border-radius:4px;"><strong style="color:#2c5e3b;">Status:</strong><br>${fullItems ? `<b>${fullItems}</b> item(ns) inteiro(s)<br>` : ""}${quotas ? `<b>${quotas}</b> cota(s) declarada(s)` : ""}</div>`
+      : '<div style="margin:10px 0;font-size:13px;color:#888;font-style:italic;">Disponivel para escolha</div>';
 
-      let resumoTexto = [];
-      if (totalItensCheios > 0) resumoTexto.push(`<b>${totalItensCheios}</b> pessoa(s) escolheram o item inteiro`);
-      if (totalCotas > 0) resumoTexto.push(`<b>${totalCotas}</b> cota(s) contribuída(s)`);
-
-      claimsInfoHtml = `<div style="margin: 10px 0; padding: 8px; background: #f9f9f9; border-left: 3px solid #2c5e3b; font-size: 13px; text-align: left; border-radius: 4px;">
-        <strong style="color: #2c5e3b;">Status:</strong><br>${resumoTexto.join("<br>")}
-      </div>`;
-    } else {
-      claimsInfoHtml = `<div style="margin: 10px 0; font-size: 13px; color: #888; font-style: italic;">Disponível para escolha</div>`;
-    }
-
-    return `<article class="gift" style="text-align: center; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px;">
-      ${iconElement}
-      <h3 style="margin: 10px 0; font-size: 18px;">${g.title}</h3>
-      <div style="margin-bottom: 5px;">${g.description}</div>
-      ${displayPrice}
-      ${claimsInfoHtml}
-      <button class="btn primary" onclick="openGift(${g.id})" style="margin-top: 5px; padding: 8px 15px; background: #2c5e3b; color: #fff; border: none; border-radius: 6px; cursor: pointer;">${allClaims.length ? "Presentear também" : "Escolher este presente"}</button>
+    return `<article class="gift" style="text-align:center;background:#fff;padding:15px;border-radius:12px;box-shadow:0 2px 5px rgba(0,0,0,.05);margin-bottom:15px;">
+      ${visual}
+      <h3 style="margin:10px 0;font-size:18px;">${esc(gift.title)}</h3>
+      ${giftDescription(gift)}
+      ${gift.price !== "Sugestao" ? `<div class="price" style="font-weight:bold;color:#2c5e3b;margin:10px 0;">${esc(gift.price)}</div>` : ""}
+      ${status}
+      <button type="button" class="btn primary" onclick="openGift(${gift.id})" style="margin-top:5px;padding:8px 15px;">${claims.length ? "Presentear tambem" : "Escolher este presente"}</button>
     </article>`;
   }).join("");
 }
 
-window.openGift = function(id) {
-  selectedGift = gifts.find(g => g.id === id);
-  if (!selectedGift) return;
-  
-  quotaPendingConfirmation = false;
-  document.getElementById("modalTitle").textContent = selectedGift.title;
-  
-  let modalContentHtml = selectedGift.description;
-  if (selectedGift.price !== "Sugestão" && selectedGift.price) {
-    modalContentHtml += `<br><b style="color: #2c5e3b;">Valor: ${selectedGift.price}</b>`;
-  }
-  document.getElementById("modalPrice").innerHTML = modalContentHtml;
+function ensureGiftIdentityElements() {
+  const select = byId("giftName");
+  if (!select || byId("giftSelectWrapper")) return;
 
-  const wrapper = document.getElementById("giftSelectWrapper");
-  const nameAuto = document.getElementById("giftNameAuto");
-  const giftSelect = document.getElementById("giftName");
-  
-  let registeredName = getStoredGuestName();
-  
-  if (registeredName) {
-    if (giftSelect) giftSelect.value = registeredName;
-    if (wrapper) wrapper.classList.add("hidden");
-    if (nameAuto) {
-      nameAuto.classList.remove("hidden");
-      nameAuto.innerHTML = `Presenteando como: <br><b>${esc(registeredName)}</b>`;
-    }
-  } else {
-    if (wrapper) wrapper.classList.remove("hidden");
-    if (nameAuto) {
-      nameAuto.classList.add("hidden");
-      nameAuto.innerHTML = "";
-    }
-    if (giftSelect) giftSelect.value = "";
-  }
-  
-  const giftStepSelection = document.getElementById("giftStepSelection");
-  const giftStepPix = document.getElementById("giftStepPix");
-  if (giftStepSelection) giftStepSelection.classList.remove("hidden");
-  if (giftStepPix) giftStepPix.classList.add("hidden");
+  const label = document.querySelector('label[for="giftName"]');
+  const wrapper = document.createElement("div");
+  wrapper.id = "giftSelectWrapper";
+  label?.parentNode?.insertBefore(wrapper, label);
+  if (label) wrapper.appendChild(label);
+  wrapper.appendChild(select);
 
-  document.getElementById("giftModal").classList.remove("hidden");
-};
-
-window.closeGift = function() {
-  const giftStepPix = document.getElementById("giftStepPix");
-  const isPixVisible = giftStepPix && !giftStepPix.classList.contains("hidden");
-
-  if (isPixVisible && quotaPendingConfirmation) {
-    const confirmou = confirm("Você realizou o pagamento via PIX desta cota e deseja confirmar o registro na lista?");
-    if (!confirmou) {
-      reverterUltimaCota();
-    }
-    quotaPendingConfirmation = false;
-  }
-
-  document.getElementById("giftModal").classList.add("hidden");
-  selectedGift = null;
-  quotaPendingConfirmation = false;
-};
-
-async function reverterUltimaCota() {
-  if (!selectedGift) return;
-  const name = getGifterName();
-  const nameWithQuota = `${name} (Cota)`;
-
-  const claimParaRemover = state.claims.find(c => Number(c.gift_id) === Number(selectedGift.id) && c.name === nameWithQuota);
-  if (claimParaRemover) {
-    await supabaseClient.from("claims").delete().eq('id', claimParaRemover.id);
-    await loadData();
-  }
+  const automaticName = document.createElement("div");
+  automaticName.id = "giftNameAuto";
+  automaticName.className = "hidden";
+  automaticName.style.cssText = "text-align:center;margin:15px 0;";
+  wrapper.insertAdjacentElement("afterend", automaticName);
 }
+
+function ensurePixControls() {
+  const pixStep = byId("giftStepPix");
+  if (!pixStep) return;
+
+  const pixInput = pixStep.querySelector('input[type="text"]');
+  if (pixInput) {
+    pixInput.id = "pixCode";
+    pixInput.value = PIX_CODE;
+    pixInput.removeAttribute("onclick");
+  }
+
+  const oldFinish = [...pixStep.querySelectorAll("button")].find(button => button.textContent.trim() === "Concluir");
+  if (oldFinish) oldFinish.remove();
+
+  if (!byId("copyPixButton")) {
+    pixStep.insertAdjacentHTML("beforeend", `
+      <button type="button" id="copyPixButton" class="btn secondary full" style="margin-top:12px;">Copiar codigo Pix</button>
+      <button type="button" id="confirmPixPayment" class="btn primary full" style="margin-top:10px;">Ja realizei o Pix</button>
+      <button type="button" id="cancelPixPayment" class="btn light full" style="margin-top:10px;">Nao realizei o pagamento</button>
+    `);
+  }
+
+  byId("copyPixButton")?.addEventListener("click", copyPixCode);
+  byId("confirmPixPayment")?.addEventListener("click", confirmDeclaredPixPayment);
+  byId("cancelPixPayment")?.addEventListener("click", cancelPixPayment);
+}
+
+window.openGift = function openGift(id) {
+  selectedGift = gifts.find(gift => Number(gift.id) === Number(id));
+  if (!selectedGift) return;
+
+  pendingQuotaData = null;
+  ensureGiftIdentityElements();
+
+  byId("modalTitle").textContent = selectedGift.title;
+  byId("modalPrice").innerHTML = `${giftDescription(selectedGift)}${selectedGift.price !== "Sugestao" ? `<br><b style="color:#2c5e3b;">Valor: ${esc(selectedGift.price)}</b>` : ""}`;
+
+  const storedName = getStoredGuestName();
+  const select = byId("giftName");
+  const wrapper = byId("giftSelectWrapper");
+  const automaticName = byId("giftNameAuto");
+
+  if (storedName && select && [...select.options].some(option => option.value === storedName)) {
+    select.value = storedName;
+    wrapper?.classList.add("hidden");
+    automaticName?.classList.remove("hidden");
+    if (automaticName) automaticName.innerHTML = `Presenteando como:<br><b>${esc(storedName)}</b>`;
+  } else {
+    wrapper?.classList.remove("hidden");
+    automaticName?.classList.add("hidden");
+    if (select) select.value = "";
+  }
+
+  byId("confirmFullGift")?.classList.toggle("hidden", Boolean(selectedGift.quotaOnly));
+  byId("confirmQuotaGift").textContent = selectedGift.quotaOnly ? "Escolher esta cota (Pix)" : "Quero dar uma Cota (Pix)";
+  byId("giftStepSelection")?.classList.remove("hidden");
+  byId("giftStepPix")?.classList.add("hidden");
+  byId("giftModal")?.classList.remove("hidden");
+};
+
+window.closeGift = function closeGift() {
+  byId("giftModal")?.classList.add("hidden");
+  byId("giftStepSelection")?.classList.remove("hidden");
+  byId("giftStepPix")?.classList.add("hidden");
+  selectedGift = null;
+  pendingQuotaData = null;
+};
 
 function getGifterName() {
-  let stored = getStoredGuestName();
+  const stored = getStoredGuestName();
   if (stored) return stored;
-  
-  const select = document.getElementById("giftName");
-  const val = select ? select.value.trim() : "";
-  
-  if (val) {
-    setStoredGuestName(val); 
-    return val;
-  }
-  return "";
+  const selected = byId("giftName")?.value.trim() || "";
+  if (selected) setStoredGuestName(selected);
+  return selected;
 }
 
-async function handleConfirmFullGift(e) {
-  if (e) e.preventDefault();
-  
+async function handleConfirmFullGift(event) {
+  event?.preventDefault();
+  if (!selectedGift || isSaving) return;
   const name = getGifterName();
   if (!name) return alert("Por favor, selecione seu nome na lista.");
 
+  isSaving = true;
+  setButtonLoading(event?.currentTarget, true);
   try {
-    const { error } = await supabaseClient.from("claims").insert({
-      gift_id: selectedGift.id, name: name
-    });
+    const { error } = await supabaseClient.from("claims").insert([{ gift_id: selectedGift.id, name }]);
     if (error) throw error;
-
     alert(`Muito obrigado, ${name}! Seu presente foi registrado.`);
-    closeGift();
+    window.closeGift();
     await loadData();
-  } catch (err) {
-    alert(`Erro do Banco de Dados: ${err.message}`);
+  } catch (error) {
+    console.error(error);
+    alert("Nao foi possivel registrar o presente. Tente novamente.");
+  } finally {
+    isSaving = false;
+    setButtonLoading(event?.currentTarget, false);
   }
 }
 
-async function handleConfirmQuotaGift(e) {
-  if (e) e.preventDefault();
-  
+function handleConfirmQuotaGift(event) {
+  event?.preventDefault();
+  if (!selectedGift) return;
   const name = getGifterName();
   if (!name) return alert("Por favor, selecione seu nome na lista.");
 
-  const nameWithQuota = `${name} (Cota)`;
+  pendingQuotaData = { giftId: selectedGift.id, name };
+  byId("giftStepSelection")?.classList.add("hidden");
+  byId("giftStepPix")?.classList.remove("hidden");
+}
+
+async function confirmDeclaredPixPayment(event) {
+  if (!pendingQuotaData || isSaving) return;
+  isSaving = true;
+  setButtonLoading(event?.currentTarget, true, "Registrando...");
 
   try {
-    const { error } = await supabaseClient.from("claims").insert({
-      gift_id: selectedGift.id, name: nameWithQuota 
-    });
+    const { error } = await supabaseClient.from("claims").insert([{
+      gift_id: pendingQuotaData.giftId,
+      name: `${pendingQuotaData.name} (Cota)`
+    }]);
     if (error) throw error;
 
-    quotaPendingConfirmation = true;
-
-    document.getElementById("giftStepSelection").classList.add("hidden");
-    document.getElementById("giftStepPix").classList.remove("hidden");
+    const name = pendingQuotaData.name;
+    alert(`Obrigado, ${name}! A sua declaracao de pagamento foi registrada.`);
+    window.closeGift();
     await loadData();
-  } catch (err) {
-    alert(`Erro do Banco de Dados: ${err.message}`);
+  } catch (error) {
+    console.error(error);
+    alert("Nao foi possivel registrar a cota. Tente novamente.");
+  } finally {
+    isSaving = false;
+    setButtonLoading(event?.currentTarget, false);
   }
 }
 
-// ==========================================
-// 6. FUNÇÕES DO PAINEL ADMIN
-// ==========================================
-window.login = function(event) {
-  if (event) event.preventDefault();
-  
-  const campoSenha = document.getElementById("adminPassword");
-  if (!campoSenha) return;
+function cancelPixPayment() {
+  pendingQuotaData = null;
+  byId("giftStepPix")?.classList.add("hidden");
+  byId("giftStepSelection")?.classList.remove("hidden");
+}
 
-  const senhaDigitada = campoSenha.value; 
-  
-  if (senhaDigitada === ADMIN_PASSWORD) {
-    document.getElementById("adminAuth").classList.add("hidden");
-    document.getElementById("adminContent").classList.remove("hidden");
-    
-    const errorMsg = document.getElementById("adminError");
-    if (errorMsg) errorMsg.classList.add("hidden");
-    
-    carregarConvidados();
-    carregarPresentesEscolhidos();
-  } else {
-    const errorMsg = document.getElementById("adminError");
-    if (errorMsg) errorMsg.classList.remove("hidden");
-    else alert("Senha incorreta!");
+async function copyPixCode() {
+  const input = byId("pixCode");
+  const code = input?.value || PIX_CODE;
+  try {
+    await navigator.clipboard.writeText(code);
+    alert("Codigo Pix copiado com sucesso!");
+  } catch {
+    if (input) {
+      input.select();
+      document.execCommand("copy");
+      alert("Codigo Pix copiado com sucesso!");
+    }
   }
+}
+
+// 8. PAINEL ADMINISTRATIVO
+window.login = function login(event) {
+  event?.preventDefault();
+  const password = byId("adminPassword")?.value || "";
+
+  if (ADMIN_PASSWORD === "TROQUE_POR_UMA_NOVA_SENHA") {
+    return alert("Defina uma nova senha na constante ADMIN_PASSWORD do script.js antes de usar o painel.");
+  }
+
+  if (password !== ADMIN_PASSWORD) {
+    byId("adminError")?.classList.remove("hidden");
+    return;
+  }
+
+  state.adminUnlocked = true;
+  byId("adminAuth")?.classList.add("hidden");
+  byId("adminContent")?.classList.remove("hidden");
+  byId("adminError")?.classList.add("hidden");
+  renderGuestAdmin();
+  renderGiftAdmin();
 };
+
+function renderGuestAdmin() {
+  const table = byId("guestTable");
+  if (!table) return;
+
+  let confirmed = 0;
+  let declined = 0;
+  let people = 0;
+
+  table.innerHTML = state.guests.length ? state.guests.map(guest => {
+    if (guest.status === "sim") {
+      confirmed++;
+      people += Number(guest.people) || 1;
+    } else if (guest.status === "nao") declined++;
+
+    return `<tr>
+      <td>${esc(guest.name || "Convidado")}</td>
+      <td>${guest.status === "sim" ? "Vai ao casamento" : guest.status === "nao" ? "Nao vai" : "Pendente"}</td>
+      <td>${guest.status === "sim" ? Number(guest.people) || 1 : 0}</td>
+      <td>${esc(guest.source || "Convidado")}</td>
+      <td><button type="button" class="btn secondary" onclick="removerConvidado('${esc(guest.id)}')">Excluir</button></td>
+    </tr>`;
+  }).join("") : '<tr><td colspan="5" style="text-align:center;">Nenhuma resposta registrada.</td></tr>';
+
+  if (byId("confirmedCount")) byId("confirmedCount").textContent = confirmed;
+  if (byId("declinedCount")) byId("declinedCount").textContent = declined;
+  if (byId("peopleCount")) byId("peopleCount").textContent = people;
+}
 
 async function carregarConvidados() {
-  try {
-    const { data, error } = await supabaseClient.from('guests').select('*');
-    if (error) throw error;
-
-    const guestTable = document.getElementById('guestTable');
-    if (!guestTable) return;
-
-    guestTable.innerHTML = '';
-
-    let confirmedCount = 0;
-    let declinedCount = 0;
-    let peopleCount = 0;
-
-    data.forEach(guest => {
-      if (guest.status === 'sim') {
-        confirmedCount++;
-        peopleCount += Number(guest.people) || 1;
-      } else if (guest.status === 'nao') {
-        declinedCount++;
-      }
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${esc(guest.name || 'Convidado')}</td>
-        <td>${guest.status === 'sim' ? 'Vai ao casamento' : guest.status === 'nao' ? 'Não vai' : 'Pendente'}</td>
-        <td>${guest.people || 1}</td>
-        <td>${esc(guest.source || 'Convidado')}</td>
-        <td><button class="btn secondary" onclick="removerConvidado('${guest.id}')">Excluir</button></td>
-      `;
-      guestTable.appendChild(tr);
-    });
-
-    document.getElementById('confirmedCount').textContent = confirmedCount;
-    document.getElementById('declinedCount').textContent = declinedCount;
-    document.getElementById('peopleCount').textContent = peopleCount;
-  } catch (err) {
-    console.error('Erro ao carregar convidados:', err);
-  }
+  renderGuestAdmin();
 }
 
-window.removerConvidado = async function(id) {
-  if (!confirm("Deseja realmente remover este convidado?")) return;
-  const { error } = await supabaseClient.from('guests').delete().eq('id', id);
-  if (error) alert("Erro ao remover.");
-  else carregarConvidados();
+window.removerConvidado = async function removerConvidado(id) {
+  if (!state.adminUnlocked || !confirm("Deseja realmente remover esta resposta?")) return;
+  const { error } = await supabaseClient.from("guests").delete().eq("id", id);
+  if (error) return alert("Erro ao remover a resposta.");
+  await loadData();
 };
+
+function correctGiftTableHeader() {
+  const row = byId("giftsTab")?.querySelector("thead tr");
+  if (row) row.innerHTML = "<th>Presente</th><th>Tipo</th><th>Quem escolheu</th><th>Data</th><th>Acao</th>";
+}
+
+function renderGiftAdmin() {
+  const table = byId("giftTable");
+  if (!table) return;
+  correctGiftTableHeader();
+
+  table.innerHTML = state.claims.length ? state.claims.map(claim => {
+    const gift = gifts.find(item => Number(item.id) === Number(claim.gift_id));
+    return `<tr>
+      <td>${esc(gift?.title || `Presente #${claim.gift_id}`)}</td>
+      <td>${isQuotaClaim(claim) ? "Cota via Pix declarada" : "Item inteiro"}</td>
+      <td>${esc(cleanClaimName(claim.name))}</td>
+      <td>${claim.created_at ? new Date(claim.created_at).toLocaleString("pt-BR") : "-"}</td>
+      <td><button type="button" class="btn secondary" onclick="removerPresenteEscolhido('${esc(claim.id)}')">Remover</button></td>
+    </tr>`;
+  }).join("") : '<tr><td colspan="5" style="text-align:center;">Nenhum presente escolhido ainda.</td></tr>';
+}
 
 async function carregarPresentesEscolhidos() {
-  try {
-    const { data, error } = await supabaseClient.from('claims').select('*');
-    if (error) throw error;
-
-    const giftTable = document.getElementById('giftTable');
-    if (!giftTable) return;
-
-    giftTable.innerHTML = '';
-
-    if (!data || data.length === 0) {
-      giftTable.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum presente escolhido ainda.</td></tr>`;
-      return;
-    }
-
-    data.forEach(item => {
-      const giftObj = gifts.find(g => Number(g.id) === Number(item.gift_id));
-      const giftName = giftObj ? giftObj.title : `Presente #${item.gift_id}`;
-      
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${esc(giftName)}</td>
-        <td>${esc(item.name || 'Convidado')}</td>
-        <td>${item.created_at ? new Date(item.created_at).toLocaleDateString('pt-BR') : '-'}</td>
-        <td><button class="btn secondary" onclick="removerPresenteEscolhido('${item.id}')">Remover</button></td>
-      `;
-      giftTable.appendChild(tr);
-    });
-  } catch (err) {
-    console.error('Erro ao carregar presentes:', err);
-  }
+  renderGiftAdmin();
 }
 
-window.removerPresenteEscolhido = async function(id) {
-  if (!confirm("Deseja remover este registro de presente?")) return;
-  const { error } = await supabaseClient.from('claims').delete().eq('id', id);
-  if (error) alert("Erro ao remover.");
-  else {
-    await loadData();
-    carregarPresentesEscolhidos();
-  }
+window.removerPresenteEscolhido = async function removerPresenteEscolhido(id) {
+  if (!state.adminUnlocked || !confirm("Deseja remover este registro de presente?")) return;
+  const { error } = await supabaseClient.from("claims").delete().eq("id", id);
+  if (error) return alert("Erro ao remover o registro.");
+  await loadData();
 };
 
-// Formulário manual do admin
-const manualForm = document.getElementById("manualForm");
-if (manualForm) {
-  manualForm.onsubmit = async (e) => {
-    e.preventDefault();
-    const name = document.getElementById("manualName").value;
-    const phone = document.getElementById("manualPhone").value;
-    const people = Number(document.getElementById("manualGuests").value) + 1;
+async function saveManualResponse(status) {
+  const name = byId("manualName")?.value.trim();
+  const phone = byId("manualPhone")?.value.trim() || "";
+  if (!name) return alert("Selecione um nome.");
 
-    if (!name) return alert("Selecione um nome.");
-
-    const { error } = await supabaseClient.from('guests').insert([{
-      name, phone, people, status: 'sim', source: 'organizador'
-    }]);
-
-    if (error) alert("Erro ao registrar.");
-    else {
-      alert("Presença registrada com sucesso!");
-      manualForm.reset();
-      loadData();
-    }
+  const payload = {
+    name,
+    phone,
+    people: status === "sim" ? Number(byId("manualGuests")?.value || 0) + 1 : 0,
+    status,
+    source: "organizador"
   };
+
+  const { error } = await saveGuestResponse(payload);
+  if (error) return alert("Erro ao registrar a resposta.");
+
+  alert(status === "sim" ? "Presenca registrada com sucesso!" : "Ausencia registrada com sucesso!");
+  byId("manualForm")?.reset();
+  if (byId("manualGuests")) byId("manualGuests").innerHTML = '<option value="0">Somente o convidado</option>';
+  await loadData();
 }
 
-const manualDeclineBtn = document.getElementById("manualDecline");
-if (manualDeclineBtn) {
-  manualDeclineBtn.onclick = async () => {
-    const name = document.getElementById("manualName").value;
-    const phone = document.getElementById("manualPhone").value;
-    if (!name) return alert("Selecione um nome.");
+// 9. INICIALIZACAO
+function initializeEvents() {
+  ensureGiftIdentityElements();
+  ensurePixControls();
 
-    const { error } = await supabaseClient.from('guests').insert([{
-      name, phone, people: 1, status: 'nao', source: 'organizador'
-    }]);
+  byId("rsvpForm")?.addEventListener("submit", prepareRsvp);
+  byId("rsvpName")?.addEventListener("change", event => {
+    setStoredGuestName(event.target.value);
+    populateCompanionSelect("rsvpName", "rsvpGuests");
+  });
+  byId("manualName")?.addEventListener("change", () => populateCompanionSelect("manualName", "manualGuests"));
 
-    if (error) alert("Erro ao registrar.");
-    else {
-      alert("Ausência registrada com sucesso!");
-      manualForm.reset();
-      loadData();
-    }
-  };
-}
+  byId("closeModal")?.addEventListener("click", window.closeGift);
+  byId("cancelGift")?.addEventListener("click", window.closeGift);
+  byId("confirmFullGift")?.addEventListener("click", handleConfirmFullGift);
+  byId("confirmQuotaGift")?.addEventListener("click", handleConfirmQuotaGift);
 
-// ==========================================
-// 7. INICIALIZAÇÃO E DELEGAÇÃO DE EVENTOS
-// ==========================================
-document.addEventListener("DOMContentLoaded", () => {
-  const closeModalBtn = document.getElementById("closeModal");
-  const cancelGiftBtn = document.getElementById("cancelGift");
-  const confirmFullBtn = document.getElementById("confirmFullGift");
-  const confirmQuotaBtn = document.getElementById("confirmQuotaGift");
+  byId("manualForm")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    await saveManualResponse("sim");
+  });
+  byId("manualDecline")?.addEventListener("click", async () => saveManualResponse("nao"));
 
-  if (closeModalBtn) closeModalBtn.addEventListener("click", closeGift);
-  if (cancelGiftBtn) cancelGiftBtn.addEventListener("click", closeGift);
-  if (confirmFullBtn) confirmFullBtn.addEventListener("click", handleConfirmFullGift);
-  if (confirmQuotaBtn) confirmQuotaBtn.addEventListener("click", handleConfirmQuotaGift);
-
-  // Controle de abas do admin
-  const tabButtons = document.querySelectorAll(".admin-tabs .tab");
-  tabButtons.forEach(button => {
+  document.querySelectorAll(".admin-tabs .tab").forEach(button => {
     button.addEventListener("click", () => {
-      const targetTabId = button.getAttribute("data-tab");
-      if (!targetTabId) return;
-
-      document.querySelectorAll(".admin-tabs .tab").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".admin-tabs .tab").forEach(item => item.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(item => item.classList.add("hidden"));
       button.classList.add("active");
-
-      document.querySelectorAll(".tab-content").forEach(content => content.classList.add("hidden"));
-      const activeContent = document.getElementById(targetTabId);
-      if (activeContent) {
-        activeContent.classList.remove("hidden");
-        if (targetTabId === "giftsTab") carregarPresentesEscolhidos();
-        if (targetTabId === "guestsTab") carregarConvidados();
-      }
+      byId(button.dataset.tab)?.classList.remove("hidden");
+      if (button.dataset.tab === "guestsTab") renderGuestAdmin();
+      if (button.dataset.tab === "giftsTab") renderGiftAdmin();
     });
   });
 
-  loadData();
-});
+  document.addEventListener("click", event => {
+    if (event.target.closest("#adminAuth")) return;
+    const target = event.target.closest('a[href="#admin"]');
+    if (!target) return;
+    event.preventDefault();
+    byId("admin")?.scrollIntoView({ behavior: "smooth" });
+  });
+}
 
-// Rolagem para a área dos noivos
-document.addEventListener("click", (e) => {
-  if (e.target.closest('#adminAuth')) return;
-
-  const targetElement = e.target.closest('a, button, [role="button"], .btn-noivos, #btnNoivos');
-  if (targetElement) {
-    const href = targetElement.getAttribute("href") ? targetElement.getAttribute("href").toLowerCase() : "";
-    const text = targetElement.textContent ? targetElement.textContent.toLowerCase().trim() : "";
-    
-    if (text.includes("área dos noivos") || href.includes("noivos") || href.includes("admin")) {
-      e.preventDefault(); 
-      const targetSection = document.getElementById("admin");
-      if (targetSection) {
-        targetSection.scrollIntoView({ behavior: "smooth" });
-      } else {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-      }
-    }
-  }
+document.addEventListener("DOMContentLoaded", async () => {
+  initializeEvents();
+  await loadData();
 });

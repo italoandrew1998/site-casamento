@@ -3,24 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Casamento Milene & Ítalo</title>
+  <meta name="description" content="Site do casamento de Milene e Ítalo. Confirme sua presença e consulte a lista de presentes.">
+  <meta name="theme-color" content="#2c5e3b">
+  <title>Casamento Milene &amp; Ítalo</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <!-- CABEÇALHO -->
   <header class="hero" id="inicio">
-    <nav>
-      <a class="brand" href="#inicio">Milene & Ítalo</a>
+    <nav aria-label="Navegação principal">
+      <a class="brand" href="#inicio">Milene &amp; Ítalo</a>
       <div class="navlinks">
         <a href="#presenca">Presença</a>
         <a href="#presentes">Presentes</a>
         <a href="#admin">Área dos noivos</a>
       </div>
     </nav>
+
     <div class="hero-content">
       <div class="eyebrow">UM DIA PARA CELEBRAR O AMOR</div>
-      <h1>Milene & Ítalo</h1>
+      <h1>Milene &amp; Ítalo</h1>
       <p>Sua presença fará parte da nossa história.</p>
       <div class="actions">
         <a class="btn primary" href="#presenca">Confirmar presença</a>
@@ -29,15 +32,16 @@
     </div>
   </header>
 
-  <!-- 00. O CASAL / INFORMAÇÕES DO CONVITE -->
-  <section class="section invitation-info" style="text-align: center; background: #faf8f5; padding: 40px 20px;">
+  <!-- INFORMAÇÕES DO CONVITE -->
+  <section class="section invitation-info" aria-labelledby="convite-title" style="text-align:center;background:#faf8f5;padding:40px 20px;">
     <div class="section-title">
-      <p style="font-style: italic; font-size: 1.1rem; color: #555; max-width: 600px; margin: 0 auto 15px auto;">
-        "Deus escreveu nossa história, e celebraremos o início de um novo capítulo."
+      <p style="font-style:italic;font-size:1.1rem;color:#555;max-width:600px;margin:0 auto 15px;">
+        “Deus escreveu nossa história, e celebraremos o início de um novo capítulo.”
       </p>
-      <div class="eyebrow">COM A BENÇÃO DE DEUS E DE SEUS PAIS</div>
-      
-      <div style="display: flex; justify-content: center; gap: 40px; margin: 20px 0; font-size: 0.95rem; color: #444;">
+
+      <div class="eyebrow">COM A BÊNÇÃO DE DEUS E DE SEUS PAIS</div>
+
+      <div style="display:flex;justify-content:center;gap:40px;margin:20px 0;font-size:.95rem;color:#444;flex-wrap:wrap;">
         <div>
           <strong>Pais da Noiva:</strong><br>
           Oscar Ferreira de Souza<br>
@@ -50,24 +54,26 @@
         </div>
       </div>
 
-      <h2 style="margin-top: 30px;">26 de setembro de 2026 às 16:30</h2>
-      <p style="font-weight: 500; margin-top: 10px;">
+      <h2 id="convite-title" style="margin-top:30px;">26 de setembro de 2026, às 16h30</h2>
+      <p style="font-weight:500;margin-top:10px;">
         Chácara Princesa do Bosque<br>
         Rua São José, Bairro Nova Brasília<br>
-        Brasília de Minas — MG
+        Brasília de Minas, MG
       </p>
-      
-      <!-- BOTÃO COM LINK DIRETO PARA A NOVA COORDENADA -->
-      <div style="margin-top: 20px;">
-        <a href="https://maps.google.com/?q=-16.211728127606,-44.41459548590755" 
-           target="_blank" 
-           class="btn primary" 
-           style="display: inline-block; text-decoration: none; padding: 10px 20px; border-radius: 5px;">
+
+      <div style="margin-top:20px;">
+        <a
+          href="https://maps.google.com/?q=-16.211728127606,-44.41459548590755"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn primary"
+          style="display:inline-block;text-decoration:none;padding:10px 20px;border-radius:5px;"
+        >
           📍 Ver localização no Google Maps
         </a>
       </div>
 
-      <p style="font-style: italic; color: #666; margin-top: 15px;">
+      <p style="font-style:italic;color:#666;margin-top:15px;">
         Após a cerimônia, a recepção será no mesmo local.
       </p>
     </div>
@@ -75,29 +81,29 @@
 
   <main>
     <!-- 01. PRESENÇA -->
-    <section class="section" id="presenca">
+    <section class="section" id="presenca" aria-labelledby="presenca-title">
       <div class="section-title">
         <div class="eyebrow">01 · PRESENÇA</div>
-        <h2>Você estará conosco?</h2>
+        <h2 id="presenca-title">Você estará conosco?</h2>
         <p>Selecione seu nome na lista para confirmar ou registrar sua ausência.</p>
       </div>
-      
+
       <div class="card">
-        <!-- ETAPA 1: ESCOLHA DE LADO -->
-        <div id="sideSelection" style="text-align: center; margin-bottom: 20px;">
-          <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Quem te convidou?</h3>
-          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <!-- ETAPA 1: ESCOLHA DO LADO -->
+        <div id="sideSelection" style="text-align:center;margin-bottom:20px;">
+          <h3 style="margin-bottom:15px;font-size:1.2rem;">Quem convidou você?</h3>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
             <button type="button" class="btn primary" onclick="selectSide('noiva')">Sou convidado da Noiva</button>
             <button type="button" class="btn primary" onclick="selectSide('noivo')">Sou convidado do Noivo</button>
           </div>
         </div>
 
-        <!-- ETAPA 2: FORMULÁRIO DE NOME E ACOMPANHANTES (Começa oculto) -->
+        <!-- ETAPA 2: FORMULÁRIO -->
         <div id="rsvpFormContent" class="hidden">
           <form id="rsvpForm">
             <label for="rsvpName">Selecione seu nome na lista</label>
             <select id="rsvpName" required>
-              <option value="">Carregando lista...</option>
+              <option value="">Primeiro informe quem convidou você</option>
             </select>
 
             <label for="rsvpGuests">Acompanhantes</label>
@@ -111,66 +117,73 @@
               <option value="organizador">Outra pessoa pelo convidado</option>
             </select>
 
-            <div class="choice-grid" style="margin-top: 20px;">
+            <div class="choice-grid" style="margin-top:20px;">
               <button type="submit" class="choice yes" data-answer="sim">
-                <b>✓ Vou ao casamento</b><small>Confirmar presença</small>
+                <b>✓ Vou ao casamento</b>
+                <small>Confirmar presença</small>
               </button>
               <button type="submit" class="choice no" data-answer="nao">
-                <b>♡ Não poderei comparecer</b><small>Registrar ausência</small>
+                <b>♡ Não poderei comparecer</b>
+                <small>Registrar ausência</small>
               </button>
             </div>
           </form>
         </div>
 
-        <!-- ETAPA 3: TELA DE REVISÃO (Começa oculta) -->
-        <div id="rsvpConfirmScreen" class="hidden" style="text-align: center;">
-          <p id="rsvpConfirmText" style="font-size: 18px; margin-bottom: 20px; color: #444; line-height: 1.5;"></p>
-          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <!-- ETAPA 3: REVISÃO -->
+        <div id="rsvpConfirmScreen" class="hidden" style="text-align:center;">
+          <p id="rsvpConfirmText" style="font-size:18px;margin-bottom:20px;color:#444;line-height:1.5;"></p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
             <button type="button" class="btn primary" onclick="confirmRSVP()">Sim, os dados estão corretos</button>
             <button type="button" class="btn secondary" onclick="cancelRSVP()">Voltar e corrigir</button>
           </div>
         </div>
 
-        <!-- MENSAGEM DE SUCESSO/ERRO -->
-        <div id="rsvpMessage" class="message hidden"></div>
+        <div id="rsvpMessage" class="message hidden" role="status" aria-live="polite"></div>
       </div>
     </section>
 
     <!-- 02. PRESENTES -->
-    <section class="section gifts" id="presentes">
+    <section class="section gifts" id="presentes" aria-labelledby="presentes-title">
       <div class="section-title">
         <div class="eyebrow">02 · CARINHO</div>
-        <h2>Lista de presentes</h2>
+        <h2 id="presentes-title">Lista de presentes</h2>
         <p>Se um presente já tiver sido escolhido, você será avisado, mas poderá escolher o mesmo item se quiser.</p>
       </div>
-      <div id="giftGrid" class="gift-grid"></div>
+      <div id="giftGrid" class="gift-grid" aria-live="polite"></div>
     </section>
 
     <!-- 03. ÁREA DOS NOIVOS -->
-    <section class="section admin" id="admin">
+    <section class="section admin" id="admin" aria-labelledby="admin-title">
       <div class="section-title">
         <div class="eyebrow">03 · ORGANIZAÇÃO</div>
-        <h2>Área dos noivos</h2>
+        <h2 id="admin-title">Área dos noivos</h2>
         <p>Controle de convidados e presentes.</p>
       </div>
 
       <!-- LOGIN -->
-      <div id="adminAuth" class="card" style="max-width: 400px; margin: 0 auto; text-align: center;">
-        <p style="margin-bottom: 15px;">Digite a senha para acessar o painel:</p>
-        <input type="password" id="adminPassword" placeholder="Digite a senha" style="text-align: center; margin-bottom: 15px;">
-        <button type="button" id="adminLoginBtn" class="btn primary full" onclick="login(event)">Acessar Painel</button>
-        <div id="adminError" class="message hidden" style="background: #f8d7da; color: #721c24; margin-top: 15px;">Senha incorreta!</div>
+      <div id="adminAuth" class="card" style="max-width:400px;margin:0 auto;text-align:center;">
+        <p style="margin-bottom:15px;">Digite a senha para acessar o painel:</p>
+        <label for="adminPassword" class="sr-only">Senha administrativa</label>
+        <input
+          type="password"
+          id="adminPassword"
+          placeholder="Digite a senha"
+          autocomplete="current-password"
+          style="text-align:center;margin-bottom:15px;"
+        >
+        <button type="button" id="adminLoginBtn" class="btn primary full" onclick="login(event)">Acessar painel</button>
+        <div id="adminError" class="message hidden" role="alert" style="background:#f8d7da;color:#721c24;margin-top:15px;">
+          Senha incorreta!
+        </div>
       </div>
 
       <!-- PAINEL -->
       <div id="adminContent" class="hidden">
-// Dentro da sua função de login, após mostrar o painel (adminContent):
-carregarConvidados();
-carregarPresentesEscolhidos();
-        <div class="admin-tabs">
-          <button class="tab active" data-tab="guestsTab">Convidados</button>
-          <button class="tab" data-tab="giftsTab">Presentes escolhidos</button>
-          <button class="tab" data-tab="addTab">Registrar pelo convidado</button>
+        <div class="admin-tabs" role="tablist" aria-label="Seções do painel">
+          <button type="button" class="tab active" data-tab="guestsTab" role="tab">Convidados</button>
+          <button type="button" class="tab" data-tab="giftsTab" role="tab">Presentes escolhidos</button>
+          <button type="button" class="tab" data-tab="addTab" role="tab">Registrar pelo convidado</button>
         </div>
 
         <div id="guestsTab" class="tab-content">
@@ -179,10 +192,17 @@ carregarPresentesEscolhidos();
             <div><strong id="declinedCount">0</strong><span>Não irão</span></div>
             <div><strong id="peopleCount">0</strong><span>Pessoas confirmadas</span></div>
           </div>
+
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Convidado</th><th>Resposta</th><th>Pessoas</th><th>Confirmado por</th><th>Ação</th></tr>
+                <tr>
+                  <th>Convidado</th>
+                  <th>Resposta</th>
+                  <th>Pessoas</th>
+                  <th>Confirmado por</th>
+                  <th>Ação</th>
+                </tr>
               </thead>
               <tbody id="guestTable"></tbody>
             </table>
@@ -193,7 +213,13 @@ carregarPresentesEscolhidos();
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Presente</th><th>Quantidade</th><th>Quem escolheu</th><th>Data</th><th>Ação</th></tr>
+                <tr>
+                  <th>Presente</th>
+                  <th>Tipo</th>
+                  <th>Quem escolheu</th>
+                  <th>Data</th>
+                  <th>Ação</th>
+                </tr>
               </thead>
               <tbody id="giftTable"></tbody>
             </table>
@@ -204,26 +230,28 @@ carregarPresentesEscolhidos();
           <div class="manual-box">
             <h3>Registrar confirmação manualmente</h3>
             <p>Ideal para idosos ou convidados que confirmarem por telefone.</p>
+
             <form id="manualForm">
               <label for="manualName">Nome</label>
               <select id="manualName" required>
                 <option value="">Carregando lista de convidados...</option>
               </select>
-              
+
               <label for="manualPhone">Telefone (opcional)</label>
-              <input id="manualPhone" placeholder="(00) 00000-0000">
-              
+              <input id="manualPhone" type="tel" inputmode="tel" placeholder="(00) 00000-0000" autocomplete="tel">
+
               <label for="manualGuests">Acompanhantes</label>
               <select id="manualGuests">
                 <option value="0">Somente o convidado</option>
               </select>
-              
+
               <div class="manual-actions">
                 <button type="submit" class="btn primary">Registrar que vai</button>
                 <button type="button" id="manualDecline" class="btn secondary">Registrar que não vai</button>
               </div>
             </form>
-            <div id="manualMessage" class="message hidden"></div>
+
+            <div id="manualMessage" class="message hidden" role="status" aria-live="polite"></div>
           </div>
         </div>
       </div>
@@ -231,67 +259,78 @@ carregarPresentesEscolhidos();
   </main>
 
   <footer>
-    <p>Com carinho, Milene & Ítalo ♡</p>
+    <p>Com carinho, Milene &amp; Ítalo ♡</p>
   </footer>
 
   <!-- MODAL DE PRESENTES -->
-  <div id="giftModal" class="modal hidden">
+  <div id="giftModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-box card">
-      <button id="closeModal" class="close">&times;</button>
+      <button type="button" id="closeModal" class="close" aria-label="Fechar janela">&times;</button>
       <div class="eyebrow">LISTA DE PRESENTES</div>
-      <h2 id="modalTitle">Nome do Presente</h2>
-      <p id="modalPrice" class="price"></p>
-      
-      <!-- Etapa 1: Seleção de Nome e Escolha entre Item Todo ou Cota -->
+      <h2 id="modalTitle">Nome do presente</h2>
+      <div id="modalPrice" class="price"></div>
+
+      <!-- ETAPA 1: NOME E TIPO DO PRESENTE -->
       <div id="giftStepSelection">
         <p id="modalWarning" class="warning"></p>
-        
-        <label for="giftName">Selecione seu nome na lista</label>
-        <select id="giftName" required>
-          <option value="">Carregando lista...</option>
-        </select>
-        
-        <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
-          <button type="button" id="confirmFullGift" class="btn primary" style="flex:1;">Quero dar o Item Inteiro</button>
-          <button type="button" id="confirmQuotaGift" class="btn secondary" style="flex:1;">Quero dar uma Cota (Pix)</button>
+
+        <div id="giftSelectWrapper">
+          <label for="giftName">Selecione seu nome na lista</label>
+          <select id="giftName" required>
+            <option value="">Carregando lista...</option>
+          </select>
         </div>
+
+        <div id="giftNameAuto" class="hidden" style="text-align:center;margin:15px 0;"></div>
+
+        <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+          <button type="button" id="confirmFullGift" class="btn primary" style="flex:1;">Quero dar o item inteiro</button>
+          <button type="button" id="confirmQuotaGift" class="btn secondary" style="flex:1;">Quero dar uma cota (Pix)</button>
+        </div>
+
         <button type="button" id="cancelGift" class="btn light full" style="margin-top:10px;">Cancelar</button>
       </div>
 
-      <!-- Etapa 2: Exibição do QR Code e Chave Pix -->
-      <div id="giftStepPix" class="hidden" style="text-align: center; margin-top: 15px;">
-        <p style="font-size: 13px; line-height: 1.5; margin-bottom: 15px;">
-          Muito obrigado pelo carinho! Escolha abaixo como deseja realizar o pagamento da sua cota para este presente:
+      <!-- ETAPA 2: PIX -->
+      <div id="giftStepPix" class="hidden" style="text-align:center;margin-top:15px;">
+        <p style="font-size:13px;line-height:1.5;margin-bottom:15px;">
+          Muito obrigado pelo carinho! Use uma das opções abaixo para realizar o pagamento da sua cota.
         </p>
-        
-        <div style="background: #fff; padding: 10px; display: inline-block; border: 1px solid var(--line); border-radius: 4px; margin-bottom: 10px;">
-          <img src="qrcode.jpg" alt="QR Code Pix" style="width: 160px; height: 160px; object-fit: contain;">
+
+        <div style="background:#fff;padding:10px;display:inline-block;border:1px solid var(--line);border-radius:4px;margin-bottom:10px;">
+          <img src="qrcode.jpg" alt="QR Code para pagamento via Pix" style="width:160px;height:160px;object-fit:contain;">
         </div>
 
-        <!-- OBSERVAÇÃO DE SEGURANÇA SOBRE A CONTA DO NOIVO -->
-        <blockquote style="background: #fff8e1; border-left: 4px solid #f57c00; padding: 8px 12px; font-size: 11px; text-align: left; margin: 10px 0; color: #5d4037; border-radius: 4px;">
+        <blockquote style="background:#fff8e1;border-left:4px solid #f57c00;padding:8px 12px;font-size:11px;text-align:left;margin:10px 0;color:#5d4037;border-radius:4px;">
           <strong>⚠️ Observação importante:</strong><br>
-          O Pix é direcionado para a conta do noivo (<strong>Ítalo Andrew Rodrigues Sa</strong>). <br>
-          <span style="color: #c62828; font-weight: bold;">Caso apareça um nome diferente ao realizar a transferência, NÃO faça o pagamento.</span>
+          O Pix é direcionado para a conta do noivo (<strong>Ítalo Andrew Rodrigues Sa</strong>).<br>
+          <span style="color:#c62828;font-weight:bold;">Caso apareça um nome diferente ao realizar a transferência, não faça o pagamento.</span>
         </blockquote>
 
-        <label style="text-align: left; display: block; margin-bottom: 5px; font-size: 12px;">
-          Pix Copia e Cola (ou Chave E-mail: <b>italoandrew1998l@gmail.com</b>):
+        <label for="pixCode" style="text-align:left;display:block;margin-bottom:5px;font-size:12px;">
+          Pix Copia e Cola ou chave de e-mail: <b>italoandrew1998l@gmail.com</b>
         </label>
-        
-        <input type="text" readonly value="00020126550014br.gov.bcb.pix0126italoandrew1998l@gmail.com0203Pix5204000053039865802BR5925ITALO_ANDREW_RODRIGUES_SA6008JANUARIA62130509Presentes6304E23F" style="text-align: center; font-weight: bold; background: #f0f0f0; width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 10px;" onclick="this.select(); alert('Código Pix copiado!');">
-        
-        <small style="display: block; color: var(--muted); margin-top: 5px; font-size: 11px;">
-          Clique na caixa acima para copiar o código automaticamente.
+
+        <input
+          type="text"
+          id="pixCode"
+          readonly
+          value="00020126550014br.gov.bcb.pix0126italoandrew1998l@gmail.com0203Pix5204000053039865802BR5925ITALO_ANDREW_RODRIGUES_SA6008JANUARIA62130509Presentes6304E23F"
+          style="text-align:center;font-weight:bold;background:#f0f0f0;width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:10px;"
+        >
+
+        <small style="display:block;color:var(--muted);margin-top:5px;font-size:11px;">
+          Clique no botão abaixo para copiar o código.
         </small>
 
-        <button type="button" class="btn primary full" style="margin-top:20px;" onclick="closeGift();">Concluir</button>
+        <button type="button" id="copyPixButton" class="btn secondary full" style="margin-top:12px;">Copiar código Pix</button>
+        <button type="button" id="confirmPixPayment" class="btn primary full" style="margin-top:10px;">Já realizei o Pix</button>
+        <button type="button" id="cancelPixPayment" class="btn light full" style="margin-top:10px;">Não realizei o pagamento</button>
       </div>
-
     </div>
   </div>
 
-  <!-- CONEXÃO COM O SUPABASE E SCRIPT PRINCIPAL -->
+  <!-- SUPABASE E SCRIPT PRINCIPAL -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
