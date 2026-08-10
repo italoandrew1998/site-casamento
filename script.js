@@ -512,28 +512,28 @@ document.addEventListener("DOMContentLoaded", () => {
   loadData();
 });
 
-// SOLUÇÃO DEFINITIVA DO BOTÃO "ÁREA DOS NOIVOS"
-// Em vez de procurar o botão no carregamento, ouvimos qualquer clique na página (Event Delegation).
-// Isso funciona mesmo que o botão seja carregado depois ou esteja escondido em outro lugar.
+// SOLUÇÃO DEFINITIVA DO BOTÃO "ÁREA DOS NOIVOS" (Corrigida)
 document.addEventListener("click", (e) => {
-  // Procura se o elemento clicado (ou o pai dele) é um link ou botão que nos interessa
   const targetElement = e.target.closest('a, button, [role="button"], .btn-noivos, #btnNoivos');
   
   if (targetElement) {
-    const text = targetElement.textContent ? targetElement.textContent.toLowerCase() : "";
+    // PROTEÇÃO: Se o botão clicado for o de fazer login (dentro da área de senha), 
+    // ignoramos este script para que o login funcione normalmente.
+    const text = targetElement.textContent ? targetElement.textContent.toLowerCase().trim() : "";
+    
+    if (text === "acessar painel" || targetElement.closest('form')) {
+        return; // Sai da função de rolagem e permite o login
+    }
+
     const href = targetElement.getAttribute("href") ? targetElement.getAttribute("href").toLowerCase() : "";
     
-    // Se a palavra-chave estiver no texto ou no link
     if (
-      text.includes("noivos") || 
-      text.includes("painel") || 
-      text.includes("área") || 
+      text.includes("área dos noivos") || 
       href.includes("noivos") || 
       href.includes("admin")
     ) {
-      e.preventDefault(); // Impede o comportamento padrão de atualizar a página
+      e.preventDefault(); 
 
-      // Procura a seção de destino por diversos IDs comuns
       const targetSection = document.getElementById("noivos") || 
                             document.getElementById("admin") || 
                             document.querySelector(".noivos-section") || 
@@ -543,7 +543,6 @@ document.addEventListener("click", (e) => {
       if (targetSection) {
         targetSection.scrollIntoView({ behavior: "smooth" });
       } else {
-        // Se a seção não existir no HTML, desce tudo para o final da página por segurança
         window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
       }
     }
@@ -553,3 +552,36 @@ document.addEventListener("click", (e) => {
 function renderAll() {
   renderGifts();
 }
+
+// ==========================================
+// 7. FUNÇÃO DE LOGIN DO PAINEL ADMIN (ADICIONADA)
+// ==========================================
+window.login = function(event) {
+  // Evita que a página recarregue caso o botão esteja dentro de um <form>
+  if(event) event.preventDefault();
+  
+  const campoSenha = document.getElementById("adminPassword");
+  
+  if (!campoSenha) {
+    alert("Erro no código HTML: Campo de senha não encontrado.");
+    return;
+  }
+
+  const senhaDigitada = campoSenha.value; 
+  
+  if (senhaDigitada === ADMIN_PASSWORD) {
+    // Esconde a área de login
+    const loginAdmin = document.getElementById("loginAdmin");
+    if (loginAdmin) loginAdmin.classList.add("hidden");
+    
+    // Mostra o painel com as informações dos convidados/presentes
+    const adminPanel = document.getElementById("adminPanel");
+    if (adminPanel) adminPanel.classList.remove("hidden");
+    
+    // Se você tiver uma função que constrói as tabelas da área admin, ela deve ser chamada aqui. 
+    // Exemplo: if (typeof renderAdminTables === 'function') renderAdminTables();
+    
+  } else {
+    alert("Senha incorreta!");
+  }
+};
