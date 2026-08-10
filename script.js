@@ -13,8 +13,148 @@ let selectedGift = null;
 let currentGuestName = ""; // MEMÓRIA: Guarda o nome de quem interagiu com o RSVP
 let pendingRsvpData = null; // Guarda os dados antes da confirmação final
 
+// LISTA DE PRESENTES ATUALIZADA (COM IMAGENS, LINKS E COTAS)
 const gifts = [
-  // (Mantenha aqui a sua lista de presentes intacta)
+  // 🍳 COZINHA
+  { 
+    id: 1, 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="liquidificador.jpg" alt="Liquidificador" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    title: "Liquidificador", 
+    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/liquidificador-l1200-bi-turbo-black-pretoinox-mondial-127v/up/MLBU1091019903" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 2, 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="Batedeira.jpg" alt="Batedeira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    title: "Batedeira", 
+    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/batedeira-planetaria-philco-900w-5l-preta-12-velocidades-turbo-pbp90a/p/MLB49822923" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 3, 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="sanduicheira.jpg" alt="Sanduicheira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    title: "Sanduicheira", 
+    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/grill-e-sanduicheira-pgr21pi-maxx-clean-1000w-cinza-philco/p/MLB22852655" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 4, 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="cafeteira.jpg" alt="Cafeteira" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    title: "Cafeteira", 
+    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/wap-wcd1500-cafeteira-digital-15l-timer-automatica/p/MLB42197196" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 5, 
+    icon: "🍲", 
+    title: "Panela de pressão elétrica", 
+    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 6, 
+    icon: "🍽️", 
+    title: "Jogo de travessas", 
+    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 7, 
+    icon: "🍴", 
+    title: "Faqueiro", 
+    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 8, 
+    icon: "🍷", 
+    title: "Jogo de taças", 
+    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 9, 
+    icon: "🥧", 
+    title: "Conjunto de assadeiras", 
+    description: '<div style="text-align: center;">Cozinha<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 10, 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="forno elétrico.jpg" alt="Forno elétrico" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    title: "Forno elétrico", 
+    description: '<div style="text-align: center;">Cozinha<br><a href="https://www.mercadolivre.com.br/forno-eletrico-philco-pfe65-com-grelha-65-litros-110v-preto/p/MLB64872179" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+
+  // 🏠 CASA
+  { 
+    id: 11, 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="tábua de passar.jpg" alt="Tábua de passar" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    title: "Tábua de passar", 
+    description: '<div style="text-align: center;">Casa<br><a href="https://produto.mercadolivre.com.br/MLB-3332613795-tabua-mesa-de-passar-roupa-suprema-extra-grande-tampo-de-aco-_JM" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 12, 
+    icon: "🛏️", 
+    title: "Jogo de cama", 
+    description: '<div style="text-align: center;">Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 13, 
+    icon: "🛌", 
+    title: "Edredom", 
+    description: '<div style="text-align: center;">Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 14, 
+    icon: "🧶", 
+    title: "Cobertor", 
+    description: '<div style="text-align: center;">Casa — Cama tamanho queen<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 15, 
+    icon: "🛁", 
+    title: "Jogo de toalhas", 
+    description: '<div style="text-align: center;">Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 16, 
+    icon: "🏠", 
+    title: "Tapete para sala", 
+    description: '<div style="text-align: center;">Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 17, 
+    icon: "🏠", 
+    title: "Tapete para quarto", 
+    description: '<div style="text-align: center;">Casa<br><small style="color: #666;">*Aceitamos cota para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+
+  // 💎 PRESENTES ESPECIAIS
+  { 
+    id: 18, 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="cadeiras.jpg" alt="Jogo de Cadeiras" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    title: "Jogo de 8 Cadeiras", 
+    description: '<div style="text-align: center;">Presentes Especiais<br><a href="https://br.shp.ee/2U1wV6Kx" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto na Shopee</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+  { 
+    id: 19, 
+    icon: '<div style="width: 100%; height: 110px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px; overflow: hidden;"><img src="sofa.jpg" alt="Sofá" style="max-width: 100%; max-height: 100%; object-fit: contain;"></div>', 
+    title: "Sofá", 
+    description: '<div style="text-align: center;">Presentes Especiais<br><a href="https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223" target="_blank" style="color: #2c5e3b; text-decoration: underline; font-weight: bold;">Ver produto no Mercado Livre</a><br><small style="color: #666;">*Aceitamos também cota parcial para este item.</small></div>', 
+    price: "Sugestão" 
+  },
+
+  // 💰 COTAS / PRESENTES EM DINHEIRO
   { id: 20, icon: "✈️", title: "Cota para lua de mel", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 500,00" },
   { id: 21, icon: "🛋️", title: "Cota para móveis", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 300,00" },
   { id: 22, icon: "⚡", title: "Cota para eletrodomésticos", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 300,00" },
@@ -160,13 +300,13 @@ window.confirmRSVP = async function() {
     ? `<b>Presença confirmada!</b><br>Obrigado, ${esc(name)}. Esperamos você lá!` 
     : `<b>Sentiremos sua falta!</b><br>Obrigado por nos avisar, ${esc(name)}.`;
 
-  // DIRECIONA O CONVIDADO PARA A LISTA DE PRESENTES EM AMBUS OS CASOS (SIM OU NÃO)
+  // DIRECIONA O CONVIDADO PARA A LISTA DE PRESENTES EM AMBOS OS CASOS (SIM OU NÃO)
   setTimeout(() => {
     const sectionPresentes = document.getElementById("presentes");
     if (sectionPresentes) {
       sectionPresentes.scrollIntoView({ behavior: "smooth" });
     }
-  }, 1200); // Pequeno atraso para dar tempo de ler a mensagem de confirmação
+  }, 1200); 
 }
 
 // ==========================================
@@ -178,12 +318,15 @@ function renderGifts() {
 
   giftGrid.innerHTML = gifts.map(g => {
     const allClaims = claimsFor(g.id);
-    return `<article class="gift" style="text-align: center;">
-      <div class="gift-icon">${g.icon}</div>
-      <h3>${g.title}</h3>
-      ${g.description}
-      <div class="price">${g.price}</div>
-      <button class="btn primary" onclick="openGift(${g.id})" style="margin-top: 10px;">${allClaims.length ? "Presentear também" : "Escolher este presente"}</button>
+    // Verifica se o ícone é HTML (imagem) ou emoji direto
+    const iconElement = g.icon.startsWith('<div') ? g.icon : `<div class="gift-icon" style="font-size: 40px; text-align: center; margin-bottom: 10px;">${g.icon}</div>`;
+    
+    return `<article class="gift" style="text-align: center; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px;">
+      ${iconElement}
+      <h3 style="margin: 10px 0; font-size: 18px;">${g.title}</h3>
+      <div style="margin-bottom: 10px;">${g.description}</div>
+      <div class="price" style="font-weight: bold; color: #2c5e3b; margin-bottom: 10px;">${g.price}</div>
+      <button class="btn primary" onclick="openGift(${g.id})" style="margin-top: 5px; padding: 8px 15px; background: #2c5e3b; color: #fff; border: none; border-radius: 6px; cursor: pointer;">${allClaims.length ? "Presentear também" : "Escolher este presente"}</button>
     </article>`;
   }).join("");
 }
@@ -193,7 +336,7 @@ window.openGift = function(id) {
   if (!selectedGift) return;
 
   document.getElementById("modalTitle").textContent = selectedGift.title;
-  document.getElementById("modalPrice").innerHTML = selectedGift.description;
+  document.getElementById("modalPrice").innerHTML = selectedGift.description + `<br><b style="color: #2c5e3b;">Preço/Tipo: ${selectedGift.price}</b>`;
 
   const wrapper = document.getElementById("giftSelectWrapper");
   const nameAuto = document.getElementById("giftNameAuto");
