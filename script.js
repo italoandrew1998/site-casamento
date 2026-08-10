@@ -13,7 +13,6 @@ let selectedGift = null;
 let pendingRsvpData = null; 
 let quotaPendingConfirmation = false; 
 
-// Gerenciamento seguro do nome do convidado via sessionStorage para não perder ao navegar
 function getStoredGuestName() {
   return sessionStorage.getItem("wedding_guest_name") || "";
 }
@@ -324,15 +323,20 @@ function renderGifts() {
   giftGrid.innerHTML = gifts.map(g => {
     const allClaims = claimsFor(g.id);
     const iconElement = g.icon.startsWith('<div') ? g.icon : `<div class="gift-icon" style="font-size: 40px; text-align: center; margin-bottom: 10px;">${g.icon}</div>`;
-    
-    // CORREÇÃO: Renderiza o preço APENAS se não for "Sugestão" para evitar campo visual desnecessário
     const displayPrice = (g.price !== "Sugestão" && g.price) ? `<div class="price" style="font-weight: bold; color: #2c5e3b; margin-bottom: 10px;">${g.price}</div>` : '';
 
+    // EXIBE APENAS AS QUANTIDADES / STATUS SEM OS NOMES DOS CONVIDADOS
     let claimsInfoHtml = '';
     if (allClaims.length > 0) {
-      const nomes = allClaims.map(c => esc(c.name)).join(", ");
+      const totalCotas = allClaims.filter(c => c.name.includes("(Cota)")).length;
+      const totalItensCheios = allClaims.length - totalCotas;
+
+      let resumoTexto = [];
+      if (totalItensCheios > 0) resumoTexto.push(`<b>${totalItensCheios}</b> pessoa(s) escolheram o item inteiro`);
+      if (totalCotas > 0) resumoTexto.push(`<b>${totalCotas}</b> cota(s) contribuída(s)`);
+
       claimsInfoHtml = `<div style="margin: 10px 0; padding: 8px; background: #f9f9f9; border-left: 3px solid #2c5e3b; font-size: 13px; text-align: left; border-radius: 4px;">
-        <strong style="color: #2c5e3b;">Já escolhido/contribuído por:</strong><br>${nomes}
+        <strong style="color: #2c5e3b;">Status:</strong><br>${resumoTexto.join("<br>")}
       </div>`;
     } else {
       claimsInfoHtml = `<div style="margin: 10px 0; font-size: 13px; color: #888; font-style: italic;">Disponível para escolha</div>`;
