@@ -325,7 +325,6 @@ function renderGifts() {
     const iconElement = g.icon.startsWith('<div') ? g.icon : `<div class="gift-icon" style="font-size: 40px; text-align: center; margin-bottom: 10px;">${g.icon}</div>`;
     const displayPrice = (g.price !== "Sugestão" && g.price) ? `<div class="price" style="font-weight: bold; color: #2c5e3b; margin-bottom: 10px;">${g.price}</div>` : '';
 
-    // EXIBE APENAS AS QUANTIDADES / STATUS SEM OS NOMES DOS CONVIDADOS
     let claimsInfoHtml = '';
     if (allClaims.length > 0) {
       const totalCotas = allClaims.filter(c => c.name.includes("(Cota)")).length;
@@ -369,7 +368,16 @@ window.openGift = function(id) {
 
   const wrapper = document.getElementById("giftSelectWrapper");
   const nameAuto = document.getElementById("giftNameAuto");
-  const registeredName = getStoredGuestName();
+  
+  // VERIFICAÇÃO ROBUSTA: Checa o sessionStorage e também se o nome já está na lista de convidados confirmados
+  let registeredName = getStoredGuestName();
+  if (!registeredName) {
+    const foundGuest = state.guests.find(g => g.status === 'sim');
+    if (foundGuest) {
+      registeredName = foundGuest.name;
+      setStoredGuestName(registeredName);
+    }
+  }
 
   if (registeredName) {
     if(wrapper) wrapper.classList.add("hidden");
@@ -425,7 +433,11 @@ async function reverterUltimaCota() {
 }
 
 function getGifterName() {
-  const stored = getStoredGuestName();
+  let stored = getStoredGuestName();
+  if (!stored && state.guests.length > 0) {
+    const found = state.guests.find(g => g.status === 'sim');
+    if (found) stored = found.name;
+  }
   if (stored) return stored;
   const select = document.getElementById("giftName");
   return select ? select.value.trim() : "";
@@ -476,7 +488,7 @@ async function handleConfirmQuotaGift(e) {
 }
 
 // ==========================================
-// 6. INICIALIZAÇÃO DOS LISTENERS
+// 6. INICIALIZAÇÃO DOS LISTENERS E BOTÕES
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
   const closeModalBtn = document.getElementById("closeModal");
@@ -488,6 +500,20 @@ document.addEventListener("DOMContentLoaded", () => {
   if (cancelGiftBtn) cancelGiftBtn.addEventListener("click", closeGift);
   if (confirmFullBtn) confirmFullBtn.addEventListener("click", handleConfirmFullGift);
   if (confirmQuotaBtn) confirmQuotaBtn.addEventListener("click", handleConfirmQuotaGift);
+
+  // CORREÇÃO DO BOTÃO "ÁREA DOS NOIVOS"
+  const areaNoivosBtn = document.querySelector('a[href="#noivos"], #btnNoivos, .btn-noivos, [data-section="noivos"]');
+  if (areaNoivosBtn) {
+    areaNoivosBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const targetSection = document.getElementById("noivos") || document.querySelector(".noivos-section") || document.querySelector("#nossa-historia");
+      if (targetSection) {
+        targetSection.scrollIntoView({ behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+  }
 
   loadData();
 });
