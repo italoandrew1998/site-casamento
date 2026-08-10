@@ -1,4 +1,6 @@
+// ==========================================
 // 1. CONFIGURAÇÕES DO SUPABASE E ADMIN
+// ==========================================
 const SUPABASE_URL = "https://uilegqmbxrtxgauccbpy.supabase.co";
 const SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";
 const ADMIN_PASSWORD = "mfsq&iars26092026"; 
@@ -8,11 +10,11 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // Variáveis de Estado
 let state = { guests: [], claims: [], allowed: [] };
 let selectedGift = null;
-let currentGuestName = ""; // MEMÓRIA: Guarda o nome de quem confirmou presença
+let currentGuestName = ""; // MEMÓRIA: Guarda o nome de quem interagiu com o RSVP
 let pendingRsvpData = null; // Guarda os dados antes da confirmação final
 
 const gifts = [
-  // ... (MANTENHA AQUI A SUA LISTA DE PRESENTES INTACTA DA MENSAGEM ANTERIOR)
+  // (Mantenha aqui a sua lista de presentes intacta)
   { id: 20, icon: "✈️", title: "Cota para lua de mel", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 500,00" },
   { id: 21, icon: "🛋️", title: "Cota para móveis", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 300,00" },
   { id: 22, icon: "⚡", title: "Cota para eletrodomésticos", description: '<div style="text-align: center;">Cotas / Presentes em dinheiro</div>', price: "R$ 300,00" },
@@ -23,7 +25,9 @@ const gifts = [
 const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m]));
 const claimsFor = id => state.claims.filter(c => Number(c.gift_id) === Number(id));
 
-// 3. CARREGAR DADOS DO SUPABASE
+// ==========================================
+// 2. CARREGAR DADOS DO SUPABASE
+// ==========================================
 async function loadData() {
   try {
     const { data: guests, error: errGuests } = await supabaseClient.from('guests').select('*');
@@ -34,14 +38,16 @@ async function loadData() {
     state.claims = claims || [];
     state.allowed = allowed || [];
 
-    renderAllSelects(); // Preenche listas gerais (Presentes e Painel Manual)
+    renderAllSelects(); 
     renderAll();
   } catch (err) {
     console.error("Falha ao conectar com banco de dados:", err);
   }
 }
 
-// 4. PREENCHER MENUS
+// ==========================================
+// 3. PREENCHER MENUS E SELEÇÃO DE LADO
+// ==========================================
 function renderAllSelects() {
   const optionsHtmlAll = !state.allowed.length
     ? '<option value="">Nenhum nome cadastrado</option>'
@@ -87,7 +93,9 @@ if (rsvpNameEl) {
   });
 }
 
-// 5. FLUXO DE CONFIRMAÇÃO DE PRESENÇA COM REVISÃO (RSVP)
+// ==========================================
+// 4. FLUXO DE CONFIRMAÇÃO DE PRESENÇA (RSVP)
+// ==========================================
 const rsvpForm = document.getElementById("rsvpForm");
 if (rsvpForm) {
   rsvpForm.onsubmit = e => {
@@ -106,7 +114,6 @@ if (rsvpForm) {
     const confirmScreen = document.getElementById("rsvpConfirmScreen");
     confirmScreen.classList.remove("hidden");
 
-    // Monta o texto de conferência
     let textoRevisao = "";
     if (answer === "sim") {
        textoRevisao = `Você está confirmando presença para <br><b style="font-size:22px; color:#2c5e3b;">${name}</b><br>`;
@@ -121,7 +128,6 @@ if (rsvpForm) {
 }
 
 window.cancelRSVP = function() {
-  // Voltar para corrigir
   pendingRsvpData = null;
   document.getElementById("rsvpConfirmScreen").classList.add("hidden");
   document.getElementById("rsvpFormContent").classList.remove("hidden");
@@ -142,7 +148,7 @@ window.confirmRSVP = async function() {
   
   await loadData();
 
-  // SALVA O NOME NA MEMÓRIA PARA A LISTA DE PRESENTES!
+  // SALVA O NOME NA MEMÓRIA PARA USAR NA LISTA DE PRESENTES AUTOMATICAMENTE
   currentGuestName = name;
 
   // Mostra mensagem de sucesso
@@ -152,12 +158,20 @@ window.confirmRSVP = async function() {
   
   m.innerHTML = answer === "sim" 
     ? `<b>Presença confirmada!</b><br>Obrigado, ${esc(name)}. Esperamos você lá!` 
-    : `<b>Sentiremos sua falta!</b><br>Obrigado por avisar, ${esc(name)}.`;
+    : `<b>Sentiremos sua falta!</b><br>Obrigado por nos avisar, ${esc(name)}.`;
 
-  if (answer === "nao") document.getElementById("presentes").scrollIntoView({ behavior: "smooth" });
+  // DIRECIONA O CONVIDADO PARA A LISTA DE PRESENTES EM AMBUS OS CASOS (SIM OU NÃO)
+  setTimeout(() => {
+    const sectionPresentes = document.getElementById("presentes");
+    if (sectionPresentes) {
+      sectionPresentes.scrollIntoView({ behavior: "smooth" });
+    }
+  }, 1200); // Pequeno atraso para dar tempo de ler a mensagem de confirmação
 }
 
-// 6. PRESENTES (USANDO A MEMÓRIA DE NOME)
+// ==========================================
+// 5. GESTÃO DE PRESENTES E COTAS
+// ==========================================
 function renderGifts() {
   const giftGrid = document.getElementById("giftGrid");
   if (!giftGrid) return;
@@ -181,19 +195,18 @@ window.openGift = function(id) {
   document.getElementById("modalTitle").textContent = selectedGift.title;
   document.getElementById("modalPrice").innerHTML = selectedGift.description;
 
-  // Lógica de Memória do Convidado
   const wrapper = document.getElementById("giftSelectWrapper");
   const nameAuto = document.getElementById("giftNameAuto");
 
+  // Se o convidado já passou pelo RSVP, preenche o nome de forma automática
   if (currentGuestName) {
-    // Se ele já confirmou presença, esconde a lista e mostra o nome
     if(wrapper) wrapper.classList.add("hidden");
     if(nameAuto) {
       nameAuto.classList.remove("hidden");
-      nameAuto.innerHTML = `Presenteando como: <br><b>${currentGuestName}</b>`;
+      nameAuto.innerHTML = `Presenteando como: <br><b>${esc(currentGuestName)}</b>`;
     }
   } else {
-    // Se foi direto pros presentes, exige a escolha
+    // Se acessou direto a lista de presentes sem passar pelo RSVP, exige a seleção manual
     if(wrapper) wrapper.classList.remove("hidden");
     if(nameAuto) nameAuto.classList.add("hidden");
     const giftSelect = document.getElementById("giftName");
@@ -213,7 +226,6 @@ window.closeGift = function() {
   selectedGift = null;
 };
 
-// Pegar o nome do presenteador (da memória ou do select)
 function getGifterName() {
   if (currentGuestName) return currentGuestName;
   const select = document.getElementById("giftName");
@@ -262,6 +274,9 @@ async function handleConfirmQuotaGift(e) {
   }
 }
 
+// ==========================================
+// 6. INICIALIZAÇÃO DOS LISTENERS
+// ==========================================
 document.addEventListener("DOMContentLoaded", () => {
   const closeModalBtn = document.getElementById("closeModal");
   const cancelGiftBtn = document.getElementById("cancelGift");
@@ -272,17 +287,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (cancelGiftBtn) cancelGiftBtn.addEventListener("click", closeGift);
   if (confirmFullBtn) confirmFullBtn.addEventListener("click", handleConfirmFullGift);
   if (confirmQuotaBtn) confirmQuotaBtn.addEventListener("click", handleConfirmQuotaGift);
-});
 
-// AREA ADMIN (Ocultada para brevidade da resposta - mantenha o código de ADMIN anterior igual se desejar, o loadData lida com isso)
-// ... código admin ...
+  loadData();
+});
 
 function renderAll() {
   renderGifts();
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", loadData);
-} else {
-  loadData();
 }
