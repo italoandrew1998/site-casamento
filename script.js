@@ -1,14 +1,14 @@
 // ============================================================
 // SITE DE CASAMENTO MILENE E ITALO
-// Versao revisada para o HTML e as tabelas atuais do Supabase
+// Script completo revisado para o HTML e o Supabase
 // ============================================================
 
 // 1. CONFIGURACOES
 const SUPABASE_URL = "https://uilegqmbxrtxgauccbpy.supabase.co";
 const SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";
 
-// ATENCAO: esta senha funciona apenas como bloqueio visual.
-// Troque por uma senha nova antes de publicar. A seguranca real depende das politicas RLS.
+// Bloqueio visual. Defina uma nova senha antes de publicar.
+// A seguranca real do banco depende das politicas RLS do Supabase.
 const ADMIN_PASSWORD = "TROQUE_POR_UMA_NOVA_SENHA";
 
 const PIX_KEY = "italoandrew1998l@gmail.com";
@@ -32,55 +32,55 @@ let pendingRsvpData = null;
 let pendingQuotaData = null;
 let isSaving = false;
 
-// COZINHA
+// 2. LISTA DE PRESENTES
+// Numeracao reorganizada de 1 a 23, sem referencias aos itens removidos.
+const gifts = [
+  // COZINHA
   { id: 1, image: "liquidificador.jpg", title: "Liquidificador", category: "Cozinha", url: "https://www.mercadolivre.com.br/liquidificador-l1200-bi-turbo-black-pretoinox-mondial-127v/up/MLBU1091019903", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
   { id: 2, image: "Batedeira.jpg", title: "Batedeira", category: "Cozinha", url: "https://www.mercadolivre.com.br/batedeira-planetaria-philco-900w-5l-preta-12-velocidades-turbo-pbp90a/p/MLB49822923", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
   { id: 3, image: "sanduicheira.jpg", title: "Sanduicheira", category: "Cozinha", url: "https://www.mercadolivre.com.br/grill-e-sanduicheira-pgr21pi-maxx-clean-1000w-cinza-philco/p/MLB22852655", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
   { id: 4, image: "cafeteira.jpg", title: "Cafeteira", category: "Cozinha", url: "https://www.mercadolivre.com.br/wap-wcd1500-cafeteira-digital-15l-timer-automatica/p/MLB42197196", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
-
-  // Nova cafeteira, exibida imediatamente ao lado da cafeteira anterior.
-  // O ID 25 evita alterar os IDs dos presentes que ja podem estar registrados no Supabase.
-  { id: 25, image: "cafeteira2.jpg", title: "Cafeteira Nescafé Dolce Gusto", category: "Cozinha", url: "https://www.mercadolivre.com.br/cafeteira-nescafe-dolce-gusto-mini-me-vermelha-e-preta/p/MLB15154783", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
-
-  { id: 5, image: "panela de pressao eletrica.jpg", title: "Panela de pressão elétrica", category: "Cozinha", url: "https://www.mercadolivre.com.br/panela-de-pressao-eletrica-5-litros-aco-inox-preto-multifuncional-kian-ppe-101/p/MLB50190417", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
-  { id: 6, icon: "🍽️", title: "Jogo de travessas", category: "Cozinha", price: "Sugestao", acceptsQuota: true },
-  { id: 7, image: "Faqueiro.jpg", title: "Faqueiro", category: "Cozinha", url: "https://shopee.com.br/product/291932836/10363619008", store: "Shopee", price: "Sugestao", acceptsQuota: true },
-  { id: 8, image: "tacajogo.jpg", title: "Jogo de taças", category: "Cozinha", url: "https://br.shp.ee/MJv2LsJ3", store: "Shopee", price: "Sugestao", acceptsQuota: true },
-  { id: 9, icon: "🥧", title: "Conjunto de assadeiras", category: "Cozinha", price: "Sugestao", acceptsQuota: true },
-
-  // Os nomes abaixo correspondem exatamente aos arquivos informados.
-  { id: 10, image: "forno elétrico.jpg", title: "Forno elétrico", category: "Cozinha", url: "https://www.mercadolivre.com.br/forno-eletrico-philco-pfe65-com-grelha-65-litros-110v-preto/p/MLB64872179", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 5, image: "cafeteira2.jpg", title: "Cafeteira Nescafe Dolce Gusto", category: "Cozinha", url: "https://www.mercadolivre.com.br/cafeteira-nescafe-dolce-gusto-mini-me-vermelha-e-preta/p/MLB15154783", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 6, image: "panela de pressao eletrica.jpg", title: "Panela de pressao eletrica", category: "Cozinha", url: "https://www.mercadolivre.com.br/panela-de-pressao-eletrica-5-litros-aco-inox-preto-multifuncional-kian-ppe-101/p/MLB50190417", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 7, icon: "🍽️", title: "Jogo de travessas", category: "Cozinha", price: "Sugestao", acceptsQuota: true },
+  { id: 8, image: "Faqueiro.jpg", title: "Faqueiro", category: "Cozinha", url: "https://shopee.com.br/product/291932836/10363619008", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 9, image: "tacajogo.jpg", title: "Jogo de tacas", category: "Cozinha", url: "https://br.shp.ee/MJv2LsJ3", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 10, icon: "🥧", title: "Conjunto de assadeiras", category: "Cozinha", price: "Sugestao", acceptsQuota: true },
+  { id: 11, image: "forno elétrico.jpg", title: "Forno eletrico", category: "Cozinha", url: "https://www.mercadolivre.com.br/forno-eletrico-philco-pfe65-com-grelha-65-litros-110v-preto/p/MLB64872179", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
 
   // CASA
-  { id: 11, image: "tabua de passar.jpg", title: "Tábua de passar", category: "Casa", url: "https://produto.mercadolivre.com.br/MLB-3332613795-tabua-mesa-de-passar-roupa-suprema-extra-grande-tampo-de-aco-_JM", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
-  { id: 12, image: "jogo de cama.jpg", title: "Jogo de cama", category: "Casa, cama tamanho queen", url: "https://shopee.com.br/product/514474285/22397280584", store: "Shopee", price: "Sugestao", acceptsQuota: true },
-  { id: 13, icon: "🛌", title: "Edredom", category: "Casa, cama tamanho queen", price: "Sugestao", acceptsQuota: true },
-  { id: 14, image: "ededrom.jpg", title: "Cobertor", category: "Casa, tamanho queen", url: "https://shopee.com.br/product/451914614/23494815662", store: "Shopee", price: "Sugestao", acceptsQuota: true },
-  { id: 15, image: "jogo de toalhas.jpg", title: "Jogo de toalhas", category: "Casa", url: "https://shopee.com.br/product/398182135/17160354312", store: "Shopee", price: "Sugestao", acceptsQuota: true },
-
-  // IDs 16 e 17 foram removidos: Tapete para sala e Tapete para quarto.
+  { id: 12, image: "tabua de passar.jpg", title: "Tabua de passar", category: "Casa", url: "https://produto.mercadolivre.com.br/MLB-3332613795-tabua-mesa-de-passar-roupa-suprema-extra-grande-tampo-de-aco-_JM", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 13, image: "jogo de cama.jpg", title: "Jogo de cama", category: "Casa, cama tamanho queen", url: "https://shopee.com.br/product/514474285/22397280584", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 14, icon: "🛌", title: "Edredom", category: "Casa, cama tamanho queen", price: "Sugestao", acceptsQuota: true },
+  { id: 15, image: "ededrom.jpg", title: "Cobertor", category: "Casa, tamanho queen", url: "https://shopee.com.br/product/451914614/23494815662", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 16, image: "jogo de toalhas.jpg", title: "Jogo de toalhas", category: "Casa", url: "https://shopee.com.br/product/398182135/17160354312", store: "Shopee", price: "Sugestao", acceptsQuota: true },
 
   // PRESENTES ESPECIAIS
-  { id: 18, image: "cadeiras.jpg", title: "Jogo de 8 Cadeiras", category: "Presentes Especiais", url: "https://br.shp.ee/2U1wV6Kx", store: "Shopee", price: "Sugestao", acceptsQuota: true },
-  { id: 19, image: "sofa.jpg", title: "Sofá", category: "Presentes Especiais", url: "https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 17, image: "cadeiras.jpg", title: "Jogo de 8 Cadeiras", category: "Presentes especiais", url: "https://br.shp.ee/2U1wV6Kx", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 18, image: "sofa.jpg", title: "Sofa", category: "Presentes especiais", url: "https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
 
-  // COTAS / PRESENTES EM DINHEIRO
-  { id: 20, icon: "✈️", title: "Cota para lua de mel", category: "Cotas / Presentes em dinheiro", price: "R$ 500,00", quotaOnly: true },
-  { id: 21, icon: "🛋️", title: "Cota para móveis", category: "Cotas / Presentes em dinheiro", price: "R$ 300,00", quotaOnly: true },
-  { id: 22, icon: "⚡", title: "Cota para eletrodomésticos", category: "Cotas / Presentes em dinheiro", price: "R$ 300,00", quotaOnly: true },
-  { id: 23, icon: "🖼️", title: "Cota para decoração", category: "Cotas / Presentes em dinheiro", price: "R$ 200,00", quotaOnly: true },
-  { id: 24, icon: "🎁", title: "Cota para algum item especial da casa", category: "Cotas / Presentes em dinheiro", price: "R$ 250,00", quotaOnly: true }
+  // COTAS E PRESENTES EM DINHEIRO
+  { id: 19, icon: "✈️", title: "Cota para lua de mel", category: "Cotas / Presentes em dinheiro", price: "R$ 500,00", quotaOnly: true },
+  { id: 20, icon: "🛋️", title: "Cota para moveis", category: "Cotas / Presentes em dinheiro", price: "R$ 300,00", quotaOnly: true },
+  { id: 21, icon: "⚡", title: "Cota para eletrodomesticos", category: "Cotas / Presentes em dinheiro", price: "R$ 300,00", quotaOnly: true },
+  { id: 22, icon: "🖼️", title: "Cota para decoracao", category: "Cotas / Presentes em dinheiro", price: "R$ 200,00", quotaOnly: true },
+  { id: 23, icon: "🎁", title: "Cota para algum item especial da casa", category: "Cotas / Presentes em dinheiro", price: "R$ 250,00", quotaOnly: true }
 ];
 
 // 3. UTILITARIOS
 const byId = id => document.getElementById(id);
-const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({
-  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
-})[char]);
 const normalize = value => String(value || "").trim().toLocaleLowerCase("pt-BR");
 const claimsFor = id => state.claims.filter(claim => Number(claim.gift_id) === Number(id));
 const isQuotaClaim = claim => /\s\(Cota\)$/.test(String(claim.name || ""));
 const cleanClaimName = name => String(name || "Convidado").replace(/\s\(Cota\)$/, "");
+
+const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#039;"
+})[char]);
 
 function getStoredGuestName() {
   return sessionStorage.getItem("wedding_guest_name") || "";
@@ -131,7 +131,9 @@ function giftDescription(gift) {
   const productLink = gift.url
     ? `<br><a href="${esc(gift.url)}" target="_blank" rel="noopener noreferrer" style="color:#2c5e3b;text-decoration:underline;font-weight:bold;">Ver produto ${gift.store ? `na ${esc(gift.store)}` : "sugerido"}</a>`
     : "";
-  const quotaText = gift.quotaOnly ? "" : "<br><small style=\"color:#666;\">*Aceitamos tambem cota para este item.</small>";
+  const quotaText = gift.quotaOnly
+    ? ""
+    : '<br><small style="color:#666;">*Aceitamos tambem cota para este item.</small>';
   return `<div style="text-align:center;">${esc(gift.category)}${productLink}${quotaText}</div>`;
 }
 
@@ -183,7 +185,9 @@ function renderAllSelects() {
     const oldValue = select.value;
     select.innerHTML = allOptions;
     const desiredValue = oldValue || (id === "giftName" ? storedName : "");
-    if ([...select.options].some(option => option.value === desiredValue)) select.value = desiredValue;
+    if ([...select.options].some(option => option.value === desiredValue)) {
+      select.value = desiredValue;
+    }
   });
 }
 
@@ -226,9 +230,7 @@ window.cancelRSVP = function cancelRSVP() {
 
 async function saveGuestResponse(payload) {
   const existing = state.guests.find(guest => normalize(guest.name) === normalize(payload.name));
-  if (existing) {
-    return supabaseClient.from("guests").update(payload).eq("id", existing.id);
-  }
+  if (existing) return supabaseClient.from("guests").update(payload).eq("id", existing.id);
   return supabaseClient.from("guests").insert([payload]);
 }
 
@@ -260,7 +262,6 @@ window.confirmRSVP = async function confirmRSVP() {
         ? `<b>Presenca confirmada!</b><br>Obrigado, ${esc(name)}. Esperamos voce la!`
         : `<b>Sentiremos sua falta!</b><br>Obrigado por nos avisar, ${esc(name)}.`
     );
-
     setTimeout(() => byId("presentes")?.scrollIntoView({ behavior: "smooth" }), 1200);
   } catch (error) {
     console.error(error);
@@ -280,6 +281,7 @@ function renderGifts() {
     const claims = claimsFor(gift.id);
     const quotas = claims.filter(isQuotaClaim).length;
     const fullItems = claims.length - quotas;
+
     const visual = gift.image
       ? `<div style="width:100%;height:110px;background:#fff;display:flex;align-items:center;justify-content:center;border-radius:8px;overflow:hidden;"><img src="${esc(gift.image)}" alt="${esc(gift.title)}" style="max-width:100%;max-height:100%;object-fit:contain;" loading="lazy"></div>`
       : `<div class="gift-icon" style="font-size:40px;text-align:center;margin-bottom:10px;">${gift.icon || "🎁"}</div>`;
@@ -371,7 +373,12 @@ window.openGift = function openGift(id) {
   }
 
   byId("confirmFullGift")?.classList.toggle("hidden", Boolean(selectedGift.quotaOnly));
-  byId("confirmQuotaGift").textContent = selectedGift.quotaOnly ? "Escolher esta cota (Pix)" : "Quero dar uma Cota (Pix)";
+  if (byId("confirmQuotaGift")) {
+    byId("confirmQuotaGift").textContent = selectedGift.quotaOnly
+      ? "Escolher esta cota (Pix)"
+      : "Quero dar uma Cota (Pix)";
+  }
+
   byId("giftStepSelection")?.classList.remove("hidden");
   byId("giftStepPix")?.classList.add("hidden");
   byId("giftModal")?.classList.remove("hidden");
@@ -386,13 +393,16 @@ function finishCloseGift() {
 }
 
 window.closeGift = async function closeGift() {
-  const pixStepIsVisible = !byId("giftStepPix")?.classList.contains("hidden");
+  const pixStep = byId("giftStepPix");
+  const pixStepIsVisible = pixStep && !pixStep.classList.contains("hidden");
 
   if (pixStepIsVisible && pendingQuotaData) {
-    const paid = confirm(`Voce realizou o Pix e deseja confirmar este item?
+    const paid = confirm(
+      "Voce realizou o Pix e deseja confirmar este item?\n\n" +
+      "Clique em OK para registrar a cota.\n" +
+      "Clique em Cancelar para sair sem registrar."
+    );
 
-Clique em OK para registrar a cota.
-Clique em Cancelar para sair sem registrar.`);
     if (paid) {
       await confirmDeclaredPixPayment();
       return;
@@ -413,16 +423,22 @@ function getGifterName() {
 async function handleConfirmFullGift(event) {
   event?.preventDefault();
   if (!selectedGift || isSaving) return;
+
   const name = getGifterName();
   if (!name) return alert("Por favor, selecione seu nome na lista.");
 
   isSaving = true;
   setButtonLoading(event?.currentTarget, true);
+
   try {
-    const { error } = await supabaseClient.from("claims").insert([{ gift_id: selectedGift.id, name }]);
+    const { error } = await supabaseClient.from("claims").insert([{
+      gift_id: selectedGift.id,
+      name
+    }]);
     if (error) throw error;
+
     alert(`Muito obrigado, ${name}! Seu presente foi registrado.`);
-    window.closeGift();
+    finishCloseGift();
     await loadData();
   } catch (error) {
     console.error(error);
@@ -436,6 +452,7 @@ async function handleConfirmFullGift(event) {
 function handleConfirmQuotaGift(event) {
   event?.preventDefault();
   if (!selectedGift) return;
+
   const name = getGifterName();
   if (!name) return alert("Por favor, selecione seu nome na lista.");
 
@@ -446,6 +463,7 @@ function handleConfirmQuotaGift(event) {
 
 async function confirmDeclaredPixPayment(event) {
   if (!pendingQuotaData || isSaving) return;
+
   isSaving = true;
   setButtonLoading(event?.currentTarget, true, "Registrando...");
 
@@ -471,9 +489,7 @@ async function confirmDeclaredPixPayment(event) {
 }
 
 function cancelPixPayment() {
-  const leaveWithoutRegistering = confirm(
-    "Deseja sair da etapa do Pix sem confirmar este item?"
-  );
+  const leaveWithoutRegistering = confirm("Deseja sair da etapa do Pix sem confirmar este item?");
   if (!leaveWithoutRegistering) return;
 
   pendingQuotaData = null;
@@ -482,7 +498,8 @@ function cancelPixPayment() {
 }
 
 window.addEventListener("beforeunload", event => {
-  const pixStepIsVisible = !byId("giftStepPix")?.classList.contains("hidden");
+  const pixStep = byId("giftStepPix");
+  const pixStepIsVisible = pixStep && !pixStep.classList.contains("hidden");
   if (!pixStepIsVisible || !pendingQuotaData) return;
   event.preventDefault();
   event.returnValue = "";
@@ -491,6 +508,7 @@ window.addEventListener("beforeunload", event => {
 async function copyPixCode() {
   const input = byId("pixCode");
   const code = input?.value || PIX_CODE;
+
   try {
     await navigator.clipboard.writeText(code);
     alert("Codigo Pix copiado com sucesso!");
@@ -537,7 +555,9 @@ function renderGuestAdmin() {
     if (guest.status === "sim") {
       confirmed++;
       people += Number(guest.people) || 1;
-    } else if (guest.status === "nao") declined++;
+    } else if (guest.status === "nao") {
+      declined++;
+    }
 
     return `<tr>
       <td>${esc(guest.name || "Convidado")}</td>
@@ -566,7 +586,9 @@ window.removerConvidado = async function removerConvidado(id) {
 
 function correctGiftTableHeader() {
   const row = byId("giftsTab")?.querySelector("thead tr");
-  if (row) row.innerHTML = "<th>Presente</th><th>Tipo</th><th>Quem escolheu</th><th>Data</th><th>Acao</th>";
+  if (row) {
+    row.innerHTML = "<th>Presente</th><th>Tipo</th><th>Quem escolheu</th><th>Data</th><th>Acao</th>";
+  }
 }
 
 function renderGiftAdmin() {
@@ -615,7 +637,9 @@ async function saveManualResponse(status) {
 
   alert(status === "sim" ? "Presenca registrada com sucesso!" : "Ausencia registrada com sucesso!");
   byId("manualForm")?.reset();
-  if (byId("manualGuests")) byId("manualGuests").innerHTML = '<option value="0">Somente o convidado</option>';
+  if (byId("manualGuests")) {
+    byId("manualGuests").innerHTML = '<option value="0">Somente o convidado</option>';
+  }
   await loadData();
 }
 
@@ -629,7 +653,9 @@ function initializeEvents() {
     setStoredGuestName(event.target.value);
     populateCompanionSelect("rsvpName", "rsvpGuests");
   });
-  byId("manualName")?.addEventListener("change", () => populateCompanionSelect("manualName", "manualGuests"));
+  byId("manualName")?.addEventListener("change", () => {
+    populateCompanionSelect("manualName", "manualGuests");
+  });
 
   byId("closeModal")?.addEventListener("click", window.closeGift);
   byId("cancelGift")?.addEventListener("click", window.closeGift);
