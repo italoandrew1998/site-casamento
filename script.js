@@ -10,10 +10,11 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // Variáveis de Estado
 let state = { guests: [], claims: [], allowed: [] };
 let selectedGift = null;
-let currentGuestName = ""; // MEMÓRIA: Guarda o nome de quem interagiu com o RSVP
-let pendingRsvpData = null; // Guarda os dados antes da confirmação final
+let currentGuestName = ""; 
+let pendingRsvpData = null; 
+let quotaPendingConfirmation = false; // Controle de segurança para cota Pix
 
-// LISTA DE PRESENTES ATUALIZADA (COM IMAGENS, LINKS E COTAS)
+// LISTA DE PRESENTES ATUALIZADA
 const gifts = [
   // 🍳 COZINHA
   { 
@@ -201,7 +202,6 @@ function renderAllSelects() {
   if (manualSelect) manualSelect.innerHTML = optionsHtmlAll;
 }
 
-// FILTRA A LISTA DO RSVP (NOIVO / NOIVA)
 window.selectSide = function(lado) {
   const listaFiltrada = state.allowed.filter(g => g.lado === lado);
 
@@ -217,7 +217,6 @@ window.selectSide = function(lado) {
   document.getElementById("rsvpFormContent").classList.remove("hidden");
 };
 
-// Limitar acompanhantes no RSVP
 const rsvpNameEl = document.getElementById("rsvpName");
 if (rsvpNameEl) {
   rsvpNameEl.addEventListener("change", (e) => {
@@ -246,10 +245,8 @@ if (rsvpForm) {
     const answer = e.submitter ? e.submitter.dataset.answer : "sim";
     const people = Number(document.getElementById("rsvpGuests").value);
     
-    // Salva temporariamente para revisão
     pendingRsvpData = { name, people, answer, source: "convidado" };
 
-    // Esconde o formulário e mostra a tela de conferência
     document.getElementById("rsvpFormContent").classList.add("hidden");
     const confirmScreen = document.getElementById("rsvpConfirmScreen");
     confirmScreen.classList.remove("hidden");
@@ -287,11 +284,8 @@ window.confirmRSVP = async function() {
   }
   
   await loadData();
-
-  // SALVA O NOME NA MEMÓRIA PARA USAR NA LISTA DE PRESENTES AUTOMATICAMENTE
   currentGuestName = name;
 
-  // Mostra mensagem de sucesso
   document.getElementById("rsvpConfirmScreen").classList.add("hidden");
   const m = document.getElementById("rsvpMessage");
   m.classList.remove("hidden");
@@ -300,7 +294,6 @@ window.confirmRSVP = async function() {
     ? `<b>Presença confirmada!</b><br>Obrigado, ${esc(name)}. Esperamos você lá!` 
     : `<b>Sentiremos sua falta!</b><br>Obrigado por nos avisar, ${esc(name)}.`;
 
-  // DIRECIONA O CONVIDADO PARA A LISTA DE PRESENTES EM AMBOS OS CASOS (SIM OU NÃO)
   setTimeout(() => {
     const sectionPresentes = document.getElementById("presentes");
     if (sectionPresentes) {
@@ -318,14 +311,26 @@ function renderGifts() {
 
   giftGrid.innerHTML = gifts.map(g => {
     const allClaims = claimsFor(g.id);
-    // Verifica se o ícone é HTML (imagem) ou emoji direto
     const iconElement = g.icon.startsWith('<div') ? g.icon : `<div class="gift-icon" style="font-size: 40px; text-align: center; margin-bottom: 10px;">${g.icon}</div>`;
-    
+    const displayPrice = g.price !== "Sugestão" ? `<div class="price" style="font-weight: bold; color: #2c5e3b; margin-bottom: 10px;">${g.price}</div>` : '';
+
+    // CAMPO QUE INFORMA QUEM JÁ GANHOU / ESCOLHEU O ITEM OU COTA
+    let claimsInfoHtml = '';
+    if (allClaims.length > 0) {
+      const nomes = allClaims.map(c => esc(c.name)).join(", ");
+      claimsInfoHtml = `<div style="margin: 10px 0; padding: 8px; background: #f9f9f9; border-left: 3px solid #2c5e3b; font-size: 13px; text-align: left; border-radius: 4px;">
+        <strong style="color: #2c5e3b;">Já escolhido/contribuído por:</strong><br>${nomes}
+      </div>`;
+    } else {
+      claimsInfoHtml = `<div style="margin: 10px 0; font-size: 13px; color: #888; font-style: italic;">Disponível para escolha</div>`;
+    }
+
     return `<article class="gift" style="text-align: center; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px;">
       ${iconElement}
       <h3 style="margin: 10px 0; font-size: 18px;">${g.title}</h3>
-      <div style="margin-bottom: 10px;">${g.description}</div>
-      <div class="price" style="font-weight: bold; color: #2c5e3b; margin-bottom: 10px;">${g.price}</div>
+      <div style="margin-bottom: 5px;">${g.description}</div>
+      ${displayPrice}
+      ${claimsInfoHtml}
       <button class="btn primary" onclick="openGift(${g.id})" style="margin-top: 5px; padding: 8px 15px; background: #2c5e3b; color: #fff; border: none; border-radius: 6px; cursor: pointer;">${allClaims.length ? "Presentear também" : "Escolher este presente"}</button>
     </article>`;
   }).join("");
@@ -334,14 +339,21 @@ function renderGifts() {
 window.openGift = function(id) {
   selectedGift = gifts.find(g => g.id === id);
   if (!selectedGift) return;
+  
+  // Reseta o estado de segurança da cota ao abrir o modal
+  quotaPendingConfirmation = false;
 
   document.getElementById("modalTitle").textContent = selectedGift.title;
-  document.getElementById("modalPrice").innerHTML = selectedGift.description + `<br><b style="color: #2c5e3b;">Preço/Tipo: ${selectedGift.price}</b>`;
+  
+  let modalContentHtml = selectedGift.description;
+  if (selectedGift.price !== "Sugestão") {
+    modalContentHtml += `<br><b style="color: #2c5e3b;">Valor: ${selectedGift.price}</b>`;
+  }
+  document.getElementById("modalPrice").innerHTML = modalContentHtml;
 
   const wrapper = document.getElementById("giftSelectWrapper");
   const nameAuto = document.getElementById("giftNameAuto");
 
-  // Se o convidado já passou pelo RSVP, preenche o nome de forma automática
   if (currentGuestName) {
     if(wrapper) wrapper.classList.add("hidden");
     if(nameAuto) {
@@ -349,7 +361,6 @@ window.openGift = function(id) {
       nameAuto.innerHTML = `Presenteando como: <br><b>${esc(currentGuestName)}</b>`;
     }
   } else {
-    // Se acessou direto a lista de presentes sem passar pelo RSVP, exige a seleção manual
     if(wrapper) wrapper.classList.remove("hidden");
     if(nameAuto) nameAuto.classList.add("hidden");
     const giftSelect = document.getElementById("giftName");
@@ -365,9 +376,39 @@ window.openGift = function(id) {
 };
 
 window.closeGift = function() {
+  // SE ESTIVER NA TELA DO PIX COM COTA PENDENTE, PEDE CONFIRMAÇÃO ANTES DE FECHAR
+  const giftStepPix = document.getElementById("giftStepPix");
+  const isPixVisible = giftStepPix && !giftStepPix.classList.contains("hidden");
+
+  if (isPixVisible && quotaPendingConfirmation) {
+    const confirmou = confirm("Você realizou o pagamento via PIX desta cota e deseja confirmar o registro na lista?");
+    if (confirmou) {
+      // Se ele confirmou que deu, o item já foi inserido no banco na etapa anterior, apenas fecha o modal limpo
+      quotaPendingConfirmation = false;
+    } else {
+      // Se ele desistiu ou não pagou, remove o registro inserido no banco para não contar indevidamente
+      reverterUltimaCota();
+    }
+  }
+
   document.getElementById("giftModal").classList.add("hidden");
   selectedGift = null;
+  quotaPendingConfirmation = false;
 };
+
+// Função auxiliar para remover a última cota inserida caso o usuário desista ao fechar o Pix
+async function reverterUltimaCota() {
+  if (!selectedGift) return;
+  const name = getGifterName();
+  const nameWithQuota = `${name} (Cota)`;
+
+  // Localiza e remove o registro correspondente no Supabase
+  const claimParaRemover = state.claims.find(c => Number(c.gift_id) === Number(selectedGift.id) && c.name === nameWithQuota);
+  if (claimParaRemover) {
+    await supabaseClient.from("claims").delete().eq('id', claimParaRemover.id);
+    await loadData();
+  }
+}
 
 function getGifterName() {
   if (currentGuestName) return currentGuestName;
@@ -408,6 +449,9 @@ async function handleConfirmQuotaGift(e) {
       gift_id: selectedGift.id, name: nameWithQuota 
     });
     if (error) throw error;
+
+    // Ativa a bandeira de cota pendente de confirmação ao exibir o Pix
+    quotaPendingConfirmation = true;
 
     document.getElementById("giftStepSelection").classList.add("hidden");
     document.getElementById("giftStepPix").classList.remove("hidden");
