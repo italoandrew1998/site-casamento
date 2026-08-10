@@ -9,7 +9,7 @@ const SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";
 
 // ATENCAO: esta senha funciona apenas como bloqueio visual.
 // Troque por uma senha nova antes de publicar. A seguranca real depende das politicas RLS.
-const ADMIN_PASSWORD = "mfsq&iars26092026";
+const ADMIN_PASSWORD = "TROQUE_POR_UMA_NOVA_SENHA";
 
 const PIX_KEY = "italoandrew1998l@gmail.com";
 const PIX_CODE = "00020126550014br.gov.bcb.pix0126italoandrew1998l@gmail.com0203Pix5204000053039865802BR5925ITALO_ANDREW_RODRIGUES_SA6008JANUARIA62130509Presentes6304E23F";
@@ -32,31 +32,43 @@ let pendingRsvpData = null;
 let pendingQuotaData = null;
 let isSaving = false;
 
-// 2. LISTA DE PRESENTES
-const gifts = [
+// COZINHA
   { id: 1, image: "liquidificador.jpg", title: "Liquidificador", category: "Cozinha", url: "https://www.mercadolivre.com.br/liquidificador-l1200-bi-turbo-black-pretoinox-mondial-127v/up/MLBU1091019903", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
   { id: 2, image: "Batedeira.jpg", title: "Batedeira", category: "Cozinha", url: "https://www.mercadolivre.com.br/batedeira-planetaria-philco-900w-5l-preta-12-velocidades-turbo-pbp90a/p/MLB49822923", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
   { id: 3, image: "sanduicheira.jpg", title: "Sanduicheira", category: "Cozinha", url: "https://www.mercadolivre.com.br/grill-e-sanduicheira-pgr21pi-maxx-clean-1000w-cinza-philco/p/MLB22852655", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
   { id: 4, image: "cafeteira.jpg", title: "Cafeteira", category: "Cozinha", url: "https://www.mercadolivre.com.br/wap-wcd1500-cafeteira-digital-15l-timer-automatica/p/MLB42197196", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
-  { id: 5, image: "panela de pressao eletrica.jpg", title: "Panela de pressao eletrica", category: "Cozinha", url: "https://www.mercadolivre.com.br/panela-de-pressao-eletrica-5-litros-aco-inox-preto-multifuncional-kian-ppe-101/p/MLB50190417", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+
+  // Nova cafeteira, exibida imediatamente ao lado da cafeteira anterior.
+  // O ID 25 evita alterar os IDs dos presentes que ja podem estar registrados no Supabase.
+  { id: 25, image: "cafeteira2.jpg", title: "Cafeteira Nescafé Dolce Gusto", category: "Cozinha", url: "https://www.mercadolivre.com.br/cafeteira-nescafe-dolce-gusto-mini-me-vermelha-e-preta/p/MLB15154783", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+
+  { id: 5, image: "panela de pressao eletrica.jpg", title: "Panela de pressão elétrica", category: "Cozinha", url: "https://www.mercadolivre.com.br/panela-de-pressao-eletrica-5-litros-aco-inox-preto-multifuncional-kian-ppe-101/p/MLB50190417", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
   { id: 6, icon: "🍽️", title: "Jogo de travessas", category: "Cozinha", price: "Sugestao", acceptsQuota: true },
-  { id: 7, icon: "🍴", title: "Faqueiro", category: "Cozinha", price: "Sugestao", acceptsQuota: true },
-  { id: 8, image: "tacajogo.jpg", title: "Jogo de tacas", category: "Cozinha", url: "https://br.shp.ee/MJv2LsJ3", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 7, image: "Faqueiro.jpg", title: "Faqueiro", category: "Cozinha", url: "https://shopee.com.br/product/291932836/10363619008", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 8, image: "tacajogo.jpg", title: "Jogo de taças", category: "Cozinha", url: "https://br.shp.ee/MJv2LsJ3", store: "Shopee", price: "Sugestao", acceptsQuota: true },
   { id: 9, icon: "🥧", title: "Conjunto de assadeiras", category: "Cozinha", price: "Sugestao", acceptsQuota: true },
-  { id: 10, image: "forno eletrico.jpg", title: "Forno eletrico", category: "Cozinha", url: "https://www.mercadolivre.com.br/forno-eletrico-philco-pfe65-com-grelha-65-litros-110v-preto/p/MLB64872179", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
-  { id: 11, image: "tabua de passar.jpg", title: "Tabua de passar", category: "Casa", url: "https://produto.mercadolivre.com.br/MLB-3332613795-tabua-mesa-de-passar-roupa-suprema-extra-grande-tampo-de-aco-_JM", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
-  { id: 12, icon: "🛏️", title: "Jogo de cama", category: "Casa, cama tamanho queen", price: "Sugestao", acceptsQuota: true },
+
+  // Os nomes abaixo correspondem exatamente aos arquivos informados.
+  { id: 10, image: "forno elétrico.jpg", title: "Forno elétrico", category: "Cozinha", url: "https://www.mercadolivre.com.br/forno-eletrico-philco-pfe65-com-grelha-65-litros-110v-preto/p/MLB64872179", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+
+  // CASA
+  { id: 11, image: "tabua de passar.jpg", title: "Tábua de passar", category: "Casa", url: "https://produto.mercadolivre.com.br/MLB-3332613795-tabua-mesa-de-passar-roupa-suprema-extra-grande-tampo-de-aco-_JM", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 12, image: "jogo de cama.jpg", title: "Jogo de cama", category: "Casa, cama tamanho queen", url: "https://shopee.com.br/product/514474285/22397280584", store: "Shopee", price: "Sugestao", acceptsQuota: true },
   { id: 13, icon: "🛌", title: "Edredom", category: "Casa, cama tamanho queen", price: "Sugestao", acceptsQuota: true },
-  { id: 14, icon: "🧶", title: "Cobertor", category: "Casa, cama tamanho queen", price: "Sugestao", acceptsQuota: true },
-  { id: 15, icon: "🛁", title: "Jogo de toalhas", category: "Casa", price: "Sugestao", acceptsQuota: true },
-  { id: 16, icon: "🏠", title: "Tapete para sala", category: "Casa", price: "Sugestao", acceptsQuota: true },
-  { id: 17, icon: "🏠", title: "Tapete para quarto", category: "Casa", price: "Sugestao", acceptsQuota: true },
+  { id: 14, image: "ededrom.jpg", title: "Cobertor", category: "Casa, tamanho queen", url: "https://shopee.com.br/product/451914614/23494815662", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 15, image: "jogo de toalhas.jpg", title: "Jogo de toalhas", category: "Casa", url: "https://shopee.com.br/product/398182135/17160354312", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+
+  // IDs 16 e 17 foram removidos: Tapete para sala e Tapete para quarto.
+
+  // PRESENTES ESPECIAIS
   { id: 18, image: "cadeiras.jpg", title: "Jogo de 8 Cadeiras", category: "Presentes Especiais", url: "https://br.shp.ee/2U1wV6Kx", store: "Shopee", price: "Sugestao", acceptsQuota: true },
-  { id: 19, image: "sofa.jpg", title: "Sofa", category: "Presentes Especiais", url: "https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 19, image: "sofa.jpg", title: "Sofá", category: "Presentes Especiais", url: "https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+
+  // COTAS / PRESENTES EM DINHEIRO
   { id: 20, icon: "✈️", title: "Cota para lua de mel", category: "Cotas / Presentes em dinheiro", price: "R$ 500,00", quotaOnly: true },
-  { id: 21, icon: "🛋️", title: "Cota para moveis", category: "Cotas / Presentes em dinheiro", price: "R$ 300,00", quotaOnly: true },
-  { id: 22, icon: "⚡", title: "Cota para eletrodomesticos", category: "Cotas / Presentes em dinheiro", price: "R$ 300,00", quotaOnly: true },
-  { id: 23, icon: "🖼️", title: "Cota para decoracao", category: "Cotas / Presentes em dinheiro", price: "R$ 200,00", quotaOnly: true },
+  { id: 21, icon: "🛋️", title: "Cota para móveis", category: "Cotas / Presentes em dinheiro", price: "R$ 300,00", quotaOnly: true },
+  { id: 22, icon: "⚡", title: "Cota para eletrodomésticos", category: "Cotas / Presentes em dinheiro", price: "R$ 300,00", quotaOnly: true },
+  { id: 23, icon: "🖼️", title: "Cota para decoração", category: "Cotas / Presentes em dinheiro", price: "R$ 200,00", quotaOnly: true },
   { id: 24, icon: "🎁", title: "Cota para algum item especial da casa", category: "Cotas / Presentes em dinheiro", price: "R$ 250,00", quotaOnly: true }
 ];
 
@@ -365,12 +377,29 @@ window.openGift = function openGift(id) {
   byId("giftModal")?.classList.remove("hidden");
 };
 
-window.closeGift = function closeGift() {
+function finishCloseGift() {
   byId("giftModal")?.classList.add("hidden");
   byId("giftStepSelection")?.classList.remove("hidden");
   byId("giftStepPix")?.classList.add("hidden");
   selectedGift = null;
   pendingQuotaData = null;
+}
+
+window.closeGift = async function closeGift() {
+  const pixStepIsVisible = !byId("giftStepPix")?.classList.contains("hidden");
+
+  if (pixStepIsVisible && pendingQuotaData) {
+    const paid = confirm(`Voce realizou o Pix e deseja confirmar este item?
+
+Clique em OK para registrar a cota.
+Clique em Cancelar para sair sem registrar.`);
+    if (paid) {
+      await confirmDeclaredPixPayment();
+      return;
+    }
+  }
+
+  finishCloseGift();
 };
 
 function getGifterName() {
@@ -428,8 +457,9 @@ async function confirmDeclaredPixPayment(event) {
     if (error) throw error;
 
     const name = pendingQuotaData.name;
+    pendingQuotaData = null;
     alert(`Obrigado, ${name}! A sua declaracao de pagamento foi registrada.`);
-    window.closeGift();
+    finishCloseGift();
     await loadData();
   } catch (error) {
     console.error(error);
@@ -441,10 +471,22 @@ async function confirmDeclaredPixPayment(event) {
 }
 
 function cancelPixPayment() {
+  const leaveWithoutRegistering = confirm(
+    "Deseja sair da etapa do Pix sem confirmar este item?"
+  );
+  if (!leaveWithoutRegistering) return;
+
   pendingQuotaData = null;
   byId("giftStepPix")?.classList.add("hidden");
   byId("giftStepSelection")?.classList.remove("hidden");
 }
+
+window.addEventListener("beforeunload", event => {
+  const pixStepIsVisible = !byId("giftStepPix")?.classList.contains("hidden");
+  if (!pixStepIsVisible || !pendingQuotaData) return;
+  event.preventDefault();
+  event.returnValue = "";
+});
 
 async function copyPixCode() {
   const input = byId("pixCode");
