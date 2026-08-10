@@ -9,7 +9,7 @@ const SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";
 
 // Bloqueio visual. Defina uma nova senha antes de publicar.
 // A seguranca real do banco depende das politicas RLS do Supabase.
-const ADMIN_PASSWORD = "mfsq&iars26092026";
+const ADMIN_PASSWORD = mfsq&iars26092026;
 
 const PIX_KEY = "italoandrew1998l@gmail.com";
 const PIX_CODE = "00020126550014br.gov.bcb.pix0126italoandrew1998l@gmail.com0203Pix5204000053039865802BR5925ITALO_ANDREW_RODRIGUES_SA6008JANUARIA62130509Presentes6304E23F";
@@ -526,7 +526,7 @@ window.login = function login(event) {
   event?.preventDefault();
   const password = byId("adminPassword")?.value || "";
 
-  if (ADMIN_PASSWORD === "mfsq&iars26092026") {
+  if (ADMIN_PASSWORD === mfsq&iars26092026) {
     return alert("Defina uma nova senha na constante ADMIN_PASSWORD do script.js antes de usar o painel.");
   }
 
