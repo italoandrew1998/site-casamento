@@ -43,7 +43,7 @@ const gifts = [
   { id: 5, image: "cafeteira2.jpg", title: "Cafeteira Nescafe Dolce Gusto", category: "Cozinha", url: "https://www.mercadolivre.com.br/cafeteira-nescafe-dolce-gusto-mini-me-vermelha-e-preta/p/MLB15154783", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
   { id: 6, image: "panela de pressao eletrica.jpg", title: "Panela de pressao eletrica", category: "Cozinha", url: "https://www.mercadolivre.com.br/panela-de-pressao-eletrica-5-litros-aco-inox-preto-multifuncional-kian-ppe-101/p/MLB50190417", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
   { id: 7, icon: "🍽️", title: "Jogo de travessas", category: "Cozinha", price: "Sugestao", acceptsQuota: true },
-  { id: 8, image: "Faqueiro.jpg", title: "Faqueiro", category: "Cozinha", url: "https://shopee.com.br/product/291932836/10363619008", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 8, image: "faqueiro.jpg", title: "Faqueiro", category: "Cozinha", url: "https://shopee.com.br/product/291932836/10363619008", store: "Shopee", price: "Sugestao", acceptsQuota: true },
   { id: 9, image: "tacajogo.jpg", title: "Jogo de tacas", category: "Cozinha", url: "https://br.shp.ee/MJv2LsJ3", store: "Shopee", price: "Sugestao", acceptsQuota: true },
   { id: 10, icon: "🥧", title: "Conjunto de assadeiras", category: "Cozinha", price: "Sugestao", acceptsQuota: true },
   { id: 11, image: "forno elétrico.jpg", title: "Forno eletrico", category: "Cozinha", url: "https://www.mercadolivre.com.br/forno-eletrico-philco-pfe65-com-grelha-65-litros-110v-preto/p/MLB64872179", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
