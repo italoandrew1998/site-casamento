@@ -232,10 +232,7 @@ const rsvpNameEl = document.getElementById("rsvpName");
 if (rsvpNameEl) {
   rsvpNameEl.addEventListener("change", (e) => {
     const name = e.target.value.trim();
-
-    if (name) {
-      setStoredGuestName(name);
-    }
+    if (name) setStoredGuestName(name); // Salva ao trocar a opção
 
     const selectedOption = e.target.options[e.target.selectedIndex];
     const maxGuests = Number(selectedOption ? selectedOption.dataset.max : 0) || 0;
@@ -258,6 +255,9 @@ if (rsvpForm) {
     e.preventDefault();
     const name = document.getElementById("rsvpName").value;
     if (!name) return alert("Por favor, selecione seu nome na lista.");
+
+    // FORÇA O SALVAMENTO DO NOME AQUI COMO GARANTIA EXTRA
+    setStoredGuestName(name);
 
     const answer = e.submitter ? e.submitter.dataset.answer : "sim";
     const people = Number(document.getElementById("rsvpGuests").value);
@@ -367,7 +367,6 @@ window.openGift = function(id) {
   if (!selectedGift) return;
   
   quotaPendingConfirmation = false;
-
   document.getElementById("modalTitle").textContent = selectedGift.title;
   
   let modalContentHtml = selectedGift.description;
@@ -378,22 +377,26 @@ window.openGift = function(id) {
 
   const wrapper = document.getElementById("giftSelectWrapper");
   const nameAuto = document.getElementById("giftNameAuto");
+  const giftSelect = document.getElementById("giftName");
   
   let registeredName = getStoredGuestName();
   
+  // SOLUÇÃO DEFINITIVA DO NOME: Se tem nome salvo, força no input/select, mesmo que a interface não mude.
   if (registeredName) {
-    if(wrapper) wrapper.classList.add("hidden");
-    if(nameAuto) {
+    if (giftSelect) {
+      giftSelect.value = registeredName; // Força a escolha na lista oculta
+    }
+    if (wrapper) wrapper.classList.add("hidden");
+    if (nameAuto) {
       nameAuto.classList.remove("hidden");
       nameAuto.innerHTML = `Presenteando como: <br><b>${esc(registeredName)}</b>`;
     }
   } else {
-    if(wrapper) wrapper.classList.remove("hidden");
-    if(nameAuto) {
+    if (wrapper) wrapper.classList.remove("hidden");
+    if (nameAuto) {
       nameAuto.classList.add("hidden");
       nameAuto.innerHTML = "";
     }
-    const giftSelect = document.getElementById("giftName");
     if (giftSelect) giftSelect.value = "";
   }
   
@@ -436,7 +439,7 @@ async function reverterUltimaCota() {
 
 function getGifterName() {
   let stored = getStoredGuestName();
-  if (stored) return stored;
+  if (stored) return stored; // Retorna direto se já estiver salvo
   
   const select = document.getElementById("giftName");
   const val = select ? select.value.trim() : "";
@@ -445,7 +448,6 @@ function getGifterName() {
     setStoredGuestName(val); 
     return val;
   }
-  
   return "";
 }
 
@@ -494,7 +496,7 @@ async function handleConfirmQuotaGift(e) {
 }
 
 // ==========================================
-// 6. INICIALIZAÇÃO DOS LISTENERS E BOTÕES
+// 6. INICIALIZAÇÃO E DELEGAÇÃO DE EVENTOS GLOBAIS
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
   const closeModalBtn = document.getElementById("closeModal");
@@ -507,32 +509,45 @@ document.addEventListener("DOMContentLoaded", () => {
   if (confirmFullBtn) confirmFullBtn.addEventListener("click", handleConfirmFullGift);
   if (confirmQuotaBtn) confirmQuotaBtn.addEventListener("click", handleConfirmQuotaGift);
 
-  // CORREÇÃO AMPLIADA DO BOTÃO DA ÁREA DOS NOIVOS (captura links, botões do rodapé e áreas administrativas)
-  const areaNoivosButtons = document.querySelectorAll('a, button, [role="button"]');
-  areaNoivosButtons.forEach(el => {
-    const text = el.textContent ? el.textContent.toLowerCase() : "";
-    const href = el.getAttribute("href") ? el.getAttribute("href").toLowerCase() : "";
+  loadData();
+});
+
+// SOLUÇÃO DEFINITIVA DO BOTÃO "ÁREA DOS NOIVOS"
+// Em vez de procurar o botão no carregamento, ouvimos qualquer clique na página (Event Delegation).
+// Isso funciona mesmo que o botão seja carregado depois ou esteja escondido em outro lugar.
+document.addEventListener("click", (e) => {
+  // Procura se o elemento clicado (ou o pai dele) é um link ou botão que nos interessa
+  const targetElement = e.target.closest('a, button, [role="button"], .btn-noivos, #btnNoivos');
+  
+  if (targetElement) {
+    const text = targetElement.textContent ? targetElement.textContent.toLowerCase() : "";
+    const href = targetElement.getAttribute("href") ? targetElement.getAttribute("href").toLowerCase() : "";
     
+    // Se a palavra-chave estiver no texto ou no link
     if (
       text.includes("noivos") || 
       text.includes("painel") || 
-      text.includes("área dos noivos") || 
+      text.includes("área") || 
       href.includes("noivos") || 
       href.includes("admin")
     ) {
-      el.addEventListener("click", (e) => {
-        e.preventDefault();
-        const targetSection = document.getElementById("noivos") || document.getElementById("admin") || document.querySelector(".noivos-section") || document.querySelector("#nossa-historia");
-        if (targetSection) {
-          targetSection.scrollIntoView({ behavior: "smooth" });
-        } else {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }
-      });
-    }
-  });
+      e.preventDefault(); // Impede o comportamento padrão de atualizar a página
 
-  loadData();
+      // Procura a seção de destino por diversos IDs comuns
+      const targetSection = document.getElementById("noivos") || 
+                            document.getElementById("admin") || 
+                            document.querySelector(".noivos-section") || 
+                            document.querySelector("#nossa-historia") ||
+                            document.getElementById("loginAdmin");
+
+      if (targetSection) {
+        targetSection.scrollIntoView({ behavior: "smooth" });
+      } else {
+        // Se a seção não existir no HTML, desce tudo para o final da página por segurança
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      }
+    }
+  }
 });
 
 function renderAll() {
