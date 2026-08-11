@@ -33,6 +33,8 @@ let pendingQuotaData = null;
 let isSaving = false;
 
 // 2. LISTA DE PRESENTES
+// Numeracao reorganizada de 1 a 23, sem referencias aos itens removidos.
+const gifts = [
   // COZINHA
   { id: 1, image: "liquidificador.jpg", title: "Liquidificador", category: "Cozinha", url: "https://www.mercadolivre.com.br/liquidificador-l1200-bi-turbo-black-pretoinox-mondial-127v/up/MLBU1091019903", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
   { id: 2, image: "Batedeira.jpg", title: "Batedeira", category: "Cozinha", url: "https://www.mercadolivre.com.br/batedeira-planetaria-philco-900w-5l-preta-12-velocidades-turbo-pbp90a/p/MLB49822923", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
