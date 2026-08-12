@@ -80,6 +80,26 @@ const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({
   "'": "&#039;"
 })[char]);
 
+// --- NOVO: FUNÇÃO PARA CAPTURAR IP E APARELHO ---
+async function getDeviceInfo() {
+  let ip = "Desconhecido";
+  try {
+    const response = await fetch('https://api.ipify.org?format=json');
+    const data = await response.json();
+    ip = data.ip;
+  } catch (e) {
+    console.warn("Não foi possível obter o IP.");
+  }
+  // Retorna o IP e o nome resumido do navegador/aparelho
+  return `IP: ${ip} | ${navigator.userAgent.substring(0, 70)}...`;
+}
+
+// --- NOVO: FILTRAR QUEM AINDA NÃO RESPONDEU ---
+function getUnansweredGuests() {
+  const answeredNames = state.guests.map(g => normalize(g.name));
+  return state.allowed.filter(g => !answeredNames.includes(normalize(g.name)));
+}
+
 function getStoredGuestName() {
   return sessionStorage.getItem("wedding_guest_name") || "";
 }
@@ -154,9 +174,11 @@ async function loadData() {
 
     renderAllSelects();
     renderGifts();
+    renderPublicConfirmed(); // Renderiza a lista do rodapé
 
     if (state.adminUnlocked) {
       renderGuestAdmin();
+      renderPendingAdmin(); // Renderiza a aba de pendentes
       renderGiftAdmin();
     }
   } catch (error) {
@@ -167,30 +189,43 @@ async function loadData() {
 
 // 5. SELETORES E ACOMPANHANTES
 function allowedOptions(list, placeholder) {
-  if (!list.length) return '<option value="">Nenhum nome cadastrado</option>';
+  if (!list.length) return `<option value="">${esc(placeholder)}</option><option value="" disabled>Todos já responderam!</option>`;
   return `<option value="">${esc(placeholder)}</option>` + list.map(guest =>
     `<option value="${esc(guest.name)}" data-max="${Number(guest.max_guests) || 0}">${esc(guest.name)}</option>`
   ).join("");
 }
 
 function renderAllSelects() {
+  // Pega APENAS quem ainda não respondeu para o RSVP
+  const unanswered = getUnansweredGuests();
+  const unansweredOptions = allowedOptions(unanswered, "-- Selecione o nome --");
+  
+  // Para presentes, permitimos todos (pois o convidado pode dar presente mesmo sem ter respondido RSVP)
   const allOptions = allowedOptions(state.allowed, "-- Selecione o nome --");
   const storedName = getStoredGuestName();
 
-  ["giftName", "manualName"].forEach(id => {
-    const select = byId(id);
-    if (!select) return;
-    const oldValue = select.value;
-    select.innerHTML = allOptions;
-    const desiredValue = oldValue || (id === "giftName" ? storedName : "");
-    if ([...select.options].some(option => option.value === desiredValue)) {
-      select.value = desiredValue;
+  const giftSelect = byId("giftName");
+  if (giftSelect) {
+    const oldValue = giftSelect.value;
+    giftSelect.innerHTML = allOptions;
+    if ([...giftSelect.options].some(option => option.value === (oldValue || storedName))) {
+      giftSelect.value = oldValue || storedName;
     }
-  });
+  }
+
+  const manualSelect = byId("manualName");
+  if (manualSelect) {
+    const oldValue = manualSelect.value;
+    manualSelect.innerHTML = unansweredOptions;
+    if ([...manualSelect.options].some(option => option.value === oldValue)) {
+      manualSelect.value = oldValue;
+    }
+  }
 }
 
 window.selectSide = function selectSide(side) {
-  const filtered = state.allowed.filter(guest => normalize(guest.lado) === normalize(side));
+  const unanswered = getUnansweredGuests();
+  const filtered = unanswered.filter(guest => normalize(guest.lado) === normalize(side));
   const select = byId("rsvpName");
   if (select) select.innerHTML = allowedOptions(filtered, "-- Selecione o seu nome --");
   byId("sideSelection")?.classList.add("hidden");
@@ -479,13 +514,15 @@ async function handleConfirmFullGift(event) {
 
   try {
     const giftId = selectedGift.id;
+    const deviceInfo = await getDeviceInfo(); // Captura IP e Aparelho
 
     const { error } = await supabaseClient
       .from("claims")
       .insert([
         {
           gift_id: giftId,
-          name
+          name,
+          device_info: deviceInfo // Envia pro Supabase
         }
       ]);
 
@@ -549,12 +586,15 @@ async function confirmDeclaredPixPayment(event) {
   setButtonLoading(button, true, "Salvando...");
 
   try {
+    const deviceInfo = await getDeviceInfo(); // Captura IP e Aparelho
+
     const { error } = await supabaseClient
       .from("claims")
       .insert([
         {
           gift_id: quotaData.giftId,
-          name: `${quotaData.name} (Cota)`
+          name: `${quotaData.name} (Cota)`,
+          device_info: deviceInfo // Envia pro Supabase
         }
       ]);
 
@@ -626,6 +666,7 @@ window.login = function login(event) {
     byId("adminContent")?.classList.remove("hidden");
     byId("adminError")?.classList.add("hidden");
     renderGuestAdmin();
+    renderPendingAdmin();
     renderGiftAdmin();
   } else {
     const errorEl = byId("adminError");
@@ -668,6 +709,20 @@ function renderGuestAdmin() {
   if (byId("peopleCount")) byId("peopleCount").textContent = people;
 }
 
+// --- NOVO: RENDERIZAR TABELA DE PENDENTES ---
+function renderPendingAdmin() {
+  const tbody = byId("pendingTable");
+  if (!tbody) return;
+  const unanswered = getUnansweredGuests();
+
+  tbody.innerHTML = unanswered.map(guest => `
+    <tr>
+      <td>${esc(guest.name)}</td>
+      <td>${esc(guest.lado || "-")}</td>
+    </tr>
+  `).join("") || '<tr><td colspan="2" style="text-align:center;">Todos já responderam!</td></tr>';
+}
+
 window.deleteGuest = async function deleteGuest(id) {
   if (!confirm("Deseja realmente remover este registro?")) return;
   const { error } = await supabaseClient.from("guests").delete().eq("id", id);
@@ -682,15 +737,18 @@ function renderGiftAdmin() {
   tbody.innerHTML = state.claims.map(claim => {
     const gift = gifts.find(item => Number(item.id) === Number(claim.gift_id));
     const title = gift ? gift.title : `Presente #${claim.gift_id}`;
-    const date = claim.created_at ? new Date(claim.created_at).toLocaleDateString("pt-BR") : "-";
+    const date = claim.created_at ? new Date(claim.created_at).toLocaleString("pt-BR") : "-";
+    const device = claim.device_info || "Não registrado";
 
+    // Agora alinhado perfeitamente com os 5 headers do HTML
     return `<tr>
       <td>${esc(title)}</td>
       <td>${esc(claim.name || "Convidado")}</td>
       <td>${date}</td>
-      <td><button type="button" class="btn secondary" onclick="deleteClaim('${claim.id}')">Remover</button></td>
+      <td><small style="font-size: 11px; color: #666; display: block; max-width: 150px; word-wrap: break-word;">${esc(device)}</small></td>
+      <td><button type="button" class="btn secondary" style="padding: 5px 10px; font-size: 12px;" onclick="deleteClaim('${claim.id}')">Remover</button></td>
     </tr>`;
-  }).join("") || '<tr><td colspan="4" style="text-align:center;">Nenhum presente escolhido ainda.</td></tr>';
+  }).join("") || '<tr><td colspan="5" style="text-align:center;">Nenhum presente escolhido ainda.</td></tr>';
 }
 
 window.deleteClaim = async function deleteClaim(id) {
@@ -727,6 +785,23 @@ async function handleManualForm(event, status) {
     console.error(error);
     alert("Erro ao salvar manualmente.");
   }
+}
+
+// --- NOVO: RENDERIZAR LISTA PÚBLICA DE CONFIRMADOS ---
+function renderPublicConfirmed() {
+  const list = byId("publicConfirmedList");
+  if (!list) return;
+
+  // Filtra apenas quem disse "sim" e ordena em ordem alfabética
+  const confirmed = state.guests
+    .filter(g => g.status === "sim")
+    .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+
+  list.innerHTML = confirmed.map(g => `
+    <li style="background: #fff; padding: 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.95rem; color: var(--primary); font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+      ✓ ${esc(g.name)}
+    </li>
+  `).join("") || '<li style="grid-column: 1 / -1; color: #888;">Nenhuma presença confirmada ainda.</li>';
 }
 
 // 9. EVENTOS INICIAIS
