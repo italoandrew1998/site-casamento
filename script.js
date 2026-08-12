@@ -65,7 +65,6 @@ const gifts = [
   { id: 21, icon: "🎁", title: "Cota para algum item especial da casa", category: "Cotas / Presentes em dinheiro", price: "R$ 250,00", quotaOnly: true }
 ];
 
-
 // 3. UTILITARIOS
 const byId = id => document.getElementById(id);
 const normalize = value => String(value || "").trim().toLocaleLowerCase("pt-BR");
@@ -271,7 +270,7 @@ window.confirmRSVP = async function confirmRSVP() {
   }
 };
 
-// 7. PRESENTES
+// 7. PRESENTES E INTERFACE
 function resetGiftActionButtons() {
   const fullButton = byId("confirmFullGift");
   const quotaButton = byId("confirmQuotaGift");
@@ -279,7 +278,7 @@ function resetGiftActionButtons() {
 
   if (fullButton) {
     fullButton.disabled = false;
-    fullButton.textContent = "Quero dar o item inteiro";
+    fullButton.textContent = "Quero dar o Item Inteiro";
     delete fullButton.dataset.originalText;
   }
 
@@ -300,7 +299,6 @@ function resetGiftActionButtons() {
 
 function showSavedState(button, text = "Salvo!") {
   if (!button) return;
-
   button.disabled = true;
   button.textContent = text;
 }
@@ -310,6 +308,7 @@ function wait(milliseconds) {
     setTimeout(resolve, milliseconds);
   });
 }
+
 function renderGifts() {
   const grid = byId("giftGrid");
   if (!grid) return;
@@ -389,6 +388,7 @@ window.openGift = function openGift(id) {
 
   pendingQuotaData = null;
   ensureGiftIdentityElements();
+  ensurePixControls();
 
   byId("modalTitle").textContent = selectedGift.title;
   byId("modalPrice").innerHTML = `${giftDescription(selectedGift)}${selectedGift.price !== "Sugestao" ? `<br><b style="color:#2c5e3b;">Valor: ${esc(selectedGift.price)}</b>` : ""}`;
@@ -432,6 +432,7 @@ function finishCloseGift() {
 
   resetGiftActionButtons();
 }
+
 window.closeGift = async function closeGift() {
   const pixStep = byId("giftStepPix");
   const pixStepIsVisible = pixStep && !pixStep.classList.contains("hidden");
@@ -465,9 +466,7 @@ async function handleConfirmFullGift(event) {
 
   if (!selectedGift || isSaving) return;
 
-  const button =
-    event?.currentTarget || byId("confirmFullGift");
-
+  const button = event?.currentTarget || byId("confirmFullGift");
   const name = getGifterName();
 
   if (!name) {
@@ -493,11 +492,8 @@ async function handleConfirmFullGift(event) {
     if (error) throw error;
 
     showSavedState(button, "Salvo!");
-
     await loadData();
-
     await wait(700);
-
     finishCloseGift();
 
     byId("presentes")?.scrollIntoView({
@@ -506,11 +502,7 @@ async function handleConfirmFullGift(event) {
     });
   } catch (error) {
     console.error("Erro ao registrar presente:", error);
-
-    alert(
-      "Nao foi possivel registrar o presente. Tente novamente."
-    );
-
+    alert("Nao foi possivel registrar o presente. Tente novamente.");
     isSaving = false;
 
     if (button) {
@@ -520,7 +512,7 @@ async function handleConfirmFullGift(event) {
   }
 }
 
-ffunction handleConfirmQuotaGift(event) {
+function handleConfirmQuotaGift(event) {
   event?.preventDefault();
 
   if (!selectedGift || isSaving) return;
@@ -541,7 +533,6 @@ ffunction handleConfirmQuotaGift(event) {
   byId("giftStepPix")?.classList.remove("hidden");
 
   const pixButton = byId("confirmPixPayment");
-
   if (pixButton) {
     pixButton.disabled = false;
     pixButton.textContent = "Ja realizei o Pix";
@@ -551,12 +542,8 @@ ffunction handleConfirmQuotaGift(event) {
 async function confirmDeclaredPixPayment(event) {
   if (!pendingQuotaData || isSaving) return;
 
-  const button =
-    event?.currentTarget || byId("confirmPixPayment");
-
-  const quotaData = {
-    ...pendingQuotaData
-  };
+  const button = event?.currentTarget || byId("confirmPixPayment");
+  const quotaData = { ...pendingQuotaData };
 
   isSaving = true;
   setButtonLoading(button, true, "Salvando...");
@@ -574,13 +561,9 @@ async function confirmDeclaredPixPayment(event) {
     if (error) throw error;
 
     pendingQuotaData = null;
-
     showSavedState(button, "Salvo!");
-
     await loadData();
-
     await wait(700);
-
     finishCloseGift();
 
     byId("presentes")?.scrollIntoView({
@@ -589,11 +572,7 @@ async function confirmDeclaredPixPayment(event) {
     });
   } catch (error) {
     console.error("Erro ao registrar cota:", error);
-
-    alert(
-      "Nao foi possivel registrar a cota. Tente novamente."
-    );
-
+    alert("Nao foi possivel registrar a cota. Tente novamente.");
     isSaving = false;
 
     if (button) {
@@ -636,33 +615,38 @@ async function copyPixCode() {
   }
 }
 
-// 8. PAINEL ADMINISTRATIVO
+// 8. PAINEL DE ADMINISTRACAO
 window.login = function login(event) {
   event?.preventDefault();
   const password = byId("adminPassword")?.value || "";
 
-  if (password !== ADMIN_PASSWORD) {
-    byId("adminError")?.classList.remove("hidden");
-    return;
+  if (password === ADMIN_PASSWORD) {
+    state.adminUnlocked = true;
+    byId("adminAuth")?.classList.add("hidden");
+    byId("adminContent")?.classList.remove("hidden");
+    byId("adminError")?.classList.add("hidden");
+    renderGuestAdmin();
+    renderGiftAdmin();
+  } else {
+    const errorEl = byId("adminError");
+    if (errorEl) {
+      errorEl.classList.remove("hidden");
+      errorEl.textContent = "Senha incorreta!";
+    } else {
+      alert("Senha incorreta!");
+    }
   }
-
-  state.adminUnlocked = true;
-  byId("adminAuth")?.classList.add("hidden");
-  byId("adminContent")?.classList.remove("hidden");
-  byId("adminError")?.classList.add("hidden");
-  renderGuestAdmin();
-  renderGiftAdmin();
 };
 
 function renderGuestAdmin() {
-  const table = byId("guestTable");
-  if (!table) return;
+  const tbody = byId("guestTable");
+  if (!tbody) return;
 
   let confirmed = 0;
   let declined = 0;
   let people = 0;
 
-  table.innerHTML = state.guests.length ? state.guests.map(guest => {
+  tbody.innerHTML = state.guests.map(guest => {
     if (guest.status === "sim") {
       confirmed++;
       people += Number(guest.people) || 1;
@@ -673,133 +657,138 @@ function renderGuestAdmin() {
     return `<tr>
       <td>${esc(guest.name || "Convidado")}</td>
       <td>${guest.status === "sim" ? "Vai ao casamento" : guest.status === "nao" ? "Nao vai" : "Pendente"}</td>
-      <td>${guest.status === "sim" ? Number(guest.people) || 1 : 0}</td>
+      <td>${guest.people || 1}</td>
       <td>${esc(guest.source || "Convidado")}</td>
-      <td><button type="button" class="btn secondary" onclick="removerConvidado('${esc(guest.id)}')">Excluir</button></td>
+      <td><button type="button" class="btn secondary" onclick="deleteGuest('${guest.id}')">Excluir</button></td>
     </tr>`;
-  }).join("") : '<tr><td colspan="5" style="text-align:center;">Nenhuma resposta registrada.</td></tr>';
+  }).join("") || '<tr><td colspan="5" style="text-align:center;">Nenhum convidado respondido ainda.</td></tr>';
 
   if (byId("confirmedCount")) byId("confirmedCount").textContent = confirmed;
   if (byId("declinedCount")) byId("declinedCount").textContent = declined;
   if (byId("peopleCount")) byId("peopleCount").textContent = people;
 }
 
-async function carregarConvidados() {
-  renderGuestAdmin();
-}
-
-window.removerConvidado = async function removerConvidado(id) {
-  if (!state.adminUnlocked || !confirm("Deseja realmente remover esta resposta?")) return;
+window.deleteGuest = async function deleteGuest(id) {
+  if (!confirm("Deseja realmente remover este registro?")) return;
   const { error } = await supabaseClient.from("guests").delete().eq("id", id);
-  if (error) return alert("Erro ao remover a resposta.");
-  await loadData();
+  if (error) alert("Erro ao excluir convidado.");
+  else await loadData();
 };
-
-function correctGiftTableHeader() {
-  const row = byId("giftsTab")?.querySelector("thead tr");
-  if (row) {
-    row.innerHTML = "<th>Presente</th><th>Tipo</th><th>Quem escolheu</th><th>Data</th><th>Acao</th>";
-  }
-}
 
 function renderGiftAdmin() {
-  const table = byId("giftTable");
-  if (!table) return;
-  correctGiftTableHeader();
+  const tbody = byId("giftTable");
+  if (!tbody) return;
 
-  table.innerHTML = state.claims.length ? state.claims.map(claim => {
+  tbody.innerHTML = state.claims.map(claim => {
     const gift = gifts.find(item => Number(item.id) === Number(claim.gift_id));
+    const title = gift ? gift.title : `Presente #${claim.gift_id}`;
+    const date = claim.created_at ? new Date(claim.created_at).toLocaleDateString("pt-BR") : "-";
+
     return `<tr>
-      <td>${esc(gift?.title || `Presente #${claim.gift_id}`)}</td>
-      <td>${isQuotaClaim(claim) ? "Cota via Pix declarada" : "Item inteiro"}</td>
-      <td>${esc(cleanClaimName(claim.name))}</td>
-      <td>${claim.created_at ? new Date(claim.created_at).toLocaleString("pt-BR") : "-"}</td>
-      <td><button type="button" class="btn secondary" onclick="removerPresenteEscolhido('${esc(claim.id)}')">Remover</button></td>
+      <td>${esc(title)}</td>
+      <td>${esc(claim.name || "Convidado")}</td>
+      <td>${date}</td>
+      <td><button type="button" class="btn secondary" onclick="deleteClaim('${claim.id}')">Remover</button></td>
     </tr>`;
-  }).join("") : '<tr><td colspan="5" style="text-align:center;">Nenhum presente escolhido ainda.</td></tr>';
+  }).join("") || '<tr><td colspan="4" style="text-align:center;">Nenhum presente escolhido ainda.</td></tr>';
 }
 
-async function carregarPresentesEscolhidos() {
-  renderGiftAdmin();
-}
-
-window.removerPresenteEscolhido = async function removerPresenteEscolhido(id) {
-  if (!state.adminUnlocked || !confirm("Deseja remover este registro de presente?")) return;
+window.deleteClaim = async function deleteClaim(id) {
+  if (!confirm("Deseja remover este registro de presente?")) return;
   const { error } = await supabaseClient.from("claims").delete().eq("id", id);
-  if (error) return alert("Erro ao remover o registro.");
-  await loadData();
+  if (error) alert("Erro ao remover presente.");
+  else await loadData();
 };
 
-async function saveManualResponse(status) {
-  const name = byId("manualName")?.value.trim();
-  const phone = byId("manualPhone")?.value.trim() || "";
+async function handleManualForm(event, status) {
+  event?.preventDefault();
+  const name = byId("manualName")?.value;
+  const phone = byId("manualPhone")?.value || "";
+  const companions = Number(byId("manualGuests")?.value || 0);
+
   if (!name) return alert("Selecione um nome.");
 
   const payload = {
     name,
     phone,
-    people: status === "sim" ? Number(byId("manualGuests")?.value || 0) + 1 : 0,
+    people: status === "sim" ? companions + 1 : 0,
     status,
     source: "organizador"
   };
 
-  const { error } = await saveGuestResponse(payload);
-  if (error) return alert("Erro ao registrar a resposta.");
+  try {
+    const { error } = await saveGuestResponse(payload);
+    if (error) throw error;
 
-  alert(status === "sim" ? "Presenca registrada com sucesso!" : "Ausencia registrada com sucesso!");
-  byId("manualForm")?.reset();
-  if (byId("manualGuests")) {
-    byId("manualGuests").innerHTML = '<option value="0">Somente o convidado</option>';
+    alert(status === "sim" ? "Presenca registrada com sucesso!" : "Ausencia registrada com sucesso!");
+    byId("manualForm")?.reset();
+    await loadData();
+  } catch (error) {
+    console.error(error);
+    alert("Erro ao salvar manualmente.");
   }
-  await loadData();
 }
 
-// 9. INICIALIZACAO
-function initializeEvents() {
-  ensureGiftIdentityElements();
-  ensurePixControls();
-
-  byId("rsvpForm")?.addEventListener("submit", prepareRsvp);
-  byId("rsvpName")?.addEventListener("change", event => {
-    setStoredGuestName(event.target.value);
-    populateCompanionSelect("rsvpName", "rsvpGuests");
-  });
-  byId("manualName")?.addEventListener("change", () => {
-    populateCompanionSelect("manualName", "manualGuests");
-  });
-
-  byId("closeModal")?.addEventListener("click", window.closeGift);
-  byId("cancelGift")?.addEventListener("click", window.closeGift);
+// 9. EVENTOS INICIAIS
+document.addEventListener("DOMContentLoaded", () => {
+  byId("closeModal")?.addEventListener("click", closeGift);
+  byId("cancelGift")?.addEventListener("click", closeGift);
   byId("confirmFullGift")?.addEventListener("click", handleConfirmFullGift);
   byId("confirmQuotaGift")?.addEventListener("click", handleConfirmQuotaGift);
-
-  byId("manualForm")?.addEventListener("submit", async event => {
-    event.preventDefault();
-    await saveManualResponse("sim");
+  byId("rsvpForm")?.addEventListener("submit", prepareRsvp);
+  byId("adminLoginBtn")?.addEventListener("click", login);
+  byId("adminPassword")?.addEventListener("keydown", event => {
+    if (event.key === "Enter") login(event);
   });
-  byId("manualDecline")?.addEventListener("click", async () => saveManualResponse("nao"));
 
-  document.querySelectorAll(".admin-tabs .tab").forEach(button => {
-    button.addEventListener("click", () => {
-      document.querySelectorAll(".admin-tabs .tab").forEach(item => item.classList.remove("active"));
-      document.querySelectorAll(".tab-content").forEach(item => item.classList.add("hidden"));
-      button.classList.add("active");
-      byId(button.dataset.tab)?.classList.remove("hidden");
-      if (button.dataset.tab === "guestsTab") renderGuestAdmin();
-      if (button.dataset.tab === "giftsTab") renderGiftAdmin();
+  byId("manualForm")?.addEventListener("submit", event => handleManualForm(event, "sim"));
+  byId("manualDecline")?.addEventListener("click", event => handleManualForm(event, "nao"));
+
+  const manualNameSelect = byId("manualName");
+  if (manualNameSelect) {
+    manualNameSelect.addEventListener("change", () => populateCompanionSelect("manualName", "manualGuests"));
+  }
+
+  const rsvpNameSelect = byId("rsvpName");
+  if (rsvpNameSelect) {
+    rsvpNameSelect.addEventListener("change", () => {
+      const name = rsvpNameSelect.value.trim();
+      if (name) setStoredGuestName(name);
+      populateCompanionSelect("rsvpName", "rsvpGuests");
+    });
+  }
+
+  document.querySelectorAll(".admin-tabs .tab").forEach(tabButton => {
+    tabButton.addEventListener("click", () => {
+      const targetId = tabButton.getAttribute("data-tab");
+      if (!targetId) return;
+
+      document.querySelectorAll(".admin-tabs .tab").forEach(btn => btn.classList.remove("active"));
+      tabButton.classList.add("active");
+
+      document.querySelectorAll(".tab-content").forEach(content => content.classList.add("hidden"));
+      byId(targetId)?.classList.remove("hidden");
     });
   });
 
-  document.addEventListener("click", event => {
-    if (event.target.closest("#adminAuth")) return;
-    const target = event.target.closest('a[href="#admin"]');
-    if (!target) return;
-    event.preventDefault();
-    byId("admin")?.scrollIntoView({ behavior: "smooth" });
-  });
-}
+  loadData();
+});
 
-document.addEventListener("DOMContentLoaded", async () => {
-  initializeEvents();
-  await loadData();
+document.addEventListener("click", event => {
+  if (event.target.closest("#adminAuth")) return;
+  const trigger = event.target.closest("a, button, [role='button']");
+  if (!trigger) return;
+
+  const href = trigger.getAttribute("href")?.toLowerCase() || "";
+  const text = trigger.textContent?.toLowerCase().trim() || "";
+
+  if (text.includes("área dos noivos") || href.includes("noivos") || href.includes("admin")) {
+    event.preventDefault();
+    const adminSection = byId("admin");
+    if (adminSection) {
+      adminSection.scrollIntoView({ behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
+  }
 });
