@@ -272,6 +272,44 @@ window.confirmRSVP = async function confirmRSVP() {
 };
 
 // 7. PRESENTES
+function resetGiftActionButtons() {
+  const fullButton = byId("confirmFullGift");
+  const quotaButton = byId("confirmQuotaGift");
+  const pixButton = byId("confirmPixPayment");
+
+  if (fullButton) {
+    fullButton.disabled = false;
+    fullButton.textContent = "Quero dar o item inteiro";
+    delete fullButton.dataset.originalText;
+  }
+
+  if (quotaButton) {
+    quotaButton.disabled = false;
+    quotaButton.textContent = selectedGift?.quotaOnly
+      ? "Escolher esta cota (Pix)"
+      : "Quero dar uma Cota (Pix)";
+    delete quotaButton.dataset.originalText;
+  }
+
+  if (pixButton) {
+    pixButton.disabled = false;
+    pixButton.textContent = "Ja realizei o Pix";
+    delete pixButton.dataset.originalText;
+  }
+}
+
+function showSavedState(button, text = "Salvo!") {
+  if (!button) return;
+
+  button.disabled = true;
+  button.textContent = text;
+}
+
+function wait(milliseconds) {
+  return new Promise(resolve => {
+    setTimeout(resolve, milliseconds);
+  });
+}
 function renderGifts() {
   const grid = byId("giftGrid");
   if (!grid) return;
@@ -387,10 +425,13 @@ function finishCloseGift() {
   byId("giftModal")?.classList.add("hidden");
   byId("giftStepSelection")?.classList.remove("hidden");
   byId("giftStepPix")?.classList.add("hidden");
+
   selectedGift = null;
   pendingQuotaData = null;
-}
+  isSaving = false;
 
+  resetGiftActionButtons();
+}
 window.closeGift = async function closeGift() {
   const pixStep = byId("giftStepPix");
   const pixStepIsVisible = pixStep && !pixStep.classList.contains("hidden");
@@ -421,69 +462,144 @@ function getGifterName() {
 
 async function handleConfirmFullGift(event) {
   event?.preventDefault();
+
   if (!selectedGift || isSaving) return;
 
+  const button =
+    event?.currentTarget || byId("confirmFullGift");
+
   const name = getGifterName();
-  if (!name) return alert("Por favor, selecione seu nome na lista.");
+
+  if (!name) {
+    alert("Por favor, selecione seu nome na lista.");
+    return;
+  }
 
   isSaving = true;
-  setButtonLoading(event?.currentTarget, true);
+  setButtonLoading(button, true, "Salvando...");
 
   try {
-    const { error } = await supabaseClient.from("claims").insert([{
-      gift_id: selectedGift.id,
-      name
-    }]);
+    const giftId = selectedGift.id;
+
+    const { error } = await supabaseClient
+      .from("claims")
+      .insert([
+        {
+          gift_id: giftId,
+          name
+        }
+      ]);
+
     if (error) throw error;
 
-    alert(`Muito obrigado, ${name}! Seu presente foi registrado.`);
-    finishCloseGift();
+    showSavedState(button, "Salvo!");
+
     await loadData();
+
+    await wait(700);
+
+    finishCloseGift();
+
+    byId("presentes")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
   } catch (error) {
-    console.error(error);
-    alert("Nao foi possivel registrar o presente. Tente novamente.");
-  } finally {
+    console.error("Erro ao registrar presente:", error);
+
+    alert(
+      "Nao foi possivel registrar o presente. Tente novamente."
+    );
+
     isSaving = false;
-    setButtonLoading(event?.currentTarget, false);
+
+    if (button) {
+      button.disabled = false;
+      button.textContent = "Tentar salvar novamente";
+    }
   }
 }
 
-function handleConfirmQuotaGift(event) {
+ffunction handleConfirmQuotaGift(event) {
   event?.preventDefault();
-  if (!selectedGift) return;
+
+  if (!selectedGift || isSaving) return;
 
   const name = getGifterName();
-  if (!name) return alert("Por favor, selecione seu nome na lista.");
 
-  pendingQuotaData = { giftId: selectedGift.id, name };
+  if (!name) {
+    alert("Por favor, selecione seu nome na lista.");
+    return;
+  }
+
+  pendingQuotaData = {
+    giftId: selectedGift.id,
+    name
+  };
+
   byId("giftStepSelection")?.classList.add("hidden");
   byId("giftStepPix")?.classList.remove("hidden");
+
+  const pixButton = byId("confirmPixPayment");
+
+  if (pixButton) {
+    pixButton.disabled = false;
+    pixButton.textContent = "Ja realizei o Pix";
+  }
 }
 
 async function confirmDeclaredPixPayment(event) {
   if (!pendingQuotaData || isSaving) return;
 
+  const button =
+    event?.currentTarget || byId("confirmPixPayment");
+
+  const quotaData = {
+    ...pendingQuotaData
+  };
+
   isSaving = true;
-  setButtonLoading(event?.currentTarget, true, "Registrando...");
+  setButtonLoading(button, true, "Salvando...");
 
   try {
-    const { error } = await supabaseClient.from("claims").insert([{
-      gift_id: pendingQuotaData.giftId,
-      name: `${pendingQuotaData.name} (Cota)`
-    }]);
+    const { error } = await supabaseClient
+      .from("claims")
+      .insert([
+        {
+          gift_id: quotaData.giftId,
+          name: `${quotaData.name} (Cota)`
+        }
+      ]);
+
     if (error) throw error;
 
-    const name = pendingQuotaData.name;
     pendingQuotaData = null;
-    alert(`Obrigado, ${name}! A sua declaracao de pagamento foi registrada.`);
-    finishCloseGift();
+
+    showSavedState(button, "Salvo!");
+
     await loadData();
+
+    await wait(700);
+
+    finishCloseGift();
+
+    byId("presentes")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
   } catch (error) {
-    console.error(error);
-    alert("Nao foi possivel registrar a cota. Tente novamente.");
-  } finally {
+    console.error("Erro ao registrar cota:", error);
+
+    alert(
+      "Nao foi possivel registrar a cota. Tente novamente."
+    );
+
     isSaving = false;
-    setButtonLoading(event?.currentTarget, false);
+
+    if (button) {
+      button.disabled = false;
+      button.textContent = "Tentar salvar novamente";
+    }
   }
 }
 
