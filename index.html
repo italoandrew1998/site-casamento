@@ -111,7 +111,7 @@
               <option value="0">Somente eu</option>
             </select>
 
-            <label for="rsvpChildren">Crianças (de 0 a 3)</label>
+            <label for="rsvpChildren">Crianças</label>
             <select id="rsvpChildren">
               <option value="0">Nenhuma criança</option>
               <option value="1">1 criança</option>
@@ -161,24 +161,10 @@
       <div id="giftGrid" class="gift-grid" aria-live="polite"></div>
     </section>
     
-            <!-- 03. LISTA DE CONFIRMADOS (PÚBLICA) -->
-    <section class="section" id="lista-confirmados">
-      <div class="section-title">
-        <div class="eyebrow">03 · ESTARÃO CONOSCO</div>
-        <h2>Convidados Confirmados</h2>
-        <p>Pessoas queridas que já confirmaram presença no nosso grande dia.</p>
-      </div>
-      <div class="card" style="max-width: 800px; padding: 20px;">
-        <div id="publicConfirmedListContainer">
-          <p style="text-align: center; color: #888;">Carregando lista...</p>
-        </div>
-      </div>
-    </section>
-
             <!-- 04. ÁREA DOS NOIVOS -->
     <section class="section admin" id="admin">
       <div class="section-title">
-        <div class="eyebrow">04 · ORGANIZAÇÃO</div>
+        <div class="eyebrow">03 · ORGANIZAÇÃO</div>
         <h2>Área dos noivos</h2>
         <p>Controle de convidados e presentes.</p>
       </div>
@@ -195,6 +181,7 @@
       <div id="adminContent" class="hidden">
         <div class="admin-tabs">
           <button class="tab active" data-tab="guestsTab">Convidados</button>
+          <button class="tab" data-tab="confirmedTab">Convidados Confirmados</button>
           <button class="tab" data-tab="pendingTab">Pendentes</button>
           <button class="tab" data-tab="giftsTab">Presentes escolhidos</button>
           <button class="tab" data-tab="addTab">Registrar pelo convidado</button>
@@ -220,6 +207,20 @@
 
         <!-- ABA DE PENDENTES -->
         <div id="pendingTab" class="tab-content hidden"></div>
+        <div id="confirmedTab" class="tab-content hidden">
+          <div class="section-title">
+            <div class="eyebrow">CONVIDADOS CONFIRMADOS</div>
+            <h2>Convidados Confirmados</h2>
+            <p>Pessoas queridas que já confirmaram presença no nosso grande dia.</p>
+          </div>
+          <div class="card" style="max-width: 800px; padding: 20px;">
+            <div id="publicConfirmedListContainer">
+              <p style="text-align: center; color: #888;">Carregando lista...</p>
+            </div>
+          </div>
+        </div>
+
+
 
         <div id="giftsTab" class="tab-content hidden">
           <div class="table-wrap">
@@ -250,7 +251,7 @@
                 <option value="0">Somente o convidado</option>
               </select>
 
-              <label for="manualChildren">Crianças (de 0 a 3)</label>
+              <label for="manualChildren">Crianças</label>
               <select id="manualChildren">
                 <option value="0">Nenhuma criança</option>
                 <option value="1">1 criança</option>
