@@ -182,7 +182,7 @@
           <div class="stats">
             <div><strong id="confirmedCount">0</strong><span>Confirmados</span></div>
             <div><strong id="declinedCount">0</strong><span>Não irão</span></div>
-            <div><strong id="peopleCount">0</strong><span>Pessoas confirmadas</span></div>
+            <div><strong id="peopleCount">0</strong><span>Total de pessoas</span></div>
           </div>
           <div class="table-wrap">
             <table>
@@ -195,22 +195,13 @@
         </div>
 
         <!-- ABA DE PENDENTES -->
-        <div id="pendingTab" class="tab-content hidden">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Convidado Pendente</th><th>Lado</th></tr>
-              </thead>
-              <tbody id="pendingTable"></tbody>
-            </table>
-          </div>
-        </div>
+        <div id="pendingTab" class="tab-content hidden"></div>
 
         <div id="giftsTab" class="tab-content hidden">
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Presente</th><th>Quem escolheu</th><th>Data</th><th>Dispositivo / IP</th><th>Ação</th></tr>
+                <tr><th>Presente</th><th>Quem escolheu</th><th>Data</th><th>IP</th><th>Ação</th></tr>
               </thead>
               <tbody id="giftTable"></tbody>
             </table>
@@ -254,9 +245,9 @@
         <p>Pessoas queridas que já confirmaram presença no nosso grande dia.</p>
       </div>
       <div class="card" style="max-width: 800px; padding: 20px;">
-        <ul id="publicConfirmedList" style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; text-align: center;">
-          <li style="color: #888;">Carregando lista...</li>
-        </ul>
+        <div id="publicConfirmedListContainer">
+          <p style="text-align: center; color: #888;">Carregando lista...</p>
+        </div>
       </div>
     </section>
   </main>

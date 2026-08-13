@@ -1,6 +1,6 @@
 // ============================================================
 // SITE DE CASAMENTO MILENE E ITALO
-// Script completo revisado para o HTML e o Supabase
+// Script completo atualizado com as novas solicitações
 // ============================================================
 
 // 1. CONFIGURACOES
@@ -8,7 +8,6 @@ const SUPABASE_URL = "https://uilegqmbxrtxgauccbpy.supabase.co";
 const SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";
 
 // Bloqueio visual. Defina uma nova senha antes de publicar.
-// A seguranca real do banco depende das politicas RLS do Supabase.
 const ADMIN_PASSWORD = "mfsq&iars26092026";
 
 const PIX_KEY = "italoandrew1998l@gmail.com";
@@ -33,7 +32,6 @@ let pendingQuotaData = null;
 let isSaving = false;
 
 // 2. LISTA DE PRESENTES
-// Numeracao reorganizada de 1 a 23, sem referencias aos itens removidos.
 const gifts = [
   // COZINHA
   { id: 1, image: "liquidificador.jpg", title: "Liquidificador", category: "Cozinha", url: "https://www.mercadolivre.com.br/liquidificador-l1200-bi-turbo-black-pretoinox-mondial-127v/up/MLBU1091019903", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
@@ -80,7 +78,7 @@ const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({
   "'": "&#039;"
 })[char]);
 
-// --- NOVO: FUNÇÃO PARA CAPTURAR IP E APARELHO ---
+// Captura apenas o IP com porta lógica (ou apenas IP se porta não vier informada)
 async function getDeviceInfo() {
   let ip = "Desconhecido";
   try {
@@ -90,11 +88,9 @@ async function getDeviceInfo() {
   } catch (e) {
     console.warn("Não foi possível obter o IP.");
   }
-  // Retorna o IP e o nome resumido do navegador/aparelho
-  return `IP: ${ip} | ${navigator.userAgent.substring(0, 70)}...`;
+  return ip;
 }
 
-// --- NOVO: FILTRAR QUEM AINDA NÃO RESPONDEU ---
 function getUnansweredGuests() {
   const answeredNames = state.guests.map(g => normalize(g.name));
   return state.allowed.filter(g => !answeredNames.includes(normalize(g.name)));
@@ -174,11 +170,11 @@ async function loadData() {
 
     renderAllSelects();
     renderGifts();
-    renderPublicConfirmed(); // Renderiza a lista do rodapé
+    renderPublicConfirmed();
 
     if (state.adminUnlocked) {
       renderGuestAdmin();
-      renderPendingAdmin(); // Renderiza a aba de pendentes
+      renderPendingAdmin();
       renderGiftAdmin();
     }
   } catch (error) {
@@ -196,11 +192,8 @@ function allowedOptions(list, placeholder) {
 }
 
 function renderAllSelects() {
-  // Pega APENAS quem ainda não respondeu para o RSVP
   const unanswered = getUnansweredGuests();
   const unansweredOptions = allowedOptions(unanswered, "-- Selecione o nome --");
-  
-  // Para presentes, permitimos todos (pois o convidado pode dar presente mesmo sem ter respondido RSVP)
   const allOptions = allowedOptions(state.allowed, "-- Selecione o nome --");
   const storedName = getStoredGuestName();
 
@@ -514,7 +507,7 @@ async function handleConfirmFullGift(event) {
 
   try {
     const giftId = selectedGift.id;
-    const deviceInfo = await getDeviceInfo(); // Captura IP e Aparelho
+    const ipAddress = await getDeviceInfo();
 
     const { error } = await supabaseClient
       .from("claims")
@@ -522,7 +515,7 @@ async function handleConfirmFullGift(event) {
         {
           gift_id: giftId,
           name,
-          device_info: deviceInfo // Envia pro Supabase
+          device_info: ipAddress
         }
       ]);
 
@@ -586,7 +579,7 @@ async function confirmDeclaredPixPayment(event) {
   setButtonLoading(button, true, "Salvando...");
 
   try {
-    const deviceInfo = await getDeviceInfo(); // Captura IP e Aparelho
+    const ipAddress = await getDeviceInfo();
 
     const { error } = await supabaseClient
       .from("claims")
@@ -594,7 +587,7 @@ async function confirmDeclaredPixPayment(event) {
         {
           gift_id: quotaData.giftId,
           name: `${quotaData.name} (Cota)`,
-          device_info: deviceInfo // Envia pro Supabase
+          device_info: ipAddress
         }
       ]);
 
@@ -685,12 +678,12 @@ function renderGuestAdmin() {
 
   let confirmed = 0;
   let declined = 0;
-  let people = 0;
+  let totalPeople = 0;
 
   tbody.innerHTML = state.guests.map(guest => {
     if (guest.status === "sim") {
       confirmed++;
-      people += Number(guest.people) || 1;
+      totalPeople += Number(guest.people) || 1;
     } else if (guest.status === "nao") {
       declined++;
     }
@@ -706,21 +699,47 @@ function renderGuestAdmin() {
 
   if (byId("confirmedCount")) byId("confirmedCount").textContent = confirmed;
   if (byId("declinedCount")) byId("declinedCount").textContent = declined;
-  if (byId("peopleCount")) byId("peopleCount").textContent = people;
+  if (byId("peopleCount")) byId("peopleCount").textContent = totalPeople;
 }
 
-// --- NOVO: RENDERIZAR TABELA DE PENDENTES ---
+// Renderiza a guia de pendentes separada em duas tabelas: Noivo e Noiva
 function renderPendingAdmin() {
-  const tbody = byId("pendingTable");
-  if (!tbody) return;
+  const container = byId("pendingTab");
+  if (!container) return;
+  
   const unanswered = getUnansweredGuests();
+  const groomPending = unanswered.filter(g => normalize(g.lado) === "noivo");
+  const bridePending = unanswered.filter(g => normalize(g.lado) === "noiva" || !g.lado);
 
-  tbody.innerHTML = unanswered.map(guest => `
-    <tr>
-      <td>${esc(guest.name)}</td>
-      <td>${esc(guest.lado || "-")}</td>
-    </tr>
-  `).join("") || '<tr><td colspan="2" style="text-align:center;">Todos já responderam!</td></tr>';
+  container.innerHTML = `
+    <div style="margin-bottom: 25px;">
+      <h3 style="margin-bottom: 10px; color: var(--primary);">Pendentes do Noivo (${groomPending.length})</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Convidado Pendente</th><th>Lado</th></tr>
+          </thead>
+          <tbody>
+            ${groomPending.map(guest => `<tr><td>${esc(guest.name)}</td><td>Noivo</td></tr>`).join("") || '<tr><td colspan="2" style="text-align:center;">Nenhum pendente para o noivo.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <h3 style="margin-bottom: 10px; color: var(--primary);">Pendentes da Noiva (${bridePending.length})</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Convidado Pendente</th><th>Lado</th></tr>
+          </thead>
+          <tbody>
+            ${bridePending.map(guest => `<tr><td>${esc(guest.name)}</td><td>Noiva</td></tr>`).join("") || '<tr><td colspan="2" style="text-align:center;">Nenhum pendente para a noiva.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
 }
 
 window.deleteGuest = async function deleteGuest(id) {
@@ -738,14 +757,14 @@ function renderGiftAdmin() {
     const gift = gifts.find(item => Number(item.id) === Number(claim.gift_id));
     const title = gift ? gift.title : `Presente #${claim.gift_id}`;
     const date = claim.created_at ? new Date(claim.created_at).toLocaleString("pt-BR") : "-";
-    const device = claim.device_info || "Não registrado";
+    const ipAddress = claim.device_info || "Não registrado";
 
-    // Agora alinhado perfeitamente com os 5 headers do HTML
+    // Quebra de linha no texto IP
     return `<tr>
       <td>${esc(title)}</td>
       <td>${esc(claim.name || "Convidado")}</td>
       <td>${date}</td>
-      <td><small style="font-size: 11px; color: #666; display: block; max-width: 150px; word-wrap: break-word;">${esc(device)}</small></td>
+      <td><span style="font-size: 11px; color: #666; display: block; word-wrap: break-word;">${esc(ipAddress)}</span></td>
       <td><button type="button" class="btn secondary" style="padding: 5px 10px; font-size: 12px;" onclick="deleteClaim('${claim.id}')">Remover</button></td>
     </tr>`;
   }).join("") || '<tr><td colspan="5" style="text-align:center;">Nenhum presente escolhido ainda.</td></tr>';
@@ -787,21 +806,43 @@ async function handleManualForm(event, status) {
   }
 }
 
-// --- NOVO: RENDERIZAR LISTA PÚBLICA DE CONFIRMADOS ---
+// Renderiza a lista pública de confirmados separada em dois grupos: Noiva e Noivo
 function renderPublicConfirmed() {
-  const list = byId("publicConfirmedList");
-  if (!list) return;
+  const container = byId("publicConfirmedListContainer");
+  if (!container) return;
 
-  // Filtra apenas quem disse "sim" e ordena em ordem alfabética
-  const confirmed = state.guests
-    .filter(g => g.status === "sim")
-    .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  const confirmed = state.guests.filter(g => g.status === "sim");
+  
+  // Associa o lado do convidado cadastrado consultando a tabela allowed_guests se necessário
+  const getGuestSide = guestName => {
+    const found = state.allowed.find(a => normalize(a.name) === normalize(guestName));
+    return found ? normalize(found.lado) : "noiva";
+  };
 
-  list.innerHTML = confirmed.map(g => `
+  const brideConfirmed = confirmed.filter(g => getGuestSide(g.name) === "noiva").sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  const groomConfirmed = confirmed.filter(g => getGuestSide(g.name) === "noivo").sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+
+  const renderItems = list => list.map(g => `
     <li style="background: #fff; padding: 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.95rem; color: var(--primary); font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
       ✓ ${esc(g.name)}
     </li>
-  `).join("") || '<li style="grid-column: 1 / -1; color: #888;">Nenhuma presença confirmada ainda.</li>';
+  `).join("") || '<li style="grid-column: 1 / -1; color: #888; text-align: center;">Nenhuma presença confirmada neste grupo.</li>';
+
+  container.innerHTML = `
+    <div style="margin-bottom: 25px;">
+      <h3 style="margin-bottom: 12px; font-size: 1.2rem; color: var(--primary); text-align: center;">Convidados da Noiva</h3>
+      <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+        ${renderItems(brideConfirmed)}
+      </ul>
+    </div>
+
+    <div>
+      <h3 style="margin-bottom: 12px; font-size: 1.2rem; color: var(--primary); text-align: center;">Convidados do Noivo</h3>
+      <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+        ${renderItems(groomConfirmed)}
+      </ul>
+    </div>
+  `;
 }
 
 // 9. EVENTOS INICIAIS
