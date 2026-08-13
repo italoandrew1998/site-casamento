@@ -1,14 +1,83 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600&display=swap');
-:root{--bg:#faf7f2;--paper:#fffdf9;--ink:#403a35;--muted:#7d746c;--accent:#9a7660;--dark:#725441;--line:#e6ddd4;--soft:#f0e8df;--ok:#657b5c}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:Montserrat,sans-serif}a{text-decoration:none;color:inherit}
-.hero{min-height:78vh;background:linear-gradient(#0005,#0007),url("https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=85") center/cover;color:#fff}
-nav{width:min(1120px,calc(100% - 40px));margin:auto;padding:28px 0;display:flex;justify-content:space-between;align-items:center}.brand{font:600 31px "Cormorant Garamond",serif}.navlinks{display:flex;gap:22px;font-size:12px}.hero-content{text-align:center;width:min(850px,calc(100% - 40px));margin:auto;padding:130px 0 90px}.eyebrow{font-size:10px;letter-spacing:3px;font-weight:600;margin-bottom:13px}h1,h2,h3{font-family:"Cormorant Garamond",serif;font-weight:600}h1{font-size:clamp(58px,9vw,100px);line-height:.9;margin:0 0 25px}.hero-content p{font-size:16px}.actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:30px}
-.btn{border:0;border-radius:4px;min-height:46px;padding:0 22px;font:600 11px Montserrat;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.primary{background:var(--accent);color:#fff}.light{background:#fff2;color:#fff;border:1px solid #fff9}.secondary{background:var(--soft);color:var(--dark)}
-.section{width:min(1080px,calc(100% - 40px));margin:auto;padding:85px 0}.section-title{text-align:center;max-width:760px;margin:0 auto 35px}.section-title h2{font-size:55px;margin:0 0 10px}.section-title p{color:var(--muted);line-height:1.7}
-.card,.manual-box{background:var(--paper);border:1px solid var(--line);padding:clamp(25px,5vw,55px);box-shadow:0 18px 55px #4e37200c;max-width:760px;margin:auto}label{display:block;font-size:11px;font-weight:600;margin:17px 0 7px}input,select{width:100%;height:48px;border:1px solid var(--line);border-radius:3px;background:#fff;padding:0 13px;font:13px Montserrat;color:var(--ink)}input:focus,select:focus{outline:0;border-color:var(--accent)}
-.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.choice{text-align:left;padding:20px;border:1px solid var(--line);background:#fff;cursor:pointer;border-radius:4px}.choice b,.choice small{display:block}.choice b{font-size:12px}.choice small{font-size:10px;color:var(--muted);margin-top:7px}
-.gift-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.gift{background:var(--paper);border:1px solid var(--line);padding:25px;min-height:280px;display:flex;flex-direction:column}.gift-icon{font-size:28px}.gift h3{font-size:28px;margin:15px 0 6px}.gift p{font-size:11px;color:var(--muted);line-height:1.6}.price{font-weight:600;font-size:13px;margin:5px 0 12px}.gift .btn{margin-top:auto}.already{background:var(--soft);padding:12px;font-size:10px;line-height:1.55;color:var(--dark);margin-bottom:10px}
-.admin{border-top:1px solid var(--line)}.admin-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:22px}.tab{border:1px solid var(--line);background:#fff;padding:12px 17px;cursor:pointer;font:600 10px Montserrat}.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}.stats div{background:var(--paper);border:1px solid var(--line);padding:20px;text-align:center}.stats strong{display:block;font:600 32px "Cormorant Garamond",serif}.stats span{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}.table-wrap{overflow:auto;background:var(--paper);border:1px solid var(--line)}table{width:100%;border-collapse:collapse;font-size:11px}th,td{text-align:left;padding:13px;border-bottom:1px solid var(--line);white-space:nowrap}th{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted)}.status-yes{color:var(--ok);font-weight:600}.status-no{color:#9b5d55;font-weight:600}.mini{padding:7px 9px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:9px}.manual-box h3{font-size:35px;margin:0 0 7px}.manual-box>p{font-size:11px;color:var(--muted);line-height:1.6}.manual-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}.message{margin-top:18px;padding:16px;background:var(--soft);font-size:12px;line-height:1.6}.hidden{display:none!important}
-footer{text-align:center;border-top:1px solid var(--line);padding:35px;font-size:11px}.modal{position:fixed;inset:0;background:#231c1899;display:grid;place-items:center;padding:20px;z-index:20}.modal-box{width:min(470px,100%);background:var(--paper);padding:40px;position:relative}.close{position:absolute;top:8px;right:14px;border:0;background:transparent;font-size:30px;cursor:pointer;color:var(--muted)}.modal-box h2{font-size:42px;margin:5px 0}.warning{font-size:11px;line-height:1.6;color:var(--dark);background:var(--soft);padding:13px}.full{width:100%;margin-top:10px}
-@media(max-width:720px){.navlinks{flex-direction:column;gap:8px;text-align:right}.choice-grid,.gift-grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.section{padding:60px 0}.section-title h2{font-size:45px}}
+<!-- 03. ÁREA DOS NOIVOS -->
+    <section class="section admin" id="admin">
+      <div class="section-title">
+        <div class="eyebrow">03 · ORGANIZAÇÃO</div>
+        <h2>Área dos noivos</h2>
+        <p>Controle de convidados e presentes.</p>
+      </div>
 
+      <!-- LOGIN -->
+      <div id="adminAuth" class="card" style="max-width: 400px; margin: 0 auto; text-align: center;">
+        <p style="margin-bottom: 15px;">Digite a senha para acessar o painel:</p>
+        <input type="password" id="adminPassword" placeholder="Digite a senha" style="text-align: center; margin-bottom: 15px;">
+        <button type="button" id="adminLoginBtn" class="btn primary full" onclick="login(event)">Acessar Painel</button>
+        <div id="adminError" class="message hidden" style="background: #f8d7da; color: #721c24; margin-top: 15px;">Senha incorreta!</div>
+      </div>
+
+      <!-- PAINEL -->
+      <div id="adminContent" class="hidden">
+        <div class="admin-tabs">
+          <button class="tab active" data-tab="guestsTab">Convidados</button>
+          <button class="tab" data-tab="pendingTab">Pendentes</button>
+          <button class="tab" data-tab="giftsTab">Presentes escolhidos</button>
+          <button class="tab" data-tab="addTab">Registrar pelo convidado</button>
+        </div>
+
+        <div id="guestsTab" class="tab-content">
+          <div class="stats">
+            <div><strong id="confirmedCount">0</strong><span>Confirmados</span></div>
+            <div><strong id="declinedCount">0</strong><span>Não irão</span></div>
+            <div><strong id="peopleCount">0</strong><span>Total de pessoas</span></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Convidado</th><th>Resposta</th><th>Pessoas</th><th>Confirmado por</th><th>Ação</th></tr>
+              </thead>
+              <tbody id="guestTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ABA DE PENDENTES -->
+        <div id="pendingTab" class="tab-content hidden"></div>
+
+        <div id="giftsTab" class="tab-content hidden">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Presente</th><th>Quem escolheu</th><th>Data</th><th>IP</th><th>Ação</th></tr>
+              </thead>
+              <tbody id="giftTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="addTab" class="tab-content hidden">
+          <div class="manual-box">
+            <h3>Registrar confirmação manualmente</h3>
+            <p>Ideal para idosos ou convidados que confirmarem por telefone.</p>
+            <form id="manualForm">
+              <label for="manualName">Nome</label>
+              <select id="manualName" required>
+                <option value="">Carregando lista de convidados...</option>
+              </select>
+              
+              <label for="manualPhone">Telefone (opcional)</label>
+              <input id="manualPhone" placeholder="(00) 00000-0000">
+              
+              <label for="manualGuests">Acompanhantes</label>
+              <select id="manualGuests">
+                <option value="0">Somente o convidado</option>
+              </select>
+              
+              <div class="manual-actions" style="margin-top: 15px; display: flex; gap: 10px;">
+                <button type="submit" class="btn primary">Registrar que vai</button>
+                <button type="button" id="manualDecline" class="btn secondary">Registrar que não vai</button>
+              </div>
+            </form>
+            <div id="manualMessage" class="message hidden"></div>
+          </div>
+        </div>
+      </div>
+    </section>

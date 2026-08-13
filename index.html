@@ -152,8 +152,57 @@
       </div>
       <div id="giftGrid" class="gift-grid" aria-live="polite"></div>
     </section>
+    
+    <!-- 03. LISTA DE CONFIRMADOS (PÚBLICA) -->
+    <section class="section" id="lista-confirmados">
+      <div class="section-title">
+        <div class="eyebrow">04 · ESTARÃO CONOSCO</div>
+        <h2>Convidados Confirmados</h2>
+        <p>Pessoas queridas que já confirmaram presença no nosso grande dia.</p>
+      </div>
+      <div class="card" style="max-width: 800px; padding: 20px;">
+        <div id="publicConfirmedListContainer">
+          <p style="text-align: center; color: #888;">Carregando lista...</p>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <!-- 03. ÁREA DOS NOIVOS -->
+  <footer>
+    <p>&copy; 2026 · Milene &amp; Ítalo · Com muito amor.</p>
+  </footer>
+
+  <!-- MODAL DE PRESENTES -->
+  <div id="giftModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box card">
+      <button type="button" class="close" id="closeModal" aria-label="Fechar">&times;</button>
+      <h3 id="modalTitle" style="text-align:center;margin-bottom:10px;"></h3>
+      <div id="modalPrice" style="text-align:center;margin-bottom:20px;"></div>
+
+      <div id="giftStepSelection">
+        <form id="giftForm">
+          <label for="giftName">Seu nome</label>
+          <select id="giftName" required>
+            <option value="">Selecione seu nome</option>
+          </select>
+
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px;">
+            <button type="button" id="confirmFullGift" class="btn primary">Quero dar o Item Inteiro</button>
+            <button type="button" id="confirmQuotaGift" class="btn primary" style="background:#d4a373;color:#fff;">Quero dar uma Cota (Pix)</button>
+            <button type="button" id="cancelGift" class="btn light" style="background:#eee;color:#333;">Cancelar</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="giftStepPix" class="hidden" style="text-align:center;">
+        <p style="margin-bottom:10px;font-weight:600;">Copie a chave Pix ou escaneie no seu aplicativo:</p>
+        <div style="background:#f4f4f4;padding:15px;border-radius:8px;word-break:break-all;font-family:monospace;font-size:0.9rem;margin-bottom:15px;">
+          <input type="text" id="pixCode" readonly style="border:none;background:transparent;text-align:center;width:100%;font-size:0.85rem;color:#333;" />
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- 04. ÁREA DOS NOIVOS -->
     <section class="section admin" id="admin">
       <div class="section-title">
         <div class="eyebrow">03 · ORGANIZAÇÃO</div>
@@ -236,56 +285,6 @@
         </div>
       </div>
     </section>
-
-    <!-- 04. LISTA DE CONFIRMADOS (PÚBLICA) -->
-    <section class="section" id="lista-confirmados">
-      <div class="section-title">
-        <div class="eyebrow">04 · ESTARÃO CONOSCO</div>
-        <h2>Convidados Confirmados</h2>
-        <p>Pessoas queridas que já confirmaram presença no nosso grande dia.</p>
-      </div>
-      <div class="card" style="max-width: 800px; padding: 20px;">
-        <div id="publicConfirmedListContainer">
-          <p style="text-align: center; color: #888;">Carregando lista...</p>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <p>&copy; 2026 · Milene &amp; Ítalo · Com muito amor.</p>
-  </footer>
-
-  <!-- MODAL DE PRESENTES -->
-  <div id="giftModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-box card">
-      <button type="button" class="close" id="closeModal" aria-label="Fechar">&times;</button>
-      <h3 id="modalTitle" style="text-align:center;margin-bottom:10px;"></h3>
-      <div id="modalPrice" style="text-align:center;margin-bottom:20px;"></div>
-
-      <div id="giftStepSelection">
-        <form id="giftForm">
-          <label for="giftName">Seu nome</label>
-          <select id="giftName" required>
-            <option value="">Selecione seu nome</option>
-          </select>
-
-          <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px;">
-            <button type="button" id="confirmFullGift" class="btn primary">Quero dar o Item Inteiro</button>
-            <button type="button" id="confirmQuotaGift" class="btn primary" style="background:#d4a373;color:#fff;">Quero dar uma Cota (Pix)</button>
-            <button type="button" id="cancelGift" class="btn light" style="background:#eee;color:#333;">Cancelar</button>
-          </div>
-        </form>
-      </div>
-
-      <div id="giftStepPix" class="hidden" style="text-align:center;">
-        <p style="margin-bottom:10px;font-weight:600;">Copie a chave Pix ou escaneie no seu aplicativo:</p>
-        <div style="background:#f4f4f4;padding:15px;border-radius:8px;word-break:break-all;font-family:monospace;font-size:0.9rem;margin-bottom:15px;">
-          <input type="text" id="pixCode" readonly style="border:none;background:transparent;text-align:center;width:100%;font-size:0.85rem;color:#333;" />
-        </div>
-      </div>
-    </div>
-  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
