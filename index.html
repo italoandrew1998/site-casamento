@@ -106,9 +106,17 @@
               <option value="">Primeiro informe quem convidou você</option>
             </select>
 
-            <label for="rsvpGuests">Acompanhantes</label>
+            <label for="rsvpGuests">Acompanhantes Adultos</label>
             <select id="rsvpGuests">
               <option value="0">Somente eu</option>
+            </select>
+
+            <label for="rsvpChildren">Crianças (de 0 a 3)</label>
+            <select id="rsvpChildren">
+              <option value="0">Nenhuma criança</option>
+              <option value="1">1 criança</option>
+              <option value="2">2 crianças</option>
+              <option value="3">3 crianças</option>
             </select>
 
             <label for="rsvpSource">Quem está preenchendo?</label>
@@ -195,8 +203,10 @@
         <div id="guestsTab" class="tab-content">
           <div class="stats">
             <div><strong id="confirmedCount">0</strong><span>Confirmados</span></div>
+            <div><strong id="adultsCount">0</strong><span>Adultos</span></div>
+            <div><strong id="childrenCount">0</strong><span>Crianças</span></div>
             <div><strong id="declinedCount">0</strong><span>Não irão</span></div>
-            <div><strong id="peopleCount">0</strong><span>Total de pessoas</span></div>
+            <div><strong id="peopleCount">0</strong><span>Total Pessoas</span></div>
           </div>
           <div class="table-wrap">
             <table>
@@ -235,9 +245,17 @@
               <label for="manualPhone">Telefone (opcional)</label>
               <input id="manualPhone" placeholder="(00) 00000-0000">
               
-              <label for="manualGuests">Acompanhantes</label>
+              <label for="manualGuests">Acompanhantes Adultos</label>
               <select id="manualGuests">
                 <option value="0">Somente o convidado</option>
+              </select>
+
+              <label for="manualChildren">Crianças (de 0 a 3)</label>
+              <select id="manualChildren">
+                <option value="0">Nenhuma criança</option>
+                <option value="1">1 criança</option>
+                <option value="2">2 crianças</option>
+                <option value="3">3 crianças</option>
               </select>
               
               <div class="manual-actions" style="margin-top: 15px; display: flex; gap: 10px;">
@@ -290,7 +308,5 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
-  </main>
 </body>
-</html></body>
 </html>
