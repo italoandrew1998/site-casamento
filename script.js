@@ -48,19 +48,20 @@ const gifts = [
 
   // CASA
   { id: 12, image: "tabua de passar.jpg", title: "Tabua de passar", category: "Casa", url: "https://produto.mercadolivre.com.br/MLB-3332613795-tabua-mesa-de-passar-roupa-suprema-extra-grande-tampo-de-aco-_JM", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
-  { id: 13, image: "jogo de cama.jpg", title: "Jogo de cama", category: "Casa, cama tamanho queen", url: "https://shopee.com.br/product/514474285/22397280584", store: "Shopee", price: "Sugestao", acceptsQuota: true },
-  { id: 14, image: "ededrom.jpg", title: "Cobertor", category: "Casa, tamanho queen", url: "https://shopee.com.br/product/451914614/23494815662", store: "Shopee", price: "Sugestao", acceptsQuota: true },
-  { id: 15, image: "jogo de toalhas.jpg", title: "Jogo de toalhas", category: "Casa", url: "https://shopee.com.br/product/398182135/17160354312", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 13, image: "tanquinho.jpg", title: "Tanquinho de lavar roupa", category: "Casa", url: "https://www.mercadolivre.com.br/tanquinho-colormaq-15kg-prateado/p/MLB63616108", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 14, image: "jogo de cama.jpg", title: "Jogo de cama", category: "Casa, cama tamanho queen", url: "https://shopee.com.br/product/514474285/22397280584", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 15, image: "ededrom.jpg", title: "Cobertor", category: "Casa, tamanho queen", url: "https://shopee.com.br/product/451914614/23494815662", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 16, image: "jogo de toalhas.jpg", title: "Jogo de toalhas", category: "Casa", url: "https://shopee.com.br/product/398182135/17160354312", store: "Shopee", price: "Sugestao", acceptsQuota: true },
 
   // PRESENTES ESPECIAIS
-  { id: 16, image: "cadeiras.jpg", title: "Jogo de 8 Cadeiras", category: "Presentes especiais", url: "https://br.shp.ee/2U1wV6Kx", store: "Shopee", price: "Sugestao", acceptsQuota: true },
-  { id: 17, image: "sofa.jpg", title: "Sofa", category: "Presentes especiais", url: "https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
+  { id: 17, image: "cadeiras.jpg", title: "Jogo de 8 Cadeiras", category: "Presentes especiais", url: "https://br.shp.ee/2U1wV6Kx", store: "Shopee", price: "Sugestao", acceptsQuota: true },
+  { id: 18, image: "sofa.jpg", title: "Sofa", category: "Presentes especiais", url: "https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-cama-inbox-compact-150m-tecido-suede-velusoft-cinza/p/MLB23999223", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },
 
   // COTAS E PRESENTES EM DINHEIRO
-  { id: 18, icon: "✈️", title: "Cota para lua de mel", category: "Cotas / Presentes em dinheiro", price: "R$ 500,00", quotaOnly: true },
-  { id: 19, image: "cota para eletrodomestico.jpg", title: "Cota para eletrodomesticos", category: "Cotas / Presentes em dinheiro", price: "R$ 300,00", quotaOnly: true },
-  { id: 20, icon: "🖼️", title: "Cota para decoracao", category: "Cotas / Presentes em dinheiro", price: "R$ 200,00", quotaOnly: true },
-  { id: 21, icon: "🎁", title: "Cota para algum item especial da casa", category: "Cotas / Presentes em dinheiro", price: "R$ 250,00", quotaOnly: true }
+  { id: 19, icon: "✈️", title: "Cota para lua de mel", category: "Cotas / Presentes em dinheiro", price: "R$ 500,00", quotaOnly: true },
+  { id: 20, image: "cota para eletrodomestico.jpg", title: "Cota para eletrodomesticos", category: "Cotas / Presentes em dinheiro", price: "R$ 300,00", quotaOnly: true },
+  { id: 21, icon: "🖼️", title: "Cota para decoracao", category: "Cotas / Presentes em dinheiro", price: "R$ 200,00", quotaOnly: true },
+  { id: 22, icon: "🎁", title: "Cota para algum item especial da casa", category: "Cotas / Presentes em dinheiro", price: "R$ 250,00", quotaOnly: true }
 ];
 
 // 3. UTILITARIOS
@@ -224,7 +225,7 @@ window.selectSide = function selectSide(side) {
   byId("rsvpFormContent")?.classList.remove("hidden");
 };
 
-// 6. CONFIRMACAO DE PRESENCA
+// 6. CONFIRMACAO DE PRESENÇA
 function prepareRsvp(event) {
   event.preventDefault();
   const name = byId("rsvpName")?.value.trim();
@@ -232,27 +233,16 @@ function prepareRsvp(event) {
 
   const answer = event.submitter?.dataset.answer || "sim";
   const companions = answer === "sim" ? Number(byId("rsvpGuests")?.value || 0) : 0;
-  const children = answer === "sim" ? Number(byId("rsvpChildren")?.value || 0) : 0;
   const source = byId("rsvpSource")?.value || "convidado";
 
-  pendingRsvpData = { name, companions, children, answer, source };
+  pendingRsvpData = { name, companions, answer, source };
   setStoredGuestName(name);
 
   byId("rsvpFormContent")?.classList.add("hidden");
   byId("rsvpConfirmScreen")?.classList.remove("hidden");
 
-  let detailsText = "Somente voce.";
-  if (answer === "sim") {
-    const parts = [];
-    if (companions > 0) parts.push(`<b>${companions} acompanhante(s) adulto(s)</b>`);
-    if (children > 0) parts.push(`<b>${children} criança(s)</b>`);
-    if (parts.length > 0) {
-      detailsText = `e mais ${parts.join(" e ")}.`;
-    }
-  }
-
   const text = answer === "sim"
-    ? `Voce esta confirmando presenca para<br><b style="font-size:22px;color:#2c5e3b;">${esc(name)}</b><br>${detailsText}`
+    ? `Voce esta confirmando presença para<br><b style="font-size:22px;color:#2c5e3b;">${esc(name)}</b><br>${companions ? `e mais <b>${companions} acompanhante(s)</b>.` : "Somente voce."}`
     : `Voce esta avisando que<br><b style="font-size:22px;color:#d9534f;">${esc(name)}</b><br>nao podera comparecer.`;
 
   if (byId("rsvpConfirmText")) byId("rsvpConfirmText").innerHTML = text;
@@ -276,12 +266,10 @@ window.confirmRSVP = async function confirmRSVP() {
   const button = byId("rsvpConfirmScreen")?.querySelector(".btn.primary");
   setButtonLoading(button, true);
 
-  const { name, companions, children, answer, source } = pendingRsvpData;
+  const { name, companions, answer, source } = pendingRsvpData;
   const payload = {
     name,
-    people: answer === "sim" ? companions + children + 1 : 0,
-    adults: answer === "sim" ? companions + 1 : 0,
-    children: answer === "sim" ? children : 0,
+    people: answer === "sim" ? companions + 1 : 0,
     status: answer,
     source,
     phone: ""
@@ -690,20 +678,12 @@ function renderGuestAdmin() {
 
   let confirmed = 0;
   let declined = 0;
-  let totalAdults = 0;
-  let totalChildren = 0;
   let totalPeople = 0;
 
   tbody.innerHTML = state.guests.map(guest => {
-    const childrenCount = Number(guest.children) || 0;
-    const adultsCount = Number(guest.adults) || 0;
-    const peopleCount = Number(guest.people) || (adultsCount + childrenCount);
-
     if (guest.status === "sim") {
       confirmed++;
-      totalPeople += peopleCount;
-      totalChildren += childrenCount;
-      totalAdults += adultsCount;
+      totalPeople += Number(guest.people) || 1;
     } else if (guest.status === "nao") {
       declined++;
     }
@@ -711,20 +691,17 @@ function renderGuestAdmin() {
     return `<tr>
       <td>${esc(guest.name || "Convidado")}</td>
       <td>${guest.status === "sim" ? "Vai ao casamento" : guest.status === "nao" ? "Nao vai" : "Pendente"}</td>
-      <td>A: ${adultsCount} | C: ${childrenCount}</td>
+      <td>${guest.people || 1}</td>
       <td>${esc(guest.source || "Convidado")}</td>
       <td><button type="button" class="btn secondary" onclick="deleteGuest('${guest.id}')">Excluir</button></td>
     </tr>`;
   }).join("") || '<tr><td colspan="5" style="text-align:center;">Nenhum convidado respondido ainda.</td></tr>';
 
   if (byId("confirmedCount")) byId("confirmedCount").textContent = confirmed;
-  if (byId("adultsCount")) byId("adultsCount").textContent = totalAdults;
-  if (byId("childrenCount")) byId("childrenCount").textContent = totalChildren;
   if (byId("declinedCount")) byId("declinedCount").textContent = declined;
   if (byId("peopleCount")) byId("peopleCount").textContent = totalPeople;
 }
 
-// Renderiza a guia de pendentes separada em duas tabelas: Noivo e Noiva
 function renderPendingAdmin() {
   const container = byId("pendingTab");
   if (!container) return;
@@ -803,16 +780,13 @@ async function handleManualForm(event, status) {
   const name = byId("manualName")?.value;
   const phone = byId("manualPhone")?.value || "";
   const companions = Number(byId("manualGuests")?.value || 0);
-  const children = Number(byId("manualChildren")?.value || 0);
 
   if (!name) return alert("Selecione um nome.");
 
   const payload = {
     name,
     phone,
-    people: status === "sim" ? companions + children + 1 : 0,
-    adults: status === "sim" ? companions + 1 : 0,
-    children: status === "sim" ? children : 0,
+    people: status === "sim" ? companions + 1 : 0,
     status,
     source: "organizador"
   };
@@ -830,56 +804,6 @@ async function handleManualForm(event, status) {
   }
 }
 
-// Vinculações de Eventos ao Carregar a Página
-document.addEventListener("DOMContentLoaded", () => {
-  loadData();
-
-  byId("rsvpName")?.addEventListener("change", () => {
-    populateCompanionSelect("rsvpName", "rsvpGuests");
-  });
-
-  byId("manualName")?.addEventListener("change", () => {
-    populateCompanionSelect("manualName", "manualGuests");
-  });
-
-  byId("rsvpForm")?.addEventListener("submit", prepareRsvp);
-
-  byId("manualForm")?.addEventListener("submit", event => {
-    handleManualForm(event, "sim");
-  });
-
-  byId("manualDecline")?.addEventListener("click", event => {
-    handleManualForm(event, "nao");
-  });
-
-  byId("giftForm")?.addEventListener("submit", event => {
-    event.preventDefault();
-  });
-
-  byId("confirmFullGift")?.addEventListener("click", handleConfirmFullGift);
-  byId("confirmQuotaGift")?.addEventListener("click", handleConfirmQuotaGift);
-  byId("cancelGift")?.addEventListener("click", closeGift);
-  byId("closeModal")?.addEventListener("click", closeGift);
-
-  byId("giftModal")?.addEventListener("click", event => {
-    if (event.target === byId("giftModal")) {
-      closeGift();
-    }
-  });
-
-  document.querySelectorAll(".admin-tabs .tab").forEach(tab => {
-    tab.addEventListener("click", () => {
-      document.querySelectorAll(".admin-tabs .tab").forEach(t => t.classList.remove("active"));
-      document.querySelectorAll(".tab-content").forEach(c => c.classList.add("hidden"));
-
-      tab.classList.add("active");
-      const targetId = tab.dataset.tab;
-      byId(targetId)?.classList.remove("hidden");
-    });
-  });
-});
-
-// Renderiza a lista pública de confirmados separada em dois grupos: Noiva e Noivo
 function renderPublicConfirmed() {
   const container = byId("publicConfirmedListContainer");
   if (!container) return;
@@ -894,37 +818,89 @@ function renderPublicConfirmed() {
   const brideConfirmed = confirmed.filter(g => getGuestSide(g.name) === "noiva").sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   const groomConfirmed = confirmed.filter(g => getGuestSide(g.name) === "noivo").sort((a, b) => (a.name || "").localeCompare(b.name || ""));
 
-  const renderItems = list => list.map(g => {
-    const adults = Number(g.adults) || 1;
-    const children = Number(g.children) || 0;
-    const total = Number(g.people) || (adults + children);
-    
-    let details = "";
-    if (total > 1) {
-      const parts = [];
-      if (adults > 1) parts.push(`${adults} adultos`);
-      if (children > 0) parts.push(`${children} crianças`);
-      details = ` <span style="font-size: 12px; color: #666;">(${parts.join(", ")})</span>`;
-    }
-
-    return `<li style="background: #fff; padding: 12px; border: 1px solid #eee; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-      <span><strong>${esc(g.name)}</strong>${details}</span>
-      <span style="font-size: 12px; background: #eef5f0; color: #2c5e3b; padding: 4px 8px; border-radius: 4px; font-weight: 500;">Confirmado</span>
-    </li>`;
-  }).join("");
+  const renderItems = list => list.map(g => `
+    <li style="background: #fff; padding: 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.95rem; color: var(--primary); font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+      ✓ ${esc(g.name)}
+    </li>
+  `).join("") || '<li style="grid-column: 1 / -1; color: #888; text-align: center;">Nenhuma presença confirmada neste grupo.</li>';
 
   container.innerHTML = `
     <div style="margin-bottom: 25px;">
-      <h3 style="margin-bottom: 12px; color: #2c5e3b; font-size: 1.1rem;">Convidados da Noiva (${brideConfirmed.length})</h3>
-      <ul style="list-style: none; padding: 0; margin: 0;">
-        ${renderItems(brideConfirmed) || '<p style="color: #888; font-style: italic;">Nenhuma confirmação da noiva ainda.</p>'}
+      <h3 style="margin-bottom: 12px; font-size: 1.2rem; color: var(--primary); text-align: center;">Convidados da Noiva</h3>
+      <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+        ${renderItems(brideConfirmed)}
       </ul>
     </div>
+
     <div>
-      <h3 style="margin-bottom: 12px; color: #2c5e3b; font-size: 1.1rem;">Convidados do Noivo (${groomConfirmed.length})</h3>
-      <ul style="list-style: none; padding: 0; margin: 0;">
-        ${renderItems(groomConfirmed) || '<p style="color: #888; font-style: italic;">Nenhuma confirmação do noivo ainda.</p>'}
+      <h3 style="margin-bottom: 12px; font-size: 1.2rem; color: var(--primary); text-align: center;">Convidados do Noivo</h3>
+      <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+        ${renderItems(groomConfirmed)}
       </ul>
     </div>
   `;
 }
+
+// 9. EVENTOS INICIAIS
+document.addEventListener("DOMContentLoaded", () => {
+  byId("closeModal")?.addEventListener("click", closeGift);
+  byId("cancelGift")?.addEventListener("click", closeGift);
+  byId("confirmFullGift")?.addEventListener("click", handleConfirmFullGift);
+  byId("confirmQuotaGift")?.addEventListener("click", handleConfirmQuotaGift);
+  byId("rsvpForm")?.addEventListener("submit", prepareRsvp);
+  byId("adminLoginBtn")?.addEventListener("click", login);
+  byId("adminPassword")?.addEventListener("keydown", event => {
+    if (event.key === "Enter") login(event);
+  });
+
+  byId("manualForm")?.addEventListener("submit", event => handleManualForm(event, "sim"));
+  byId("manualDecline")?.addEventListener("click", event => handleManualForm(event, "nao"));
+
+  const manualNameSelect = byId("manualName");
+  if (manualNameSelect) {
+    manualNameSelect.addEventListener("change", () => populateCompanionSelect("manualName", "manualGuests"));
+  }
+
+  const rsvpNameSelect = byId("rsvpName");
+  if (rsvpNameSelect) {
+    rsvpNameSelect.addEventListener("change", () => {
+      const name = rsvpNameSelect.value.trim();
+      if (name) setStoredGuestName(name);
+      populateCompanionSelect("rsvpName", "rsvpGuests");
+    });
+  }
+
+  document.querySelectorAll(".admin-tabs .tab").forEach(tabButton => {
+    tabButton.addEventListener("click", () => {
+      const targetId = tabButton.getAttribute("data-tab");
+      if (!targetId) return;
+
+      document.querySelectorAll(".admin-tabs .tab").forEach(btn => btn.classList.remove("active"));
+      tabButton.classList.add("active");
+
+      document.querySelectorAll(".tab-content").forEach(content => content.classList.add("hidden"));
+      byId(targetId)?.classList.remove("hidden");
+    });
+  });
+
+  loadData();
+});
+
+document.addEventListener("click", event => {
+  if (event.target.closest("#adminAuth")) return;
+  const trigger = event.target.closest("a, button, [role='button']");
+  if (!trigger) return;
+
+  const href = trigger.getAttribute("href")?.toLowerCase() || "";
+  const text = trigger.textContent?.toLowerCase().trim() || "";
+
+  if (text.includes("área dos noivos") || href.includes("noivos") || href.includes("admin")) {
+    event.preventDefault();
+    const adminSection = byId("admin");
+    if (adminSection) {
+      adminSection.scrollIntoView({ behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
+  }
+});
