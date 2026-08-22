@@ -1,6 +1,6 @@
 // ============================================================
 // SITE DE CASAMENTO MILENE E ITALO
-// Script completo corrigido (Lista de confirmados protegida por senha)
+// Script completo corrigido (Lista de Confirmados dentro do Painel Admin)
 // ============================================================
 
 // 1. CONFIGURACOES
@@ -171,12 +171,15 @@ async function loadData() {
 
     renderAllSelects();[cite: 1]
     renderGifts();[cite: 1]
-    renderPublicConfirmed();[cite: 1]
 
     if (state.adminUnlocked) {
       renderGuestAdmin();[cite: 1]
       renderPendingAdmin();[cite: 1]
       renderGiftAdmin();[cite: 1]
+      renderPublicConfirmed();[cite: 1]
+    } else {
+      const container = byId("publicConfirmedListContainer");[cite: 1]
+      if (container) container.innerHTML = "";[cite: 1]
     }
   } catch (error) {
     console.error("Falha ao carregar dados:", error);[cite: 1]
@@ -662,7 +665,7 @@ window.login = function login(event) {
     renderGuestAdmin();[cite: 1]
     renderPendingAdmin();[cite: 1]
     renderGiftAdmin();[cite: 1]
-    renderPublicConfirmed(); // Renderiza os confirmados apenas após o login correto[cite: 1]
+    renderPublicConfirmed(); // Renderiza a lista de convidados "04 · ESTARÃO CONOSCO" após login correto[cite: 1]
   } else {
     const errorEl = byId("adminError");[cite: 1]
     if (errorEl) {
@@ -806,17 +809,14 @@ async function handleManualForm(event, status) {
   }
 }
 
+// 8.1 RENDERIZAÇÃO PRIVADA DA SEÇÃO "04 · ESTARÃO CONOSCO"
 function renderPublicConfirmed() {
   const container = byId("publicConfirmedListContainer");[cite: 1]
   if (!container) return;[cite: 1]
 
-  // Bloqueia a renderização pública se a área dos noivos não tiver sido liberada via senha
+  // Se o painel admin não foi desbloqueado por senha, esvazia o contêiner completamente.
   if (!state.adminUnlocked) {
-    container.innerHTML = `
-      <div style="text-align: center; color: #888; padding: 20px;">
-        <em>A lista de convidados confirmados é restrita aos noivos. Ligue-se para conferir no painel administrativo.</em>
-      </div>
-    `;
+    container.innerHTML = "";
     return;
   }
 
@@ -836,21 +836,29 @@ function renderPublicConfirmed() {
     </li>
   `).join("") || '<li style="grid-column: 1 / -1; color: #888; text-align: center;">Nenhuma presença confirmada neste grupo.</li>';[cite: 1]
 
+  // Injeta o cabeçalho "04 · ESTARÃO CONOSCO / Convidados Confirmados" exclusivamente dentro do painel protegido
   container.innerHTML = `
-    <div style="margin-bottom: 25px;">
-      <h3 style="margin-bottom: 12px; font-size: 1.2rem; color: var(--primary); text-align: center;">Convidados da Noiva</h3>
-      <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
-        ${renderItems(brideConfirmed)}
-      </ul>
-    </div>
+    <div style="margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.6); border-radius: 12px; border: 1px solid var(--line);">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <span style="font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; color: #888; font-weight: bold;">04 · ESTARÃO CONOSCO</span>
+        <h2 style="font-size: 1.6rem; color: var(--primary); margin-top: 5px;">Convidados Confirmados</h2>
+      </div>
 
-    <div>
-      <h3 style="margin-bottom: 12px; font-size: 1.2rem; color: var(--primary); text-align: center;">Convidados do Noivo</h3>
-      <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
-        ${renderItems(groomConfirmed)}
-      </ul>
+      <div style="margin-bottom: 25px;">
+        <h3 style="margin-bottom: 12px; font-size: 1.1rem; color: var(--primary); text-align: center;">Convidados da Noiva (${brideConfirmed.length})</h3>
+        <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+          ${renderItems(brideConfirmed)}
+        </ul>
+      </div>
+
+      <div>
+        <h3 style="margin-bottom: 12px; font-size: 1.1rem; color: var(--primary); text-align: center;">Convidados do Noivo (${groomConfirmed.length})</h3>
+        <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+          ${renderItems(groomConfirmed)}
+        </ul>
+      </div>
     </div>
-  `;[cite: 1]
+  `;
 }
 
 // 9. EVENTOS INICIAIS
