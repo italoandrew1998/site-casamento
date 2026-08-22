@@ -1,9 +1,9 @@
 // ============================================================
 // SITE DE CASAMENTO MILENE E ITALO
-// Script completo corrigido (Lista de Confirmados dentro do Painel Admin)
+// Script completo corrigido (com suporte a Crianças e Painel Admin)
 // ============================================================
 
-// 1. CONFIGURACOES
+// 1. CONFIGURAÇÕES
 const SUPABASE_URL = "https://uilegqmbxrtxgauccbpy.supabase.co";[cite: 1]
 const SUPABASE_KEY = "sb_publishable_P5IF22W7EqooeYWhrDKe7w_6J82t5mU";[cite: 1]
 
@@ -49,7 +49,7 @@ const gifts = [
   // CASA
   { id: 12, image: "tabua de passar.jpg", title: "Tabua de passar", category: "Casa", url: "https://produto.mercadolivre.com.br/MLB-3332613795-tabua-mesa-de-passar-roupa-suprema-extra-grande-tampo-de-aco-_JM", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },[cite: 1]
   { id: 13, image: "tanquinho.jpg", title: "Tanquinho de lavar roupa", category: "Casa", url: "https://www.mercadolivre.com.br/tanquinho-colormaq-15kg-prateado/p/MLB63616108", store: "Mercado Livre", price: "Sugestao", acceptsQuota: true },[cite: 1]
-  { id: 14, image: "jogo de cama.jpg", title: "Jogo de cama", category: "Casa, cama tamanho queen", url: "https://shopee.com.br/product/514474285/22397280584", store: "Shopee", price: "Sugestao", acceptsQuota: true },[cite: 1]
+  { id: 14, image: "jogo de cama.jpg", title: "Jogo de cama", category: "Casa, tamanho queen", url: "https://shopee.com.br/product/514474285/22397280584", store: "Shopee", price: "Sugestao", acceptsQuota: true },[cite: 1]
   { id: 15, image: "ededrom.jpg", title: "Cobertor", category: "Casa, tamanho queen", url: "https://shopee.com.br/product/451914614/23494815662", store: "Shopee", price: "Sugestao", acceptsQuota: true },[cite: 1]
   { id: 16, image: "jogo de toalhas.jpg", title: "Jogo de toalhas", category: "Casa", url: "https://shopee.com.br/product/398182135/17160354312", store: "Shopee", price: "Sugestao", acceptsQuota: true },[cite: 1]
 
@@ -65,12 +65,11 @@ const gifts = [
   { id: 23, icon: "🎁", title: "Cota para algum item especial da casa", category: "Cotas / Presentes em dinheiro", price: "R$ 250,00", quotaOnly: true }[cite: 1]
 ];
 
-// 3. UTILITARIOS
+// 3. UTILITÁRIOS
 const byId = id => document.getElementById(id);[cite: 1]
 const normalize = value => String(value || "").trim().toLocaleLowerCase("pt-BR");[cite: 1]
 const claimsFor = id => state.claims.filter(claim => Number(claim.gift_id) === Number(id));[cite: 1]
 const isQuotaClaim = claim => /\s\(Cota\)$/.test(String(claim.name || ""));[cite: 1]
-const cleanClaimName = name => String(name || "Convidado").replace(/\s\(Cota\)$/, "");[cite: 1]
 
 const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({[cite: 1]
   "&": "&amp;",[cite: 1]
@@ -187,7 +186,7 @@ async function loadData() {
   }
 }
 
-// 5. SELETORES E ACOMPANHANTES
+// 5. SELETORES
 function allowedOptions(list, placeholder) {
   if (!list.length) return `<option value="">${esc(placeholder)}</option><option value="" disabled>Todos já responderam!</option>`;[cite: 1]
   return `<option value="">${esc(placeholder)}</option>` + list.map(guest =>
@@ -229,7 +228,7 @@ window.selectSide = function selectSide(side) {
   byId("rsvpFormContent")?.classList.remove("hidden");[cite: 1]
 };
 
-// 6. CONFIRMACAO DE PRESENÇA
+// 6. CONFIRMAÇÃO DE PRESENÇA (COM CRIANÇAS)
 function prepareRsvp(event) {
   event.preventDefault();[cite: 1]
   const name = byId("rsvpName")?.value.trim();[cite: 1]
@@ -237,17 +236,27 @@ function prepareRsvp(event) {
 
   const answer = event.submitter?.dataset.answer || "sim";[cite: 1]
   const companions = answer === "sim" ? Number(byId("rsvpGuests")?.value || 0) : 0;[cite: 1]
+  const kids = answer === "sim" ? Number(byId("rsvpKids")?.value || 0) : 0; // Captura crianças
   const source = byId("rsvpSource")?.value || "convidado";[cite: 1]
 
-  pendingRsvpData = { name, companions, answer, source };[cite: 1]
+  pendingRsvpData = { name, companions, kids, answer, source };
   setStoredGuestName(name);[cite: 1]
 
   byId("rsvpFormContent")?.classList.add("hidden");[cite: 1]
   byId("rsvpConfirmScreen")?.classList.remove("hidden");[cite: 1]
 
-  const text = answer === "sim"
-    ? `Voce esta confirmando presença para<br><b style="font-size:22px;color:#2c5e3b;">${esc(name)}</b><br>${companions ? `e mais <b>${companions} acompanhante(s)</b>.` : "Somente voce."}`[cite: 1]
-    : `Voce esta avisando que<br><b style="font-size:22px;color:#d9534f;">${esc(name)}</b><br>nao podera comparecer.`;[cite: 1]
+  let text = "";
+  if (answer === "sim") {
+    text = `Voce esta confirmando presença para<br><b style="font-size:22px;color:#2c5e3b;">${esc(name)}</b><br>`;
+    text += companions ? `e mais <b>${companions} acompanhante(s) adulto(s)</b>` : "Somente você (adulto)";
+    if (kids > 0) {
+      text += `<br>e <b>${kids} criança(s)</b>.`;
+    } else {
+      text += ".";
+    }
+  } else {
+    text = `Voce esta avisando que<br><b style="font-size:22px;color:#d9534f;">${esc(name)}</b><br>nao podera comparecer.`;[cite: 1]
+  }
 
   if (byId("rsvpConfirmText")) byId("rsvpConfirmText").innerHTML = text;[cite: 1]
 }
@@ -270,10 +279,11 @@ window.confirmRSVP = async function confirmRSVP() {
   const button = byId("rsvpConfirmScreen")?.querySelector(".btn.primary");[cite: 1]
   setButtonLoading(button, true);[cite: 1]
 
-  const { name, companions, answer, source } = pendingRsvpData;[cite: 1]
+  const { name, companions, kids, answer, source } = pendingRsvpData;
   const payload = {
     name,
     people: answer === "sim" ? companions + 1 : 0,[cite: 1]
+    kids: answer === "sim" ? kids : 0, // Salva o campo de crianças no banco
     status: answer,[cite: 1]
     source,[cite: 1]
     phone: ""[cite: 1]
@@ -652,7 +662,7 @@ async function copyPixCode() {
   }
 }
 
-// 8. PAINEL DE ADMINISTRACAO
+// 8. PAINEL DE ADMINISTRAÇÃO
 window.login = function login(event) {
   event?.preventDefault();[cite: 1]
   const password = byId("adminPassword")?.value || "";[cite: 1]
@@ -665,7 +675,7 @@ window.login = function login(event) {
     renderGuestAdmin();[cite: 1]
     renderPendingAdmin();[cite: 1]
     renderGiftAdmin();[cite: 1]
-    renderPublicConfirmed(); // Renderiza a lista de convidados "04 · ESTARÃO CONOSCO" após login correto[cite: 1]
+    renderPublicConfirmed();[cite: 1]
   } else {
     const errorEl = byId("adminError");[cite: 1]
     if (errorEl) {
@@ -684,11 +694,16 @@ function renderGuestAdmin() {
   let confirmed = 0;[cite: 1]
   let declined = 0;[cite: 1]
   let totalPeople = 0;[cite: 1]
+  let totalKids = 0; // Totalizador de crianças
 
   tbody.innerHTML = state.guests.map(guest => {
+    const adults = Number(guest.people) || 1;
+    const kids = Number(guest.kids) || 0;
+
     if (guest.status === "sim") {[cite: 1]
       confirmed++;[cite: 1]
-      totalPeople += Number(guest.people) || 1;[cite: 1]
+      totalPeople += adults;[cite: 1]
+      totalKids += kids;
     } else if (guest.status === "nao") {[cite: 1]
       declined++;[cite: 1]
     }
@@ -696,15 +711,17 @@ function renderGuestAdmin() {
     return `<tr>
       <td>${esc(guest.name || "Convidado")}</td>
       <td>${guest.status === "sim" ? "Vai ao casamento" : guest.status === "nao" ? "Nao vai" : "Pendente"}</td>
-      <td>${guest.people || 1}</td>
+      <td>${adults}</td>
+      <td>${kids}</td>
       <td>${esc(guest.source || "Convidado")}</td>
       <td><button type="button" class="btn secondary" onclick="deleteGuest('${guest.id}')">Excluir</button></td>
-    </tr>`;[cite: 1]
-  }).join("") || '<tr><td colspan="5" style="text-align:center;">Nenhum convidado respondido ainda.</td></tr>';[cite: 1]
+    </tr>`;
+  }).join("") || '<tr><td colspan="6" style="text-align:center;">Nenhum convidado respondido ainda.</td></tr>';
 
   if (byId("confirmedCount")) byId("confirmedCount").textContent = confirmed;[cite: 1]
   if (byId("declinedCount")) byId("declinedCount").textContent = declined;[cite: 1]
   if (byId("peopleCount")) byId("peopleCount").textContent = totalPeople;[cite: 1]
+  if (byId("kidsCount")) byId("kidsCount").textContent = totalKids; // Atualiza contagem visual de crianças
 }
 
 function renderPendingAdmin() {
@@ -785,6 +802,7 @@ async function handleManualForm(event, status) {
   const name = byId("manualName")?.value;[cite: 1]
   const phone = byId("manualPhone")?.value || "";[cite: 1]
   const companions = Number(byId("manualGuests")?.value || 0);[cite: 1]
+  const kids = Number(byId("manualKids")?.value || 0); // Captura crianças no cadastro manual
 
   if (!name) return alert("Selecione um nome.");[cite: 1]
 
@@ -792,6 +810,7 @@ async function handleManualForm(event, status) {
     name,
     phone,
     people: status === "sim" ? companions + 1 : 0,[cite: 1]
+    kids: status === "sim" ? kids : 0,
     status,[cite: 1]
     source: "organizador"[cite: 1]
   };
@@ -814,7 +833,6 @@ function renderPublicConfirmed() {
   const container = byId("publicConfirmedListContainer");[cite: 1]
   if (!container) return;[cite: 1]
 
-  // Se o painel admin não foi desbloqueado por senha, esvazia o contêiner completamente.
   if (!state.adminUnlocked) {
     container.innerHTML = "";
     return;
@@ -830,13 +848,15 @@ function renderPublicConfirmed() {
   const brideConfirmed = confirmed.filter(g => getGuestSide(g.name) === "noiva").sort((a, b) => (a.name || "").localeCompare(b.name || ""));[cite: 1]
   const groomConfirmed = confirmed.filter(g => getGuestSide(g.name) === "noivo").sort((a, b) => (a.name || "").localeCompare(b.name || ""));[cite: 1]
 
-  const renderItems = list => list.map(g => `
-    <li style="background: #fff; padding: 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.95rem; color: var(--primary); font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-      ✓ ${esc(g.name)}
-    </li>
-  `).join("") || '<li style="grid-column: 1 / -1; color: #888; text-align: center;">Nenhuma presença confirmada neste grupo.</li>';[cite: 1]
+  const renderItems = list => list.map(g => {
+    const kidsText = Number(g.kids) > 0 ? ` (+${g.kids} criança(s))` : '';
+    return `
+      <li style="background: #fff; padding: 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 0.95rem; color: var(--primary); font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+        ✓ ${esc(g.name)}${kidsText}
+      </li>
+    `;
+  }).join("") || '<li style="grid-column: 1 / -1; color: #888; text-align: center;">Nenhuma presença confirmada neste grupo.</li>';
 
-  // Injeta o cabeçalho "04 · ESTARÃO CONOSCO / Convidados Confirmados" exclusivamente dentro do painel protegido
   container.innerHTML = `
     <div style="margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.6); border-radius: 12px; border: 1px solid var(--line);">
       <div style="text-align: center; margin-bottom: 20px;">

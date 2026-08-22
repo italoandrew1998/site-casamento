@@ -598,6 +598,17 @@
               <option value="0">Somente eu</option>
             </select>
 
+            <!-- Campo para Crianças (0 a 3) -->
+            <div class="form-group">
+              <label for="rsvpKids">Crianças (de 0 a 3 anos)</label>
+              <select id="rsvpKids" class="form-control">
+                <option value="0">Nenhuma criança</option>
+                <option value="1">1 criança</option>
+                <option value="2">2 crianças</option>
+                <option value="3">3 crianças</option>
+              </select>
+            </div>
+
             <label for="rsvpSource">Quem está preenchendo?</label>
             <select id="rsvpSource">
               <option value="convidado">O próprio convidado</option>
@@ -647,7 +658,7 @@
             <strong>Endereço de Entrega:</strong><br>
             Avenida Major Adolfo Paolielo, 303, Centro<br>
             CEP: 14246-036 — Cajuru - SP<br>
-            <span style="font-size: 0.85rem; color: var(--muted); display: block; margin-top: 5px;">(Referência: É a delegacia)</span>
+            <span style="font-size: 0.85rem; color: var(--muted); display: block; margin-top: 5px;">(Referência: Delegacia de Cajuru)</span>
           </div>
         </div>
       </div>
@@ -738,7 +749,7 @@
       </div>
     </section>
 
-    <!-- 04. LISTA DE CONFIRMADOS (PÚBLICA) - AGORA ESCONDIDA POR PADRÃO -->
+    <!-- 04. LISTA DE CONFIRMADOS (PÚBLICA) - ESCONDIDA POR PADRÃO -->
     <section class="section hidden" id="lista-confirmados">
       <div class="section-title">
         <div class="eyebrow">04 · ESTARÃO CONOSCO</div>
@@ -1008,14 +1019,12 @@
 
         renderAllSelects();
         renderGifts();
-        
-        // renderPublicConfirmed() removido daqui. Só carrega ao acessar área do admin.
 
         if (state.adminUnlocked) {
           renderGuestAdmin();
           renderPendingAdmin();
           renderGiftAdmin();
-          renderPublicConfirmed(); // Renderiza se o admin já estava destravado e recarregou dados
+          renderPublicConfirmed();
         }
       } catch (error) {
         console.error("Falha ao carregar dados do Supabase:", error);
@@ -1082,17 +1091,25 @@
 
       const answer = event.submitter?.dataset.answer || "sim";
       const companions = answer === "sim" ? Number(byId("rsvpGuests")?.value || 0) : 0;
+      const kids = answer === "sim" ? Number(byId("rsvpKids")?.value || 0) : 0;
       const source = byId("rsvpSource")?.value || "convidado";
 
-      pendingRsvpData = { name, companions, answer, source };
+      pendingRsvpData = { name, companions, kids, answer, source };
       setStoredGuestName(name);
 
       byId("rsvpFormContent")?.classList.add("hidden");
       byId("rsvpConfirmScreen")?.classList.remove("hidden");
 
-      const text = answer === "sim"
-        ? `Você está confirmando presença para<br><b style="font-size:22px;color:#2c5e3b;">${esc(name)}</b><br>${companions ? `e mais <b>${companions} acompanhante(s)</b>.` : "Somente você."}`
-        : `Você está avisando que<br><b style="font-size:22px;color:#d9534f;">${esc(name)}</b><br>não poderá comparecer.`;
+      let text = "";
+      if (answer === "sim") {
+        text = `Você está confirmando presença para<br><b style="font-size:22px;color:#2c5e3b;">${esc(name)}</b><br>`;
+        text += companions ? `e mais <b>${companions} acompanhante(s)</b>.` : "Somente você.";
+        if (kids > 0) {
+          text += `<br>Crianças (0 a 3 anos): <b>${kids}</b>`;
+        }
+      } else {
+        text = `Você está avisando que<br><b style="font-size:22px;color:#d9534f;">${esc(name)}</b><br>não poderá comparecer.`;
+      }
 
       if (byId("rsvpConfirmText")) byId("rsvpConfirmText").innerHTML = text;
     }
@@ -1119,10 +1136,11 @@
       const button = byId("rsvpConfirmScreen")?.querySelector(".btn.primary");
       setButtonLoading(button, true);
 
-      const { name, companions, answer, source } = pendingRsvpData;
+      const { name, companions, kids, answer, source } = pendingRsvpData;
       const payload = {
         name,
         people: answer === "sim" ? companions + 1 : 0,
+        kids: answer === "sim" ? kids : 0,
         status: answer,
         source,
         phone: ""
@@ -1388,14 +1406,12 @@
         byId("adminContent")?.classList.remove("hidden");
         byId("adminError")?.classList.add("hidden");
         
-        // Remove a classe oculta da seção de confirmados
+        // Exibe a seção de confirmados
         byId("lista-confirmados")?.classList.remove("hidden");
 
         renderGuestAdmin();
         renderPendingAdmin();
         renderGiftAdmin();
-        
-        // Cria a lista visual agora que foi autorizado
         renderPublicConfirmed();
       } else {
         const errorEl = byId("adminError");
@@ -1425,7 +1441,7 @@
         return `<tr>
           <td>${esc(guest.name || "Convidado")}</td>
           <td>${guest.status === "sim" ? "Vai ao casamento" : guest.status === "nao" ? "Não vai" : "Pendente"}</td>
-          <td>${guest.people || 1}</td>
+          <td>${guest.people || 1} ${guest.kids ? `(+${guest.kids} crianças)` : ''}</td>
           <td>${esc(guest.source || "Convidado")}</td>
           <td><button type="button" class="btn secondary" onclick="deleteGuest('${guest.id}')">Excluir</button></td>
         </tr>`;
@@ -1577,7 +1593,6 @@
 
     // 9. INICIALIZAÇÃO E EVENTOS
     document.addEventListener("DOMContentLoaded", () => {
-      // Atualiza o contador e trava em tempo real a cada segundo
       updateDeadlineUI();
       setInterval(updateDeadlineUI, 1000);
 
