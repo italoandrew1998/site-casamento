@@ -691,21 +691,21 @@ function renderGuestAdmin() {
   const tbody = byId("guestTable");[cite: 1]
   if (!tbody) return;[cite: 1]
 
-  let confirmed = 0;[cite: 1]
-  let declined = 0;[cite: 1]
-  let totalPeople = 0;[cite: 1]
+  let confirmedCount = 0;[cite: 1]
+  let declinedCount = 0;[cite: 1]
+  let totalAdults = 0;
   let totalKids = 0;
 
   tbody.innerHTML = state.guests.map(guest => {
-    const adults = Number(guest.people) || 1;
+    const adults = Number(guest.people) || 0;
     const kids = Number(guest.kids) || 0;
 
     if (guest.status === "sim") {[cite: 1]
-      confirmed++;[cite: 1]
-      totalPeople += adults;[cite: 1]
+      confirmedCount++;[cite: 1]
+      totalAdults += adults;[cite: 1]
       totalKids += kids;
     } else if (guest.status === "nao") {[cite: 1]
-      declined++;[cite: 1]
+      declinedCount++;[cite: 1]
     }
 
     return `<tr>
@@ -718,10 +718,12 @@ function renderGuestAdmin() {
     </tr>`;
   }).join("") || '<tr><td colspan="6" style="text-align:center;">Nenhum convidado respondido ainda.</td></tr>';
 
-  if (byId("confirmedCount")) byId("confirmedCount").textContent = confirmed;[cite: 1]
-  if (byId("declinedCount")) byId("declinedCount").textContent = declined;[cite: 1]
-  if (byId("peopleCount")) byId("peopleCount").textContent = totalPeople;[cite: 1]
+  // Atualizando os contadores no HTML (certifique-se de que os IDs correspondem aos elementos da sua interface)
+  if (byId("confirmedCount")) byId("confirmedCount").textContent = confirmedCount;[cite: 1]
+  if (byId("declinedCount")) byId("declinedCount").textContent = declinedCount;[cite: 1]
+  if (byId("adultsCount")) byId("adultsCount").textContent = totalAdults;
   if (byId("kidsCount")) byId("kidsCount").textContent = totalKids;
+  if (byId("totalPeopleCount")) byId("totalPeopleCount").textContent = totalAdults + totalKids;
 }
 
 function renderPendingAdmin() {
