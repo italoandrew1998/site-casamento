@@ -60,8 +60,9 @@ const gifts = [
   // COTAS E PRESENTES EM DINHEIRO
   { id: 19, icon: "✈️", title: "Cota para lua de mel", category: "Cotas / Presentes em dinheiro", price: "R$ 500,00", quotaOnly: true },
   { id: 20, image: "cota para eletrodomestico.jpg", title: "Cota para eletrodomesticos", category: "Cotas / Presentes em dinheiro", price: "R$ 300,00", quotaOnly: true },
-  { id: 21, icon: "🖼️", title: "Cota para decoracao", category: "Cotas / Presentes em dinheiro", price: "R$ 200,00", quotaOnly: true },
-  { id: 22, icon: "🎁", title: "Cota para algum item especial da casa", category: "Cotas / Presentes em dinheiro", price: "R$ 250,00", quotaOnly: true }
+  { id: 21, image: "cota para enxoval.jpg", title: "Cota para enxoval", category: "Cotas / Presentes em dinheiro", price: "R$ 250,00", quotaOnly: true },
+  { id: 22, icon: "🖼️", title: "Cota para decoracao", category: "Cotas / Presentes em dinheiro", price: "R$ 200,00", quotaOnly: true },
+  { id: 23, icon: "🎁", title: "Cota para algum item especial da casa", category: "Cotas / Presentes em dinheiro", price: "R$ 250,00", quotaOnly: true }
 ];
 
 // 3. UTILITARIOS
