@@ -600,7 +600,7 @@
 
             <!-- Campo para Crianças (0 a 3) -->
             <div class="form-group">
-              <label for="rsvpKids">Crianças (de 0 a 3 anos)</label>
+              <label for="rsvpKids">Crianças</label>
               <select id="rsvpKids" class="form-control">
                 <option value="0">Nenhuma criança</option>
                 <option value="1">1 criança</option>
@@ -736,6 +736,14 @@
               <label for="manualGuests">Acompanhantes</label>
               <select id="manualGuests">
                 <option value="0">Somente o convidado</option>
+              </select>
+
+              <label for="manualKids">Crianças</label>
+              <select id="manualKids">
+                <option value="0">Nenhuma criança</option>
+                <option value="1">1 criança</option>
+                <option value="2">2 crianças</option>
+                <option value="3">3 crianças</option>
               </select>
               
               <div class="manual-actions" style="margin-top: 15px; display: flex; gap: 10px;">
@@ -1078,96 +1086,117 @@
       byId("rsvpFormContent")?.classList.remove("hidden");
     };
 
-    // 6. CONFIRMAÇÃO DE PRESENÇA
+    // 6. CONFIRMAÇÃO DE PRESENÇA (CORRIGIDA)
+    async function saveGuestResponse(data) {
+      return await supabaseClient.from("guests").insert([data]);
+    }
+
     function prepareRsvp(event) {
-      event.preventDefault();
-      if (isDeadlinePassed()) {
-        alert("O prazo para confirmação de presença (07/09/2026 às 23:59) foi encerrado.");
-        return;
-      }
+      event.preventDefault();[cite: 1]
+      const name = byId("rsvpName")?.value.trim();[cite: 1]
+      if (!name) return alert("Por favor, selecione seu nome na lista.");[cite: 1]
 
-      const name = byId("rsvpName")?.value.trim();
-      if (!name) return alert("Por favor, selecione seu nome na lista.");
-
-      const answer = event.submitter?.dataset.answer || "sim";
-      const companions = answer === "sim" ? Number(byId("rsvpGuests")?.value || 0) : 0;
-      const kids = answer === "sim" ? Number(byId("rsvpKids")?.value || 0) : 0;
-      const source = byId("rsvpSource")?.value || "convidado";
+      const answer = event.submitter?.dataset.answer || "sim";[cite: 1]
+      
+      const rawCompanions = parseInt(byId("rsvpGuests")?.value, 10);
+      const companions = answer === "sim" && !isNaN(rawCompanions) ? Math.max(0, rawCompanions) : 0;
+      
+      const rawKids = parseInt(byId("rsvpKids")?.value, 10);
+      const kids = answer === "sim" && !isNaN(rawKids) ? Math.max(0, rawKids) : 0;
+      
+      const source = byId("rsvpSource")?.value || "convidado";[cite: 1]
 
       pendingRsvpData = { name, companions, kids, answer, source };
-      setStoredGuestName(name);
+      setStoredGuestName(name);[cite: 1]
 
-      byId("rsvpFormContent")?.classList.add("hidden");
-      byId("rsvpConfirmScreen")?.classList.remove("hidden");
+      byId("rsvpFormContent")?.classList.add("hidden");[cite: 1]
+      byId("rsvpConfirmScreen")?.classList.remove("hidden");[cite: 1]
 
       let text = "";
       if (answer === "sim") {
         text = `Você está confirmando presença para<br><b style="font-size:22px;color:#2c5e3b;">${esc(name)}</b><br>`;
-        text += companions ? `e mais <b>${companions} acompanhante(s)</b>.` : "Somente você.";
+        text += companions ? `e mais <b>${companions} acompanhante(s) adulto(s)</b>` : "Somente você (adulto)";
         if (kids > 0) {
-          text += `<br>Crianças (0 a 3 anos): <b>${kids}</b>`;
+          text += `<br>e <b>${kids} criança(s)</b>.`;
+        } else {
+          text += ".";
         }
       } else {
-        text = `Você está avisando que<br><b style="font-size:22px;color:#d9534f;">${esc(name)}</b><br>não poderá comparecer.`;
+        text = `Você está avisando que<br><b style="font-size:22px;color:#d9534f;">${esc(name)}</b><br>não poderá comparecer.`;[cite: 1]
       }
 
-      if (byId("rsvpConfirmText")) byId("rsvpConfirmText").innerHTML = text;
+      if (byId("rsvpConfirmText")) byId("rsvpConfirmText").innerHTML = text;[cite: 1]
     }
 
-    window.cancelRSVP = function cancelRSVP() {
-      pendingRsvpData = null;
-      byId("rsvpConfirmScreen")?.classList.add("hidden");
-      byId("rsvpFormContent")?.classList.remove("hidden");
-    };
-
-    async function saveGuestResponse(payload) {
-      const existing = state.guests.find(guest => normalize(guest.name) === normalize(payload.name));
-      if (existing) return supabaseClient.from("guests").update(payload).eq("id", existing.id);
-      return supabaseClient.from("guests").insert([payload]);
-    }
-
-    window.confirmRSVP = async function confirmRSVP() {
-      if (isDeadlinePassed()) {
-        alert("O prazo para confirmação de presença (07/09/2026 às 23:59) foi encerrado.");
-        return;
-      }
+    async function confirmRSVP() {
       if (!pendingRsvpData || isSaving) return;
       isSaving = true;
-      const button = byId("rsvpConfirmScreen")?.querySelector(".btn.primary");
-      setButtonLoading(button, true);
 
-      const { name, companions, kids, answer, source } = pendingRsvpData;
       const payload = {
-        name,
-        people: answer === "sim" ? companions + 1 : 0,
-        kids: answer === "sim" ? kids : 0,
-        status: answer,
-        source,
-        phone: ""
+        name: pendingRsvpData.name,
+        people: pendingRsvpData.answer === "sim" ? pendingRsvpData.companions + 1 : 0,
+        kids: pendingRsvpData.answer === "sim" ? pendingRsvpData.kids : 0,
+        status: pendingRsvpData.answer,
+        source: pendingRsvpData.source
       };
 
       try {
         const { error } = await saveGuestResponse(payload);
         if (error) throw error;
 
+        byId("rsvpConfirmScreen")?.classList.add("hidden");
+        showMessage("rsvpMessage", pendingRsvpData.answer === "sim" ? "Sua presença foi confirmada com sucesso! Muito obrigado!" : "Agradecemos por nos avisar. Sentiremos sua falta!", "success");
         pendingRsvpData = null;
         await loadData();
-        byId("rsvpConfirmScreen")?.classList.add("hidden");
-        showMessage(
-          "rsvpMessage",
-          answer === "sim"
-            ? `<b>Presença confirmada!</b><br>Obrigado, ${esc(name)}. Esperamos você lá!`
-            : `<b>Sentiremos sua falta!</b><br>Obrigado por nos avisar, ${esc(name)}.`
-        );
-        setTimeout(() => byId("presentes")?.scrollIntoView({ behavior: "smooth" }), 1200);
       } catch (error) {
-        console.error(error);
-        alert("Erro ao salvar a confirmação. Tente novamente.");
+        console.error("Erro ao salvar confirmação:", error);
+        alert("Não foi possível salvar sua resposta. Tente novamente.");
       } finally {
         isSaving = false;
-        setButtonLoading(button, false);
       }
-    };
+    }
+
+    function cancelRSVP() {
+      pendingRsvpData = null;
+      byId("rsvpConfirmScreen")?.classList.add("hidden");
+      byId("rsvpFormContent")?.classList.remove("hidden");
+    }
+
+    // CADASTRO MANUAL (CORRIGIDO)
+    async function handleManualForm(event, status) {
+      event?.preventDefault();[cite: 1]
+      const name = byId("manualName")?.value;[cite: 1]
+      const phone = byId("manualPhone")?.value || "";[cite: 1]
+      
+      const rawCompanions = parseInt(byId("manualGuests")?.value, 10);
+      const companions = !isNaN(rawCompanions) ? Math.max(0, rawCompanions) : 0;
+
+      const rawKids = parseInt(byId("manualKids")?.value, 10);
+      const kids = !isNaN(rawKids) ? Math.max(0, rawKids) : 0;
+
+      if (!name) return alert("Selecione um nome.");[cite: 1]
+
+      const payload = {
+        name,
+        phone,
+        people: status === "sim" ? companions + 1 : 0,[cite: 1]
+        kids: status === "sim" ? kids : 0,
+        status,[cite: 1]
+        source: "organizador"[cite: 1]
+      };
+
+      try {
+        const { error } = await saveGuestResponse(payload);[cite: 1]
+        if (error) throw error;[cite: 1]
+
+        alert(status === "sim" ? "Presença registrada com sucesso!" : "Ausência registrada com sucesso!");[cite: 1]
+        byId("manualForm")?.reset();[cite: 1]
+        await loadData();[cite: 1]
+      } catch (error) {
+        console.error(error);[cite: 1]
+        alert("Erro ao salvar manualmente: " + (error.message || "Verifique o console do navegador."));
+      }
+    }
 
     // 7. PRESENTES E INTERFACE
     function renderGifts() {
@@ -1524,35 +1553,6 @@
       if (error) alert("Erro ao remover presente.");
       else await loadData();
     };
-
-    async function handleManualForm(event, status) {
-      event?.preventDefault();
-      const name = byId("manualName")?.value;
-      const phone = byId("manualPhone")?.value || "";
-      const companions = Number(byId("manualGuests")?.value || 0);
-
-      if (!name) return alert("Selecione um nome.");
-
-      const payload = {
-        name,
-        phone,
-        people: status === "sim" ? companions + 1 : 0,
-        status,
-        source: "organizador"
-      };
-
-      try {
-        const { error } = await saveGuestResponse(payload);
-        if (error) throw error;
-
-        alert(status === "sim" ? "Presença registrada com sucesso!" : "Ausência registrada com sucesso!");
-        byId("manualForm")?.reset();
-        await loadData();
-      } catch (error) {
-        console.error(error);
-        alert("Erro ao salvar manualmente.");
-      }
-    }
 
     function renderPublicConfirmed() {
       const container = byId("publicConfirmedListContainer");

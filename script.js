@@ -1,6 +1,6 @@
 // ============================================================
 // SITE DE CASAMENTO MILENE E ITALO
-// Script completo corrigido (com suporte a Crianças e Painel Admin)
+// Versão Final - Script Integrado
 // ============================================================
 
 // 1. CONFIGURAÇÕES
@@ -228,7 +228,7 @@ window.selectSide = function selectSide(side) {
   byId("rsvpFormContent")?.classList.remove("hidden");[cite: 1]
 };
 
-// 6. CONFIRMAÇÃO DE PRESENÇA (COM CRIANÇAS)
+// 6. CONFIRMAÇÃO DE PRESENÇA
 function prepareRsvp(event) {
   event.preventDefault();[cite: 1]
   const name = byId("rsvpName")?.value.trim();[cite: 1]
@@ -236,7 +236,7 @@ function prepareRsvp(event) {
 
   const answer = event.submitter?.dataset.answer || "sim";[cite: 1]
   const companions = answer === "sim" ? Number(byId("rsvpGuests")?.value || 0) : 0;[cite: 1]
-  const kids = answer === "sim" ? Number(byId("rsvpKids")?.value || 0) : 0; // Captura crianças
+  const kids = answer === "sim" ? Number(byId("rsvpKids")?.value || 0) : 0;
   const source = byId("rsvpSource")?.value || "convidado";[cite: 1]
 
   pendingRsvpData = { name, companions, kids, answer, source };
@@ -283,7 +283,7 @@ window.confirmRSVP = async function confirmRSVP() {
   const payload = {
     name,
     people: answer === "sim" ? companions + 1 : 0,[cite: 1]
-    kids: answer === "sim" ? kids : 0, // Salva o campo de crianças no banco
+    kids: answer === "sim" ? kids : 0,
     status: answer,[cite: 1]
     source,[cite: 1]
     phone: ""[cite: 1]
@@ -694,7 +694,7 @@ function renderGuestAdmin() {
   let confirmed = 0;[cite: 1]
   let declined = 0;[cite: 1]
   let totalPeople = 0;[cite: 1]
-  let totalKids = 0; // Totalizador de crianças
+  let totalKids = 0;
 
   tbody.innerHTML = state.guests.map(guest => {
     const adults = Number(guest.people) || 1;
@@ -721,7 +721,7 @@ function renderGuestAdmin() {
   if (byId("confirmedCount")) byId("confirmedCount").textContent = confirmed;[cite: 1]
   if (byId("declinedCount")) byId("declinedCount").textContent = declined;[cite: 1]
   if (byId("peopleCount")) byId("peopleCount").textContent = totalPeople;[cite: 1]
-  if (byId("kidsCount")) byId("kidsCount").textContent = totalKids; // Atualiza contagem visual de crianças
+  if (byId("kidsCount")) byId("kidsCount").textContent = totalKids;
 }
 
 function renderPendingAdmin() {
@@ -802,7 +802,7 @@ async function handleManualForm(event, status) {
   const name = byId("manualName")?.value;[cite: 1]
   const phone = byId("manualPhone")?.value || "";[cite: 1]
   const companions = Number(byId("manualGuests")?.value || 0);[cite: 1]
-  const kids = Number(byId("manualKids")?.value || 0); // Captura crianças no cadastro manual
+  const kids = Number(byId("manualKids")?.value || 0);
 
   if (!name) return alert("Selecione um nome.");[cite: 1]
 
@@ -828,7 +828,7 @@ async function handleManualForm(event, status) {
   }
 }
 
-// 8.1 RENDERIZAÇÃO PRIVADA DA SEÇÃO "04 · ESTARÃO CONOSCO"
+// 8.1 RENDERIZAÇÃO PRIVADA DA SEÇÃO DE CONFIRMADOS
 function renderPublicConfirmed() {
   const container = byId("publicConfirmedListContainer");[cite: 1]
   if (!container) return;[cite: 1]
