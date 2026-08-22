@@ -1,6 +1,6 @@
 // ============================================================
 // SITE DE CASAMENTO MILENE E ITALO
-// Script completo atualizado com as novas solicitações
+// Script completo corrigido
 // ============================================================
 
 // 1. CONFIGURACOES
