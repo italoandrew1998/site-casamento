@@ -690,21 +690,39 @@
           <button class="tab" data-tab="addTab">Registrar pelo convidado</button>
         </div>
 
-        <div id="guestsTab" class="tab-content">
-          <div class="stats">
-            <div><strong id="confirmedCount">0</strong><span>Confirmados</span></div>
-            <div><strong id="declinedCount">0</strong><span>Não irão</span></div>
-            <div><strong id="peopleCount">0</strong><span>Total de pessoas</span></div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Convidado</th><th>Resposta</th><th>Pessoas</th><th>Confirmado por</th><th>Ação</th></tr>
-              </thead>
-              <tbody id="guestTable"></tbody>
-            </table>
-          </div>
-        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px;">
+  
+  <!-- Confirmados -->
+  <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <div id="confirmedCount" style="font-size: 2rem; font-weight: bold; color: #2c5e3b;">0</div>
+    <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Confirmados</div>
+  </div>
+
+  <!-- Adultos -->
+  <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <div id="adultsCount" style="font-size: 2rem; font-weight: bold; color: #2c5e3b;">0</div>
+    <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Adultos</div>
+  </div>
+
+  <!-- Crianças -->
+  <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <div id="kidsCount" style="font-size: 2rem; font-weight: bold; color: #2c5e3b;">0</div>
+    <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Crianças</div>
+  </div>
+
+  <!-- Não irão -->
+  <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <div id="declinedCount" style="font-size: 2rem; font-weight: bold; color: #d9534f;">0</div>
+    <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Não irão</div>
+  </div>
+
+  <!-- Total de Pessoas -->
+  <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <div id="totalPeopleCount" style="font-size: 2rem; font-weight: bold; color: #2c5e3b;">0</div>
+    <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Total de Pessoas</div>
+  </div>
+
+</div>
 
         <!-- ABA DE PENDENTES -->
         <div id="pendingTab" class="tab-content hidden"></div>
