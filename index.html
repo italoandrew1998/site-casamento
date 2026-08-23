@@ -14,13 +14,13 @@
     :root {
       --bg: #faf7f2;
       --paper: #fffdf9;
-      --ink: #2b2622;        /* Ajustado para um tom mais escuro, garantindo contraste ideal */
-      --muted: #5c544d;      /* Ajustado para maior legibilidade em textos secundários */
-      --accent: #875c43;     /* Ajustado tom para contraste adequado */
-      --dark: #4e382b;       /* Ajustado para títulos e elementos de destaque */
-      --line: #d8ccc0;       /* Linhas um pouco mais definidas */
+      --ink: #2b2622;        
+      --muted: #5c544d;      
+      --accent: #875c43;     
+      --dark: #4e382b;       
+      --line: #d8ccc0;       
       --soft: #f0e8df;
-      --ok: #385931;         /* Verde com contraste forte para mensagens de sucesso */
+      --ok: #385931;         
       --radius: 12px;
     }
 
@@ -125,10 +125,10 @@
       margin-top: 30px;
     }
 
-    /* BOTÕES */
+    /* BOTÕES COM TOM ROSADO SUAVE */
     .btn {
       border: 0;
-      border-radius: 4px;
+      border-radius: 8px;
       min-height: 46px;
       padding: 0 22px;
       font: 600 11px 'Montserrat', sans-serif;
@@ -147,12 +147,13 @@
     }
 
     .btn.primary {
-      background: var(--dark);
-      color: #fff;
+      background: #f8bbd0; /* Tom rosado suave */
+      color: #ad1457;     /* Texto em tom harmônico de rosa escuro */
+      font-weight: bold;
     }
 
     .btn.primary:hover:not(:disabled) {
-      background: #35261d;
+      background: #f48fb1; /* Tom ligeiramente mais forte no hover */
     }
 
     .btn.light {
@@ -516,7 +517,7 @@
   <section class="section invitation-info" aria-labelledby="convite-title" style="text-align:center;background:#faf8f5;padding:40px 20px;">
     <div class="section-title">
       <p style="font-style:italic;font-size:1.1rem;color:var(--muted);max-width:600px;margin:0 auto 15px;">
-        “Deus escreveu nossa história, e celebraremos o início de um novo capítulo.”
+        “Deus escreveu nossa história, e celebraremos o início de um novo capítulo.”[cite: 4]
       </p>
 
       <div class="eyebrow" style="color: var(--dark);">COM A BÊNÇÃO DE DEUS E DE SEUS PAIS</div>
@@ -826,7 +827,7 @@
 
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px;">
             <button type="button" id="confirmFullGift" class="btn primary">Quero dar o Item Inteiro</button>
-            <button type="button" id="confirmQuotaGift" class="btn primary" style="background:#8c6239;color:#fff;">Quero dar uma Cota (Pix)</button>
+            <button type="button" id="confirmQuotaGift" class="btn primary">Quero dar uma Cota (Pix)</button>
             <button type="button" id="cancelGift" class="btn light" style="background:#e0d4c8;color:#2b2622;">Cancelar</button>
           </div>
         </form>
