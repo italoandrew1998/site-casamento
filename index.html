@@ -692,41 +692,54 @@
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px;">
   
-  <!-- Confirmados -->
-  <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-    <div id="confirmedCount" style="font-size: 2rem; font-weight: bold; color: #2c5e3b;">0</div>
-    <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Confirmados</div>
-  </div>
+          <!-- Confirmados -->
+          <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div id="confirmedCount" style="font-size: 2rem; font-weight: bold; color: #2c5e3b;">0</div>
+            <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Confirmados</div>
+          </div>
 
-  <!-- Adultos -->
-  <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-    <div id="adultsCount" style="font-size: 2rem; font-weight: bold; color: #2c5e3b;">0</div>
-    <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Adultos</div>
-  </div>
+          <!-- Adultos -->
+          <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div id="adultsCount" style="font-size: 2rem; font-weight: bold; color: #2c5e3b;">0</div>
+            <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Adultos</div>
+          </div>
 
-  <!-- Crianças -->
-  <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-    <div id="kidsCount" style="font-size: 2rem; font-weight: bold; color: #2c5e3b;">0</div>
-    <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Crianças</div>
-  </div>
+          <!-- Crianças -->
+          <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div id="kidsCount" style="font-size: 2rem; font-weight: bold; color: #2c5e3b;">0</div>
+            <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Crianças</div>
+          </div>
 
-  <!-- Não irão -->
-  <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-    <div id="declinedCount" style="font-size: 2rem; font-weight: bold; color: #d9534f;">0</div>
-    <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Não irão</div>
-  </div>
+          <!-- Não irão -->
+          <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div id="declinedCount" style="font-size: 2rem; font-weight: bold; color: #d9534f;">0</div>
+            <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Não irão</div>
+          </div>
 
-  <!-- Total de Pessoas -->
-  <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-    <div id="totalPeopleCount" style="font-size: 2rem; font-weight: bold; color: #2c5e3b;">0</div>
-    <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Total de Pessoas</div>
-  </div>
+          <!-- Total de Pessoas -->
+          <div style="background: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div id="totalPeopleCount" style="font-size: 2rem; font-weight: bold; color: #2c5e3b;">0</div>
+            <div style="font-size: 0.85rem; color: #666; margin-top: 5px; text-transform: uppercase;">Total de Pessoas</div>
+          </div>
 
-</div>
+        </div>
+
+        <!-- ABA DE CONVIDADOS (TABELA) -->
+        <div id="guestsTab" class="tab-content">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Convidado</th><th>Status</th><th>Acompanhantes</th><th>Origem</th><th>Ação</th></tr>
+              </thead>
+              <tbody id="guestTable"></tbody>
+            </table>
+          </div>
+        </div>
 
         <!-- ABA DE PENDENTES -->
         <div id="pendingTab" class="tab-content hidden"></div>
 
+        <!-- ABA DE PRESENTES ESCOLHIDOS -->
         <div id="giftsTab" class="tab-content hidden">
           <div class="table-wrap">
             <table>
@@ -738,6 +751,7 @@
           </div>
         </div>
 
+        <!-- ABA DE REGISTRO MANUAL -->
         <div id="addTab" class="tab-content hidden">
           <div class="manual-box" style="background: var(--paper); padding: 25px; border-radius: var(--radius); border: 1px solid var(--line);">
             <h3>Registrar confirmação manualmente</h3>
@@ -1111,7 +1125,7 @@
     function prepareRsvp(event) {
       event.preventDefault();
       const rsvpEl = byId("rsvpName");
-const name = rsvpEl ? rsvpEl.value.trim() : "";
+      const name = rsvpEl ? rsvpEl.value.trim() : "";
       if (!name) return alert("Por favor, selecione seu nome na lista.");
 
       const answer = event.submitter?.dataset.answer || "sim";
@@ -1473,13 +1487,20 @@ const name = rsvpEl ? rsvpEl.value.trim() : "";
       if (!tbody) return;
 
       let confirmed = 0;
+      let adults = 0;
+      let kidsCount = 0;
       let declined = 0;
       let totalPeople = 0;
 
       tbody.innerHTML = state.guests.map(guest => {
+        const guestPeople = Number(guest.people) || 1;
+        const guestKids = Number(guest.kids) || 0;
+
         if (guest.status === "sim") {
           confirmed++;
-          totalPeople += Number(guest.people) || 1;
+          adults += guestPeople;
+          kidsCount += guestKids;
+          totalPeople += (guestPeople + guestKids);
         } else if (guest.status === "nao") {
           declined++;
         }
@@ -1487,15 +1508,17 @@ const name = rsvpEl ? rsvpEl.value.trim() : "";
         return `<tr>
           <td>${esc(guest.name || "Convidado")}</td>
           <td>${guest.status === "sim" ? "Vai ao casamento" : guest.status === "nao" ? "Não vai" : "Pendente"}</td>
-          <td>${guest.people || 1} ${guest.kids ? `(+${guest.kids} crianças)` : ''}</td>
+          <td>${guestPeople} adulto(s)${guestKids ? ` + ${guestKids} criança(s)` : ''}</td>
           <td>${esc(guest.source || "Convidado")}</td>
           <td><button type="button" class="btn secondary" onclick="deleteGuest('${guest.id}')">Excluir</button></td>
         </tr>`;
       }).join("") || '<tr><td colspan="5" style="text-align:center;">Nenhum convidado respondido ainda.</td></tr>';
 
       if (byId("confirmedCount")) byId("confirmedCount").textContent = confirmed;
+      if (byId("adultsCount")) byId("adultsCount").textContent = adults;
+      if (byId("kidsCount")) byId("kidsCount").textContent = kidsCount;
       if (byId("declinedCount")) byId("declinedCount").textContent = declined;
-      if (byId("peopleCount")) byId("peopleCount").textContent = totalPeople;
+      if (byId("totalPeopleCount")) byId("totalPeopleCount").textContent = totalPeople;
     }
 
     function renderPendingAdmin() {
