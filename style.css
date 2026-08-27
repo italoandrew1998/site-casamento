@@ -42,7 +42,7 @@ a{
 nav{ 
   width: min(1120px, calc(100% - 40px)); 
   margin: auto; 
-  padding: 28px 0; 
+  padding: 14px 0; 
   display: flex; 
   justify-content: space-between; 
   align-items: center; 
@@ -151,7 +151,7 @@ h1{
 .section{ 
   width: min(1080px, calc(100% - 40px)); 
   margin: auto; 
-  padding: 85px 0; 
+  padding: 40px 0; 
 } 
 
 .section-title{ 
